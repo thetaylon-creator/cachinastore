@@ -5,305 +5,397 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CachinaStore — Tienda de Skins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-0:#0a0b14;
-    --bg-1:#12131f;
-    --bg-2:#1a1c2e;
-    --line:#2a2d45;
-    --text-hi:#f2f1fb;
-    --text-lo:#9497b8;
-    --acid:#c6ff3d;
-    --violet:#8b5cf6;
-    --pink:#ff4d8d;
-    --gold:#ffb020;
+    --bg-0:#07080f;
+    --bg-1:#0d0f1a;
+    --bg-2:#141726;
+    --line:#232742;
+    --text-hi:#eef0fb;
+    --text-lo:#7d84ab;
 
-    --r-common:#7f8c9a;
-    --r-rare:#4da3ff;
-    --r-epic:#a259ff;
+    --cyan:#2fe6d9;
+    --magenta:#ff2e88;
+
+    --r-common:#7d84ab;
+    --r-rare:#4d9dff;
+    --r-epic:#b25bff;
     --r-legend:#ff9c1a;
+
+    --font-display:'Chakra Petch',system-ui,sans-serif;
+    --font-body:'Inter',system-ui,sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
-    background:var(--bg-0);
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -10%, #1a1440 0%, #0d0a26 35%, #07061a 60%, #050414 100%);
     color:var(--text-hi);
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    font-family:var(--font-body);
     min-height:100vh;
+    overflow-x:hidden;
   }
 
+  /* Rayos de luz diagonales, tipo vitrina de battle royale */
   body::before{
     content:"";
     position:fixed;inset:0;
     background:
-      radial-gradient(circle at 15% 10%, rgba(139,92,246,0.16), transparent 40%),
-      radial-gradient(circle at 85% 90%, rgba(198,255,61,0.10), transparent 45%),
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 14px);
+      repeating-linear-gradient(
+        70deg,
+        rgba(179,140,255,0.05) 0px,
+        rgba(179,140,255,0.05) 2px,
+        transparent 2px,
+        transparent 70px
+      ),
+      repeating-linear-gradient(
+        70deg,
+        rgba(47,230,217,0.045) 0px,
+        rgba(47,230,217,0.045) 3px,
+        transparent 3px,
+        transparent 140px
+      );
+    pointer-events:none;
+    z-index:0;
+    animation:rays-drift 26s linear infinite;
+  }
+  @keyframes rays-drift{
+    0%{background-position:0 0, 0 0;}
+    100%{background-position:600px 0, -500px 0;}
+  }
+
+  /* Nebulosa de color + estrellas */
+  body::after{
+    content:"";
+    position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 15%, rgba(255,46,136,0.16), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 85% 20%, rgba(47,230,217,0.14), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(120,60,220,0.18), transparent 65%),
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,0.55), transparent),
+      radial-gradient(1.5px 1.5px at 70% 15%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1.5px 1.5px at 90% 60%, rgba(255,255,255,0.35), transparent),
+      radial-gradient(1px 1px at 60% 40%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1.5px 1.5px at 10% 80%, rgba(255,255,255,0.4), transparent);
     pointer-events:none;
     z-index:0;
   }
 
+  header, .hero, .reset-bar, .filters, .shop, footer, .modal-overlay{
+    position:relative;z-index:1;
+  }
+
+  ::selection{background:var(--cyan);color:#07080f;}
+
   header{
     position:sticky;top:0;z-index:50;
-    background:rgba(10,11,20,0.85);
-    backdrop-filter:blur(10px);
+    background:rgba(7,8,15,0.88);
+    backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
   }
   .nav{
-    max-width:1200px;margin:0 auto;
+    max-width:1240px;margin:0 auto;
     display:flex;align-items:center;justify-content:space-between;
-    padding:16px 24px;
+    padding:14px 24px;
   }
   .logo{
-    display:flex;align-items:center;gap:10px;
-    font-weight:900;font-size:1.3rem;letter-spacing:0.5px;
+    display:flex;align-items:center;gap:11px;
+    font-family:var(--font-display);
+    font-weight:700;font-size:1.25rem;letter-spacing:0.5px;
     text-transform:uppercase;
   }
-  .logo-mark{
-    width:34px;height:34px;
-    background:linear-gradient(135deg,var(--violet),var(--pink));
-    clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display:flex;align-items:center;justify-content:center;
-    font-size:1rem;
-  }
-  /* Cuando reemplaces el ícono por tu logo real (imagen), usa esta clase:
-     <img src="/img/logo.png" class="logo-img"> en vez del <span class="logo-mark">
-  */
   .logo-img{
-    width:38px;height:38px;object-fit:cover;
-    border-radius:9px;
-    box-shadow:0 0 0 1px var(--line), 0 4px 14px rgba(139,92,246,0.35);
+    width:36px;height:36px;object-fit:cover;
+    border-radius:8px;
+    box-shadow:0 0 0 1px var(--line), 0 0 18px rgba(47,230,217,0.25);
   }
-  .nav-links{display:flex;gap:28px;font-size:0.9rem;color:var(--text-lo);}
+  .nav-links{display:flex;gap:30px;font-size:0.88rem;color:var(--text-lo);font-weight:500;}
   .nav-links a{color:inherit;text-decoration:none;transition:color .2s;}
-  .nav-links a:hover{color:var(--acid);}
-  .nav-cta{
-    background:var(--acid);color:#0a0b14;
-    padding:9px 18px;font-weight:700;font-size:0.85rem;
-    border:none;cursor:pointer;
-    clip-path:polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  .nav-links a:hover{color:var(--cyan);}
+
+  .nav-actions{display:flex;align-items:center;gap:12px;}
+  .nav-account{
+    background:transparent;color:var(--text-hi);
+    border:1px solid var(--line);padding:9px 18px;
+    font-weight:600;font-size:0.84rem;cursor:pointer;
+    font-family:var(--font-body);
+    transition:.2s;
   }
+  .nav-account:hover{border-color:var(--cyan);color:var(--cyan);}
+  .nav-cta{
+    background:var(--cyan);color:#07080f;
+    padding:10px 20px;font-weight:700;font-size:0.84rem;
+    border:none;cursor:pointer;font-family:var(--font-body);
+    clip-path:polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    transition:filter .15s;
+  }
+  .nav-cta:hover{filter:brightness(1.12);}
+
+  .user-pill{
+    display:flex;align-items:center;gap:10px;
+    font-size:0.84rem;color:var(--text-lo);
+    font-family:var(--font-mono);
+  }
+  .user-pill strong{color:var(--cyan);font-weight:700;}
+  .user-pill button{
+    background:transparent;border:1px solid var(--line);color:var(--text-lo);
+    padding:6px 12px;font-size:0.76rem;cursor:pointer;font-weight:600;
+    font-family:var(--font-body);
+  }
+  .user-pill button:hover{border-color:var(--magenta);color:var(--magenta);}
 
   .hero{
     position:relative;z-index:1;
-    max-width:1200px;margin:0 auto;
-    padding:80px 24px 60px;
-    display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;
+    max-width:1240px;margin:0 auto;
+    padding:90px 24px 50px;
+    display:grid;grid-template-columns:1.05fr 0.95fr;gap:50px;align-items:center;
   }
   .eyebrow{
-    display:inline-flex;align-items:center;gap:8px;
-    color:var(--acid);font-size:0.78rem;font-weight:700;
-    letter-spacing:2px;text-transform:uppercase;
-    margin-bottom:18px;
+    display:inline-flex;align-items:center;gap:9px;
+    color:var(--cyan);font-size:0.76rem;font-weight:700;
+    letter-spacing:2.5px;text-transform:uppercase;
+    margin-bottom:20px;font-family:var(--font-mono);
   }
-  .eyebrow::before{content:"";width:8px;height:8px;background:var(--acid);border-radius:50%;box-shadow:0 0 12px var(--acid);}
+  .eyebrow::before{content:"";width:7px;height:7px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
   h1{
-    font-size:clamp(2.2rem,5vw,3.6rem);
-    line-height:1.02;font-weight:900;
-    letter-spacing:-1px;
-    margin-bottom:20px;
+    font-family:var(--font-display);
+    font-size:clamp(2.3rem,4.8vw,3.7rem);
+    line-height:1.03;font-weight:700;
+    letter-spacing:-0.5px;
+    margin-bottom:22px;
   }
   h1 span{
-    background:linear-gradient(90deg,var(--acid),var(--violet));
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .hero p{color:var(--text-lo);font-size:1.05rem;max-width:460px;margin-bottom:28px;line-height:1.6;}
+  .hero p{color:var(--text-lo);font-size:1.02rem;max-width:460px;margin-bottom:30px;line-height:1.65;}
   .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
   .btn-primary{
-    background:var(--acid);color:#0a0b14;font-weight:800;
+    background:var(--cyan);color:#07080f;font-weight:700;
     padding:14px 28px;border:none;cursor:pointer;font-size:0.95rem;
+    font-family:var(--font-body);
     clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-    transition:transform .15s;
+    transition:transform .15s, filter .15s;
   }
-  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.1);}
   .btn-ghost{
     background:transparent;color:var(--text-hi);
     border:1px solid var(--line);padding:14px 26px;
     font-weight:600;font-size:0.95rem;cursor:pointer;
+    font-family:var(--font-body);
   }
   .btn-ghost:hover{border-color:var(--text-lo);}
 
   .hero-visual{
-    position:relative;height:340px;
+    position:relative;height:360px;
     display:flex;align-items:center;justify-content:center;
   }
-  .hero-card{
-    width:220px;height:300px;
-    background:linear-gradient(160deg,var(--bg-2),var(--bg-1));
-    border:1px solid var(--r-legend);
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  .crate{
+    width:210px;height:290px;
+    background:linear-gradient(165deg,var(--bg-2),var(--bg-1));
+    border:1px solid var(--crate-color, var(--line));
+    clip-path:polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
     position:absolute;
-    box-shadow:0 0 60px rgba(255,156,26,0.25);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:10px;
+    gap:12px;
   }
-  .hero-card:nth-child(1){transform:rotate(-8deg) translateX(-70px);opacity:0.5;filter:blur(0.5px);z-index:1;}
-  .hero-card:nth-child(2){transform:rotate(6deg) translateX(60px);opacity:0.6;z-index:1;}
-  .hero-card:nth-child(3){z-index:2;}
-  .hero-card-icon{
-    width:90px;height:90px;
-    background:linear-gradient(135deg,var(--violet),var(--pink));
+  .crate-back-1{--crate-color:var(--r-rare); transform:rotate(-9deg) translate(-85px, 10px); opacity:.45; filter:blur(0.5px); z-index:1;}
+  .crate-back-2{--crate-color:var(--r-epic); transform:rotate(7deg) translate(75px, -6px); opacity:.55; z-index:1;}
+  .crate-front{--crate-color:var(--r-legend); z-index:2; box-shadow:0 0 70px rgba(255,156,26,0.22);}
+  .crate-icon{
+    width:86px;height:86px;
+    background:linear-gradient(135deg,var(--cyan),var(--magenta));
     clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
   }
-  .hero-card-name{font-weight:800;font-size:0.95rem;}
-  .hero-card-tag{font-size:0.7rem;color:var(--r-legend);letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+  .crate-name{font-family:var(--font-display);font-weight:600;font-size:0.98rem;}
+  .crate-tag{font-size:0.68rem;color:var(--r-legend);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;font-family:var(--font-mono);}
+
+  .rarity-scale{
+    position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:0;
+    width:260px;height:5px;z-index:3;
+    box-shadow:0 0 24px rgba(47,230,217,0.2);
+  }
+  .rarity-scale span{flex:1;height:100%;}
 
   .reset-bar{
-    max-width:1200px;margin:0 auto;padding:0 24px 20px;
+    max-width:1240px;margin:0 auto;padding:0 24px 22px;
     position:relative;z-index:1;
     display:flex;align-items:center;justify-content:space-between;
     flex-wrap:wrap;gap:10px;
     font-size:0.85rem;color:var(--text-lo);
   }
   .reset-countdown{
-    font-weight:800;color:var(--acid);
+    font-weight:700;color:var(--cyan);
+    font-family:var(--font-mono);
     font-variant-numeric:tabular-nums;
-    letter-spacing:1px;
+    letter-spacing:1.5px;
     background:var(--bg-1);border:1px solid var(--line);
-    padding:6px 14px;
+    padding:7px 16px;
+    box-shadow:inset 0 0 12px rgba(47,230,217,0.06);
   }
 
   .filters{
-    max-width:1200px;margin:0 auto;padding:0 24px 30px;
+    max-width:1240px;margin:0 auto;padding:0 24px 30px;
     position:relative;z-index:1;
     display:flex;gap:10px;flex-wrap:wrap;
   }
   .chip{
     background:var(--bg-1);border:1px solid var(--line);
-    color:var(--text-lo);padding:8px 16px;font-size:0.82rem;
+    color:var(--text-lo);padding:9px 17px;font-size:0.82rem;
     cursor:pointer;font-weight:600;transition:.2s;
+    font-family:var(--font-body);
   }
-  .chip.active,.chip:hover{border-color:var(--acid);color:var(--acid);}
+  .chip.active,.chip:hover{border-color:var(--cyan);color:var(--cyan);}
 
   .shop{
-    max-width:1200px;margin:0 auto;padding:0 24px 100px;
+    max-width:1240px;margin:0 auto;padding:0 24px 110px;
     position:relative;z-index:1;
     min-height:200px;
   }
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    grid-template-columns:repeat(auto-fill,minmax(232px,1fr));
     gap:22px;
   }
-  .state-msg{color:var(--text-lo);padding:40px 0;text-align:center;}
+  .state-msg{color:var(--text-lo);padding:40px 0;text-align:center;font-family:var(--font-mono);}
   .card{
     background:var(--bg-1);
     border:1px solid var(--line);
     position:relative;
     overflow:hidden;
     display:flex;flex-direction:column;
-    transition:transform .2s, border-color .2s;
+    clip-path:polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    transition:transform .2s, border-color .2s, box-shadow .2s;
   }
-  .card:hover{transform:translateY(-4px);border-color:var(--rarity-color,var(--acid));}
-  .card-rarity-bar{height:4px;width:100%;background:var(--rarity-color);}
+  .card:hover{transform:translateY(-4px);border-color:var(--rarity-color,var(--cyan));box-shadow:0 8px 30px -12px var(--rarity-color, var(--cyan));}
+  .card-rarity-bar{height:3px;width:100%;background:var(--rarity-color);}
   .card-media{
     aspect-ratio:1/1;
-    background:linear-gradient(160deg, color-mix(in srgb, var(--rarity-color) 25%, var(--bg-2)), var(--bg-2));
+    background:linear-gradient(160deg, color-mix(in srgb, var(--rarity-color) 22%, var(--bg-2)), var(--bg-2));
     display:flex;align-items:center;justify-content:center;
     position:relative;
   }
   .card-media-icon{
-    width:70%;height:70%;
-    background:linear-gradient(135deg,var(--rarity-color),color-mix(in srgb, var(--rarity-color) 40%, #fff));
+    width:68%;height:68%;
+    background:linear-gradient(135deg,var(--rarity-color),color-mix(in srgb, var(--rarity-color) 35%, #fff));
     clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
     opacity:0.9;
   }
   .card-rarity-label{
     position:absolute;top:10px;left:10px;
-    font-size:0.65rem;font-weight:800;letter-spacing:1px;
+    font-size:0.62rem;font-weight:700;letter-spacing:1.2px;
     text-transform:uppercase;color:var(--rarity-color);
-    background:rgba(10,11,20,0.7);padding:3px 8px;
+    background:rgba(7,8,15,0.75);padding:4px 9px;
+    font-family:var(--font-mono);
+    border:1px solid var(--rarity-color);
   }
-  .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
-  .card-name{font-weight:800;font-size:1rem;}
+  .card-body{padding:15px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .card-name{font-family:var(--font-display);font-weight:600;font-size:1rem;}
   .card-set{font-size:0.75rem;color:var(--text-lo);}
   .price-row{
     margin-top:auto;
-    display:flex;align-items:baseline;gap:8px;
-    padding-top:10px;border-top:1px solid var(--line);
+    display:flex;align-items:baseline;gap:9px;
+    padding-top:11px;border-top:1px solid var(--line);
+    font-family:var(--font-mono);
   }
-  .price-old{font-size:0.8rem;color:var(--text-lo);text-decoration:line-through;}
-  .price-new{font-size:1.25rem;font-weight:900;color:var(--acid);}
+  .price-old{font-size:0.78rem;color:var(--text-lo);text-decoration:line-through;}
+  .price-new{font-size:1.22rem;font-weight:700;color:var(--cyan);}
   .buy-btn{
     margin-top:10px;
     background:transparent;border:1px solid var(--rarity-color);
-    color:var(--text-hi);font-weight:700;font-size:0.82rem;
+    color:var(--text-hi);font-weight:700;font-size:0.81rem;
     padding:10px;cursor:pointer;transition:.2s;
+    font-family:var(--font-body);
   }
-  .buy-btn:hover{background:var(--rarity-color);color:#0a0b14;}
+  .buy-btn:hover{background:var(--rarity-color);color:#07080f;}
 
   footer{
     border-top:1px solid var(--line);
-    padding:36px 24px;text-align:center;
+    padding:38px 24px;text-align:center;
     color:var(--text-lo);font-size:0.85rem;
     position:relative;z-index:1;
+    line-height:1.6;
   }
   footer strong{color:var(--text-hi);}
+  footer .foot-title{font-family:var(--font-display);color:var(--cyan);font-weight:600;font-size:0.9rem;letter-spacing:0.5px;}
 
   @media(max-width:820px){
     .hero{grid-template-columns:1fr;padding-top:50px;}
-    .hero-visual{height:260px;order:-1;}
+    .hero-visual{height:270px;order:-1;}
+    .nav-links{display:none;}
   }
-
-  .nav-actions{display:flex;align-items:center;gap:12px;}
-  .nav-account{
-    background:transparent;color:var(--text-hi);
-    border:1px solid var(--line);padding:9px 18px;
-    font-weight:700;font-size:0.85rem;cursor:pointer;
-    transition:.2s;
-  }
-  .nav-account:hover{border-color:var(--acid);color:var(--acid);}
-  .user-pill{
-    display:flex;align-items:center;gap:10px;
-    font-size:0.85rem;color:var(--text-lo);
-  }
-  .user-pill strong{color:var(--acid);}
-  .user-pill button{
-    background:transparent;border:1px solid var(--line);color:var(--text-lo);
-    padding:6px 12px;font-size:0.78rem;cursor:pointer;font-weight:600;
-  }
-  .user-pill button:hover{border-color:var(--pink);color:var(--pink);}
 
   .modal-overlay{
     position:fixed;inset:0;z-index:100;
-    background:rgba(6,7,12,0.75);backdrop-filter:blur(4px);
+    background:rgba(4,4,10,0.86);backdrop-filter:blur(6px);
     display:none;align-items:center;justify-content:center;
     padding:20px;
   }
   .modal-overlay.open{display:flex;}
   .modal-box{
-    width:100%;max-width:360px;
-    background:var(--bg-1);border:1px solid var(--line);
-    padding:30px 26px;position:relative;
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    width:100%;max-width:400px;
+    background:linear-gradient(180deg, rgba(20,23,38,0.95), rgba(13,15,26,0.98));
+    border:1px solid var(--line);
+    padding:38px 32px 30px;position:relative;
+    border-radius:18px;
+    box-shadow:0 0 0 1px rgba(47,230,217,0.08), 0 30px 80px -20px rgba(0,0,0,0.7), 0 0 90px rgba(47,230,217,0.05);
   }
   .modal-close{
-    position:absolute;top:14px;right:16px;
+    position:absolute;top:16px;right:18px;
     background:none;border:none;color:var(--text-lo);
     font-size:1.3rem;cursor:pointer;line-height:1;
   }
   .modal-close:hover{color:var(--text-hi);}
-  .modal-title{font-size:1.3rem;font-weight:900;margin-bottom:6px;}
-  .modal-sub{color:var(--text-lo);font-size:0.85rem;margin-bottom:22px;line-height:1.5;}
-  .field-label{font-size:0.78rem;color:var(--text-lo);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+
+  .modal-brand{text-align:center;margin-bottom:26px;}
+  .modal-logo{
+    width:56px;height:56px;object-fit:cover;border-radius:14px;
+    margin-bottom:14px;
+    box-shadow:0 0 0 1px var(--line), 0 0 30px rgba(47,230,217,0.3);
+  }
+  .modal-brand-name{
+    font-family:var(--font-display);font-weight:700;font-size:1.15rem;
+    letter-spacing:1px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:10px;
+  }
+  .modal-sub{color:var(--text-lo);font-size:0.83rem;line-height:1.55;padding:0 6px;}
+  .modal-sub em{color:var(--cyan);font-style:normal;font-family:var(--font-mono);}
+
+  .field-label{font-size:0.74rem;color:var(--text-lo);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;display:block;font-family:var(--font-mono);}
   .field-input{
     width:100%;background:var(--bg-0);border:1px solid var(--line);
-    color:var(--text-hi);padding:12px 14px;font-size:0.95rem;
-    margin-bottom:18px;font-family:inherit;
+    color:var(--text-hi);padding:13px 14px;font-size:0.95rem;
+    margin-bottom:18px;font-family:var(--font-mono);
+    border-radius:8px;
+    transition:border-color .15s;
   }
-  .field-input:focus{outline:none;border-color:var(--acid);}
+  .field-input:focus{outline:none;border-color:var(--cyan);}
   .field-hint{font-size:0.72rem;color:var(--text-lo);margin-top:-14px;margin-bottom:18px;}
   .modal-submit{
-    width:100%;background:var(--acid);color:#0a0b14;font-weight:800;
-    padding:13px;border:none;cursor:pointer;font-size:0.95rem;
-    clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    width:100%;
+    background:linear-gradient(90deg,var(--cyan),#8b7dff);
+    color:#07080f;font-weight:700;
+    padding:14px;border:none;cursor:pointer;font-size:0.96rem;
+    font-family:var(--font-body);
+    border-radius:9px;
+    transition:filter .15s, transform .15s;
   }
-  .modal-submit:hover{transform:translateY(-1px);}
-  .modal-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-  .modal-msg{font-size:0.82rem;margin-top:14px;text-align:center;min-height:18px;}
-  .modal-msg.error{color:var(--pink);}
-  .modal-msg.success{color:var(--acid);}
+  .modal-submit:hover{filter:brightness(1.1);transform:translateY(-1px);}
+  .modal-submit:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+  .modal-msg{font-size:0.82rem;margin-top:14px;text-align:center;min-height:18px;font-family:var(--font-mono);}
+  .modal-msg.error{color:var(--magenta);}
+  .modal-msg.success{color:var(--cyan);}
+  .modal-footlink{text-align:center;font-size:0.78rem;color:var(--text-lo);margin-top:18px;}
+  .modal-footlink a{color:var(--cyan);text-decoration:none;}
+  .modal-footlink a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -330,24 +422,30 @@
 <div class="modal-overlay" id="login-overlay">
   <div class="modal-box">
     <button class="modal-close" id="btn-close-login">&times;</button>
-    <div class="modal-title">Ingresa a tu cuenta</div>
-    <div class="modal-sub">Usa tu ID (nombre, símbolo y número, ej: <em>juan#123</em>) y tu PIN. Si no tienes cuenta, se crea automáticamente al ingresar.</div>
+
+    <div class="modal-brand">
+      <img src="/img/logo.png" class="modal-logo" alt="CachinaStore">
+      <div class="modal-brand-name">CACHINASTORE</div>
+      <div class="modal-sub">Ingresa tu ID y PIN para acceder. Si es tu primera vez, tu cuenta se crea sola.</div>
+    </div>
 
     <label class="field-label" for="input-user-code">Tu ID</label>
     <input class="field-input" id="input-user-code" type="text" placeholder="juan#123" autocomplete="username">
 
-    <label class="field-label" for="input-pin">PIN (4 a 6 números)</label>
+    <label class="field-label" for="input-pin">Tu PIN</label>
     <input class="field-input" id="input-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="current-password">
-    <div class="field-hint">Solo números. Si tu ID es nuevo, este PIN se guarda como tu clave.</div>
+    <div class="field-hint">4 a 6 números. Si tu ID es nuevo, este PIN se guarda como tu clave.</div>
 
-    <button class="modal-submit" id="btn-submit-login">Ingresar / Crear cuenta</button>
+    <button class="modal-submit" id="btn-submit-login">Entrar →</button>
     <div class="modal-msg" id="login-msg"></div>
+
+    <div class="modal-footlink">¿Problemas para ingresar? <a href="#contacto">Escríbenos</a></div>
   </div>
 </div>
 
 <section class="hero">
   <div>
-    <div class="eyebrow" id="reset-eyebrow">Stock actualizado hoy</div>
+    <div class="eyebrow" id="reset-eyebrow">// Stock actualizado hoy</div>
     <h1>Tus skins favoritas, <span>a tu precio.</span></h1>
     <p>Catálogo curado de outfits, con precios propios y entrega coordinada por WhatsApp. Sin vueltas, sin letra chica.</p>
     <div class="hero-actions">
@@ -356,18 +454,24 @@
     </div>
   </div>
   <div class="hero-visual">
-    <div class="hero-card"></div>
-    <div class="hero-card"></div>
-    <div class="hero-card">
-      <div class="hero-card-icon"></div>
-      <div class="hero-card-name">Producto destacado</div>
-      <div class="hero-card-tag">Legendaria</div>
+    <div class="crate crate-back-1"></div>
+    <div class="crate crate-back-2"></div>
+    <div class="crate crate-front">
+      <div class="crate-icon"></div>
+      <div class="crate-name">Producto destacado</div>
+      <div class="crate-tag">Legendaria</div>
+    </div>
+    <div class="rarity-scale">
+      <span style="background:var(--r-common)"></span>
+      <span style="background:var(--r-rare)"></span>
+      <span style="background:var(--r-epic)"></span>
+      <span style="background:var(--r-legend)"></span>
     </div>
   </div>
 </section>
 
 <div class="reset-bar" id="reset-bar">
-  <span>🔄 El stock se renueva todos los días a las 7:00 PM</span>
+  <span>↻ El stock se renueva todos los días a las 7:00 PM</span>
   <span class="reset-countdown" id="reset-countdown">--:--:--</span>
 </div>
 
@@ -384,7 +488,8 @@
 </section>
 
 <footer id="como-comprar">
-  <p><strong>¿Cómo comprar?</strong> Elige tu skin, dale a "Comprar", y te llevará a WhatsApp con el pedido ya armado. Coordinamos el pago y la entrega vía regalo directo a tu cuenta.</p>
+  <div class="foot-title">¿Cómo comprar?</div>
+  <p style="margin-top:10px;">Elige tu skin, dale a "Comprar", y te llevará a WhatsApp con el pedido ya armado. Coordinamos el pago y la entrega vía regalo directo a tu cuenta.</p>
   <p style="margin-top:10px;">Las entregas se hacen mediante regalo entre cuentas de Fortnite. Epic exige que ambas cuentas sean amigas por al menos 48 horas antes de poder enviar el regalo.</p>
   <p style="margin-top:10px;" id="contacto">CachinaStore no está afiliada a Epic Games ni a Fortnite. Los nombres son referenciales. La compra mediante precios regionales puede no estar contemplada en los Términos de Servicio de Epic Games; el uso de este servicio queda bajo tu propio criterio y responsabilidad.</p>
 </footer>
@@ -474,9 +579,9 @@ function tickCountdown(){
   countdownEl.textContent = `${h}:${m}:${s}`;
 
   if (diff <= 0){
-    eyebrowEl.textContent = "¡Renovando stock!";
+    eyebrowEl.textContent = "// ¡Renovando stock!";
     loadShop().then(() => {
-      setTimeout(() => { eyebrowEl.textContent = "Stock actualizado hoy"; }, 4000);
+      setTimeout(() => { eyebrowEl.textContent = "// Stock actualizado hoy"; }, 4000);
     });
   }
 }
@@ -486,7 +591,6 @@ setInterval(tickCountdown, 1000);
 
 // ---------- Login / Cuenta (ID + PIN) ----------
 const overlay = document.getElementById('login-overlay');
-const btnOpen = document.getElementById('btn-open-login');
 const btnClose = document.getElementById('btn-close-login');
 const btnSubmit = document.getElementById('btn-submit-login');
 const inputCode = document.getElementById('input-user-code');
@@ -504,7 +608,6 @@ function closeLogin(){
   overlay.classList.remove('open');
 }
 
-btnOpen.addEventListener('click', openLogin);
 btnClose.addEventListener('click', closeLogin);
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLogin(); });
 
@@ -573,7 +676,7 @@ function renderAccountArea(){
   if (savedCode){
     accountArea.innerHTML = `
       <div class="user-pill">
-        Hola, <strong>${savedCode}</strong>
+        <span>Hola, <strong>${savedCode}</strong></span>
         <button id="btn-logout">Salir</button>
       </div>
     `;
