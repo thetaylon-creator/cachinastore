@@ -245,6 +245,65 @@
     .hero{grid-template-columns:1fr;padding-top:50px;}
     .hero-visual{height:260px;order:-1;}
   }
+
+  .nav-actions{display:flex;align-items:center;gap:12px;}
+  .nav-account{
+    background:transparent;color:var(--text-hi);
+    border:1px solid var(--line);padding:9px 18px;
+    font-weight:700;font-size:0.85rem;cursor:pointer;
+    transition:.2s;
+  }
+  .nav-account:hover{border-color:var(--acid);color:var(--acid);}
+  .user-pill{
+    display:flex;align-items:center;gap:10px;
+    font-size:0.85rem;color:var(--text-lo);
+  }
+  .user-pill strong{color:var(--acid);}
+  .user-pill button{
+    background:transparent;border:1px solid var(--line);color:var(--text-lo);
+    padding:6px 12px;font-size:0.78rem;cursor:pointer;font-weight:600;
+  }
+  .user-pill button:hover{border-color:var(--pink);color:var(--pink);}
+
+  .modal-overlay{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(6,7,12,0.75);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    width:100%;max-width:360px;
+    background:var(--bg-1);border:1px solid var(--line);
+    padding:30px 26px;position:relative;
+    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .modal-close{
+    position:absolute;top:14px;right:16px;
+    background:none;border:none;color:var(--text-lo);
+    font-size:1.3rem;cursor:pointer;line-height:1;
+  }
+  .modal-close:hover{color:var(--text-hi);}
+  .modal-title{font-size:1.3rem;font-weight:900;margin-bottom:6px;}
+  .modal-sub{color:var(--text-lo);font-size:0.85rem;margin-bottom:22px;line-height:1.5;}
+  .field-label{font-size:0.78rem;color:var(--text-lo);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+  .field-input{
+    width:100%;background:var(--bg-0);border:1px solid var(--line);
+    color:var(--text-hi);padding:12px 14px;font-size:0.95rem;
+    margin-bottom:18px;font-family:inherit;
+  }
+  .field-input:focus{outline:none;border-color:var(--acid);}
+  .field-hint{font-size:0.72rem;color:var(--text-lo);margin-top:-14px;margin-bottom:18px;}
+  .modal-submit{
+    width:100%;background:var(--acid);color:#0a0b14;font-weight:800;
+    padding:13px;border:none;cursor:pointer;font-size:0.95rem;
+    clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  .modal-submit:hover{transform:translateY(-1px);}
+  .modal-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .modal-msg{font-size:0.82rem;margin-top:14px;text-align:center;min-height:18px;}
+  .modal-msg.error{color:var(--pink);}
+  .modal-msg.success{color:var(--acid);}
 </style>
 </head>
 <body>
@@ -259,9 +318,32 @@
       <a href="#como-comprar">Cómo comprar</a>
       <a href="#contacto">Contacto</a>
     </nav>
-    <button class="nav-cta" onclick="document.getElementById('tienda').scrollIntoView()">Ver skins</button>
+    <div class="nav-actions">
+      <div id="account-area">
+        <button class="nav-account" id="btn-open-login">Ingresar</button>
+      </div>
+      <button class="nav-cta" onclick="document.getElementById('tienda').scrollIntoView()">Ver skins</button>
+    </div>
   </div>
 </header>
+
+<div class="modal-overlay" id="login-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="btn-close-login">&times;</button>
+    <div class="modal-title">Ingresa a tu cuenta</div>
+    <div class="modal-sub">Usa tu ID (nombre, símbolo y número, ej: <em>juan#123</em>) y tu PIN. Si no tienes cuenta, se crea automáticamente al ingresar.</div>
+
+    <label class="field-label" for="input-user-code">Tu ID</label>
+    <input class="field-input" id="input-user-code" type="text" placeholder="juan#123" autocomplete="username">
+
+    <label class="field-label" for="input-pin">PIN (4 a 6 números)</label>
+    <input class="field-input" id="input-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="current-password">
+    <div class="field-hint">Solo números. Si tu ID es nuevo, este PIN se guarda como tu clave.</div>
+
+    <button class="modal-submit" id="btn-submit-login">Ingresar / Crear cuenta</button>
+    <div class="modal-msg" id="login-msg"></div>
+  </div>
+</div>
 
 <section class="hero">
   <div>
@@ -401,6 +483,108 @@ function tickCountdown(){
 
 loadShop();
 setInterval(tickCountdown, 1000);
+
+// ---------- Login / Cuenta (ID + PIN) ----------
+const overlay = document.getElementById('login-overlay');
+const btnOpen = document.getElementById('btn-open-login');
+const btnClose = document.getElementById('btn-close-login');
+const btnSubmit = document.getElementById('btn-submit-login');
+const inputCode = document.getElementById('input-user-code');
+const inputPin = document.getElementById('input-pin');
+const loginMsg = document.getElementById('login-msg');
+const accountArea = document.getElementById('account-area');
+
+function openLogin(){
+  loginMsg.textContent = '';
+  loginMsg.className = 'modal-msg';
+  overlay.classList.add('open');
+  inputCode.focus();
+}
+function closeLogin(){
+  overlay.classList.remove('open');
+}
+
+btnOpen.addEventListener('click', openLogin);
+btnClose.addEventListener('click', closeLogin);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLogin(); });
+
+async function submitLogin(){
+  const user_code = inputCode.value.trim();
+  const pin = inputPin.value.trim();
+
+  if (!user_code){
+    loginMsg.textContent = 'Escribe tu ID.';
+    loginMsg.className = 'modal-msg error';
+    return;
+  }
+  if (!/^\d{4,6}$/.test(pin)){
+    loginMsg.textContent = 'El PIN debe tener entre 4 y 6 números.';
+    loginMsg.className = 'modal-msg error';
+    return;
+  }
+
+  btnSubmit.disabled = true;
+  btnSubmit.textContent = 'Verificando...';
+  loginMsg.textContent = '';
+
+  try{
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_code, pin })
+    });
+    const data = await res.json();
+
+    if (!res.ok){
+      loginMsg.textContent = data.error || 'Error al ingresar.';
+      loginMsg.className = 'modal-msg error';
+      return;
+    }
+
+    localStorage.setItem('cachina_user_code', user_code);
+    loginMsg.textContent = data.created ? '¡Cuenta creada! Ingresando...' : '¡Bienvenido de nuevo!';
+    loginMsg.className = 'modal-msg success';
+
+    setTimeout(() => {
+      closeLogin();
+      renderAccountArea();
+      inputPin.value = '';
+    }, 900);
+
+  }catch(err){
+    loginMsg.textContent = 'No se pudo conectar al servidor.';
+    loginMsg.className = 'modal-msg error';
+  }finally{
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = 'Ingresar / Crear cuenta';
+  }
+}
+
+btnSubmit.addEventListener('click', submitLogin);
+inputPin.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitLogin(); });
+
+function logout(){
+  localStorage.removeItem('cachina_user_code');
+  renderAccountArea();
+}
+
+function renderAccountArea(){
+  const savedCode = localStorage.getItem('cachina_user_code');
+  if (savedCode){
+    accountArea.innerHTML = `
+      <div class="user-pill">
+        Hola, <strong>${savedCode}</strong>
+        <button id="btn-logout">Salir</button>
+      </div>
+    `;
+    document.getElementById('btn-logout').addEventListener('click', logout);
+  } else {
+    accountArea.innerHTML = `<button class="nav-account" id="btn-open-login">Ingresar</button>`;
+    document.getElementById('btn-open-login').addEventListener('click', openLogin);
+  }
+}
+
+renderAccountArea();
 </script>
 
 </body>

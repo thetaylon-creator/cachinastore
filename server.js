@@ -19,6 +19,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Rutas de login/registro con ID + PIN
+const authRoutes = require('./auth');
+app.use('/api', authRoutes);
+
 // ---------- Helpers de "base de datos" en archivo JSON ----------
 function readProducts() {
   return JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf-8'));
