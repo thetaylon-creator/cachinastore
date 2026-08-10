@@ -1,0 +1,18 @@
+[
+  { "id": 1,  "name": "Guerrero Nocturno",   "set": "Set Sombra",       "rarity": "legendaria", "priceOld": 1500, "priceNew": 15, "image": null },
+  { "id": 2,  "name": "Comandante Ártico",   "set": "Set Frost",        "rarity": "epica",      "priceOld": 1200, "priceNew": 12, "image": null },
+  { "id": 3,  "name": "Cazador Carmesí",     "set": "Set Escarlata",    "rarity": "epica",      "priceOld": 1200, "priceNew": 12, "image": null },
+  { "id": 4,  "name": "Viajero Estelar",     "set": "Set Cósmico",      "rarity": "rara",       "priceOld": 800,  "priceNew": 8,  "image": null },
+  { "id": 5,  "name": "Explorador de Selva", "set": "Set Jungla",       "rarity": "rara",       "priceOld": 800,  "priceNew": 8,  "image": null },
+  { "id": 6,  "name": "Recluta Táctico",     "set": "Set Básico",       "rarity": "comun",      "priceOld": 500,  "priceNew": 5,  "image": null },
+  { "id": 7,  "name": "Piloto Relámpago",    "set": "Set Velocidad",    "rarity": "legendaria", "priceOld": 1500, "priceNew": 15, "image": null },
+  { "id": 8,  "name": "Sombra Dorada",       "set": "Set Edición Oro",  "rarity": "legendaria", "priceOld": 2000, "priceNew": 20, "image": null },
+  { "id": 9,  "name": "Fénix Escarlata",     "set": "Set Ave de Fuego", "rarity": "legendaria", "priceOld": 1800, "priceNew": 18, "image": null },
+  { "id": 10, "name": "Rastreador Lunar",    "set": "Set Eclipse",      "rarity": "epica",      "priceOld": 1200, "priceNew": 12, "image": null },
+  { "id": 11, "name": "Centinela de Acero",  "set": "Set Blindaje",     "rarity": "epica",      "priceOld": 1200, "priceNew": 12, "image": null },
+  { "id": 12, "name": "Corredor Neón",       "set": "Set Circuito",     "rarity": "rara",       "priceOld": 800,  "priceNew": 8,  "image": null },
+  { "id": 13, "name": "Cartógrafo Salvaje",  "set": "Set Expedición",   "rarity": "rara",       "priceOld": 800,  "priceNew": 8,  "image": null },
+  { "id": 14, "name": "Chatarrero",          "set": "Set Básico",       "rarity": "comun",      "priceOld": 500,  "priceNew": 5,  "image": null },
+  { "id": 15, "name": "Vigía Abisal",        "set": "Set Profundo",     "rarity": "legendaria", "priceOld": 1700, "priceNew": 17, "image": null },
+  { "id": 16, "name": "Herrero Rúnico",      "set": "Set Forja",        "rarity": "epica",      "priceOld": 1200, "priceNew": 12, "image": null }
+]

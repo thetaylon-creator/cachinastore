@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CachinaStore — Admin</title>
+<link rel="icon" type="image/png" href="/img/logo.png">
+<style>
+  :root{
+    --bg-0:#0a0b14; --bg-1:#12131f; --bg-2:#1a1c2e; --line:#2a2d45;
+    --text-hi:#f2f1fb; --text-lo:#9497b8; --acid:#c6ff3d; --violet:#8b5cf6; --pink:#ff4d8d;
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg-0);color:var(--text-hi);font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:32px 20px;}
+  .wrap{max-width:900px;margin:0 auto;}
+  h1{font-size:1.6rem;margin-bottom:4px;}
+  .sub{color:var(--text-lo);margin-bottom:28px;font-size:0.9rem;}
+  .card{background:var(--bg-1);border:1px solid var(--line);padding:20px;margin-bottom:20px;}
+  label{display:block;font-size:0.8rem;color:var(--text-lo);margin-bottom:4px;margin-top:12px;}
+  input,select{
+    width:100%;background:var(--bg-2);border:1px solid var(--line);color:var(--text-hi);
+    padding:10px;font-size:0.9rem;
+  }
+  button{
+    background:var(--acid);color:#0a0b14;border:none;font-weight:800;
+    padding:11px 20px;cursor:pointer;margin-top:16px;font-size:0.85rem;
+  }
+  button.secondary{background:transparent;border:1px solid var(--line);color:var(--text-hi);}
+  button.danger{background:var(--pink);color:#0a0b14;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:0.85rem;}
+  th{color:var(--text-lo);font-weight:600;}
+  .row-actions{display:flex;gap:6px;}
+  .row-actions button{margin:0;padding:5px 10px;font-size:0.75rem;}
+  #login-screen input{margin-bottom:10px;}
+  .hidden{display:none;}
+  .badge{font-size:0.7rem;padding:2px 8px;background:var(--bg-2);border:1px solid var(--line);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login-screen" class="card" style="max-width:360px;margin:80px auto;">
+    <h1>Panel Admin</h1>
+    <p class="sub">Ingresa tu clave de administrador</p>
+    <label>Clave (ADMIN_KEY)</label>
+    <input type="password" id="admin-key-input" placeholder="••••••••">
+    <button onclick="login()">Entrar</button>
+    <p id="login-error" style="color:var(--pink);font-size:0.8rem;margin-top:10px;"></p>
+  </div>
+
+  <div id="admin-panel" class="hidden">
+    <h1><img src="/img/logo.png" style="width:28px;height:28px;border-radius:7px;vertical-align:middle;margin-right:8px;"> CachinaStore — Administración</h1>
+    <p class="sub">Aquí manejas TODO el pool de skins. El sitio elige 8 automáticamente cada día a las 7pm.</p>
+
+    <div class="card">
+      <h3>Agregar nueva skin</h3>
+      <label>Nombre</label>
+      <input id="f-name" placeholder="Ej: Sombra Dorada">
+      <label>Set / Categoría</label>
+      <input id="f-set" placeholder="Ej: Set Edición Oro">
+      <label>Rareza</label>
+      <select id="f-rarity">
+        <option value="comun">Común</option>
+        <option value="rara">Rara</option>
+        <option value="epica">Épica</option>
+        <option value="legendaria">Legendaria</option>
+      </select>
+      <label>Precio "de referencia" (tachado)</label>
+      <input id="f-priceOld" type="number" placeholder="Ej: 1500">
+      <label>Tu precio (el que se muestra grande)</label>
+      <input id="f-priceNew" type="number" placeholder="Ej: 15">
+      <label>URL de imagen (opcional, déjalo vacío para ícono genérico)</label>
+      <input id="f-image" placeholder="https://...">
+      <button onclick="addProduct()">Agregar al catálogo</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3>Pool completo (<span id="count-badge" class="badge">0</span>)</h3>
+        <button class="secondary" onclick="forceRefresh()">Forzar renovación ahora</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Nombre</th><th>Set</th><th>Rareza</th><th>Precio</th><th></th></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let ADMIN_KEY = "";
+
+function login(){
+  ADMIN_KEY = document.getElementById('admin-key-input').value;
+  fetchProducts();
+}
+
+async function apiCall(url, options = {}){
+  const res = await fetch(url, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_KEY, ...(options.headers||{}) }
+  });
+  if (res.status === 401){
+    document.getElementById('login-error').textContent = "Clave incorrecta.";
+    throw new Error('unauthorized');
+  }
+  return res.json();
+}
+
+async function fetchProducts(){
+  try{
+    const products = await apiCall('/api/admin/products');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    renderTable(products);
+  }catch(e){ /* error ya mostrado */ }
+}
+
+function renderTable(products){
+  const tbody = document.getElementById('table-body');
+  document.getElementById('count-badge').textContent = products.length;
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.set || ''}</td>
+      <td>${p.rarity}</td>
+      <td>S/ ${p.priceNew}</td>
+      <td class="row-actions">
+        <button class="danger" onclick="deleteProduct(${p.id})">Eliminar</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function addProduct(){
+  const body = {
+    name: document.getElementById('f-name').value,
+    set: document.getElementById('f-set').value,
+    rarity: document.getElementById('f-rarity').value,
+    priceOld: Number(document.getElementById('f-priceOld').value) || null,
+    priceNew: Number(document.getElementById('f-priceNew').value),
+    image: document.getElementById('f-image').value || null,
+  };
+  if (!body.name || !body.priceNew){
+    alert('Nombre y precio son obligatorios');
+    return;
+  }
+  await apiCall('/api/admin/products', { method:'POST', body: JSON.stringify(body) });
+  ['f-name','f-set','f-priceOld','f-priceNew','f-image'].forEach(id => document.getElementById(id).value = '');
+  fetchProducts();
+}
+
+async function deleteProduct(id){
+  if (!confirm('¿Eliminar esta skin del catálogo?')) return;
+  await apiCall(`/api/admin/products/${id}`, { method:'DELETE' });
+  fetchProducts();
+}
+
+async function forceRefresh(){
+  await apiCall('/api/admin/force-refresh', { method:'POST' });
+  alert('Stock renovado. Recarga la tienda para verlo.');
+}
+</script>
+</body>
+</html>

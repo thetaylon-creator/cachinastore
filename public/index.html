@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="icon" type="image/png" href="/img/logo.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CachinaStore — Tienda de Skins</title>
+<style>
+  :root{
+    --bg-0:#0a0b14;
+    --bg-1:#12131f;
+    --bg-2:#1a1c2e;
+    --line:#2a2d45;
+    --text-hi:#f2f1fb;
+    --text-lo:#9497b8;
+    --acid:#c6ff3d;
+    --violet:#8b5cf6;
+    --pink:#ff4d8d;
+    --gold:#ffb020;
+
+    --r-common:#7f8c9a;
+    --r-rare:#4da3ff;
+    --r-epic:#a259ff;
+    --r-legend:#ff9c1a;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-0);
+    color:var(--text-hi);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(139,92,246,0.16), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(198,255,61,0.10), transparent 45%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 14px);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,11,20,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    max-width:1200px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-weight:900;font-size:1.3rem;letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  .logo-mark{
+    width:34px;height:34px;
+    background:linear-gradient(135deg,var(--violet),var(--pink));
+    clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+  }
+  /* Cuando reemplaces el ícono por tu logo real (imagen), usa esta clase:
+     <img src="/img/logo.png" class="logo-img"> en vez del <span class="logo-mark">
+  */
+  .logo-img{
+    width:38px;height:38px;object-fit:cover;
+    border-radius:9px;
+    box-shadow:0 0 0 1px var(--line), 0 4px 14px rgba(139,92,246,0.35);
+  }
+  .nav-links{display:flex;gap:28px;font-size:0.9rem;color:var(--text-lo);}
+  .nav-links a{color:inherit;text-decoration:none;transition:color .2s;}
+  .nav-links a:hover{color:var(--acid);}
+  .nav-cta{
+    background:var(--acid);color:#0a0b14;
+    padding:9px 18px;font-weight:700;font-size:0.85rem;
+    border:none;cursor:pointer;
+    clip-path:polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .hero{
+    position:relative;z-index:1;
+    max-width:1200px;margin:0 auto;
+    padding:80px 24px 60px;
+    display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--acid);font-size:0.78rem;font-weight:700;
+    letter-spacing:2px;text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:8px;height:8px;background:var(--acid);border-radius:50%;box-shadow:0 0 12px var(--acid);}
+  h1{
+    font-size:clamp(2.2rem,5vw,3.6rem);
+    line-height:1.02;font-weight:900;
+    letter-spacing:-1px;
+    margin-bottom:20px;
+  }
+  h1 span{
+    background:linear-gradient(90deg,var(--acid),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{color:var(--text-lo);font-size:1.05rem;max-width:460px;margin-bottom:28px;line-height:1.6;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--acid);color:#0a0b14;font-weight:800;
+    padding:14px 28px;border:none;cursor:pointer;font-size:0.95rem;
+    clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    transition:transform .15s;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    background:transparent;color:var(--text-hi);
+    border:1px solid var(--line);padding:14px 26px;
+    font-weight:600;font-size:0.95rem;cursor:pointer;
+  }
+  .btn-ghost:hover{border-color:var(--text-lo);}
+
+  .hero-visual{
+    position:relative;height:340px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-card{
+    width:220px;height:300px;
+    background:linear-gradient(160deg,var(--bg-2),var(--bg-1));
+    border:1px solid var(--r-legend);
+    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    position:absolute;
+    box-shadow:0 0 60px rgba(255,156,26,0.25);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;
+  }
+  .hero-card:nth-child(1){transform:rotate(-8deg) translateX(-70px);opacity:0.5;filter:blur(0.5px);z-index:1;}
+  .hero-card:nth-child(2){transform:rotate(6deg) translateX(60px);opacity:0.6;z-index:1;}
+  .hero-card:nth-child(3){z-index:2;}
+  .hero-card-icon{
+    width:90px;height:90px;
+    background:linear-gradient(135deg,var(--violet),var(--pink));
+    clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+  }
+  .hero-card-name{font-weight:800;font-size:0.95rem;}
+  .hero-card-tag{font-size:0.7rem;color:var(--r-legend);letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+
+  .reset-bar{
+    max-width:1200px;margin:0 auto;padding:0 24px 20px;
+    position:relative;z-index:1;
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:10px;
+    font-size:0.85rem;color:var(--text-lo);
+  }
+  .reset-countdown{
+    font-weight:800;color:var(--acid);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:1px;
+    background:var(--bg-1);border:1px solid var(--line);
+    padding:6px 14px;
+  }
+
+  .filters{
+    max-width:1200px;margin:0 auto;padding:0 24px 30px;
+    position:relative;z-index:1;
+    display:flex;gap:10px;flex-wrap:wrap;
+  }
+  .chip{
+    background:var(--bg-1);border:1px solid var(--line);
+    color:var(--text-lo);padding:8px 16px;font-size:0.82rem;
+    cursor:pointer;font-weight:600;transition:.2s;
+  }
+  .chip.active,.chip:hover{border-color:var(--acid);color:var(--acid);}
+
+  .shop{
+    max-width:1200px;margin:0 auto;padding:0 24px 100px;
+    position:relative;z-index:1;
+    min-height:200px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:22px;
+  }
+  .state-msg{color:var(--text-lo);padding:40px 0;text-align:center;}
+  .card{
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform .2s, border-color .2s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--rarity-color,var(--acid));}
+  .card-rarity-bar{height:4px;width:100%;background:var(--rarity-color);}
+  .card-media{
+    aspect-ratio:1/1;
+    background:linear-gradient(160deg, color-mix(in srgb, var(--rarity-color) 25%, var(--bg-2)), var(--bg-2));
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .card-media-icon{
+    width:70%;height:70%;
+    background:linear-gradient(135deg,var(--rarity-color),color-mix(in srgb, var(--rarity-color) 40%, #fff));
+    clip-path:polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    opacity:0.9;
+  }
+  .card-rarity-label{
+    position:absolute;top:10px;left:10px;
+    font-size:0.65rem;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--rarity-color);
+    background:rgba(10,11,20,0.7);padding:3px 8px;
+  }
+  .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .card-name{font-weight:800;font-size:1rem;}
+  .card-set{font-size:0.75rem;color:var(--text-lo);}
+  .price-row{
+    margin-top:auto;
+    display:flex;align-items:baseline;gap:8px;
+    padding-top:10px;border-top:1px solid var(--line);
+  }
+  .price-old{font-size:0.8rem;color:var(--text-lo);text-decoration:line-through;}
+  .price-new{font-size:1.25rem;font-weight:900;color:var(--acid);}
+  .buy-btn{
+    margin-top:10px;
+    background:transparent;border:1px solid var(--rarity-color);
+    color:var(--text-hi);font-weight:700;font-size:0.82rem;
+    padding:10px;cursor:pointer;transition:.2s;
+  }
+  .buy-btn:hover{background:var(--rarity-color);color:#0a0b14;}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:36px 24px;text-align:center;
+    color:var(--text-lo);font-size:0.85rem;
+    position:relative;z-index:1;
+  }
+  footer strong{color:var(--text-hi);}
+
+  @media(max-width:820px){
+    .hero{grid-template-columns:1fr;padding-top:50px;}
+    .hero-visual{height:260px;order:-1;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <img src="/img/logo.png" class="logo-img" alt="CachinaStore"> CACHINASTORE
+    </div>
+    <nav class="nav-links">
+      <a href="#tienda">Tienda</a>
+      <a href="#como-comprar">Cómo comprar</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="nav-cta" onclick="document.getElementById('tienda').scrollIntoView()">Ver skins</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow" id="reset-eyebrow">Stock actualizado hoy</div>
+    <h1>Tus skins favoritas, <span>a tu precio.</span></h1>
+    <p>Catálogo curado de outfits, con precios propios y entrega coordinada por WhatsApp. Sin vueltas, sin letra chica.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('tienda').scrollIntoView()">Explorar catálogo</button>
+      <button class="btn-ghost" onclick="document.getElementById('como-comprar').scrollIntoView()">Cómo funciona</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card"></div>
+    <div class="hero-card"></div>
+    <div class="hero-card">
+      <div class="hero-card-icon"></div>
+      <div class="hero-card-name">Producto destacado</div>
+      <div class="hero-card-tag">Legendaria</div>
+    </div>
+  </div>
+</section>
+
+<div class="reset-bar" id="reset-bar">
+  <span>🔄 El stock se renueva todos los días a las 7:00 PM</span>
+  <span class="reset-countdown" id="reset-countdown">--:--:--</span>
+</div>
+
+<div class="filters" id="filters">
+  <button class="chip active" data-filter="all">Todas</button>
+  <button class="chip" data-filter="legendaria">Legendarias</button>
+  <button class="chip" data-filter="epica">Épicas</button>
+  <button class="chip" data-filter="rara">Raras</button>
+  <button class="chip" data-filter="comun">Comunes</button>
+</div>
+
+<section class="shop" id="tienda">
+  <div class="grid" id="grid"><div class="state-msg">Cargando catálogo...</div></div>
+</section>
+
+<footer id="como-comprar">
+  <p><strong>¿Cómo comprar?</strong> Elige tu skin, dale a "Comprar", y te llevará a WhatsApp con el pedido ya armado. Coordinamos el pago y la entrega vía regalo directo a tu cuenta.</p>
+  <p style="margin-top:10px;">Las entregas se hacen mediante regalo entre cuentas de Fortnite. Epic exige que ambas cuentas sean amigas por al menos 48 horas antes de poder enviar el regalo.</p>
+  <p style="margin-top:10px;" id="contacto">CachinaStore no está afiliada a Epic Games ni a Fortnite. Los nombres son referenciales. La compra mediante precios regionales puede no estar contemplada en los Términos de Servicio de Epic Games; el uso de este servicio queda bajo tu propio criterio y responsabilidad.</p>
+</footer>
+
+<script>
+const RARITY_LABEL = { comun:"Común", rara:"Rara", epica:"Épica", legendaria:"Legendaria" };
+const RARITY_VAR   = { comun:"var(--r-common)", rara:"var(--r-rare)", epica:"var(--r-epic)", legendaria:"var(--r-legend)" };
+
+const grid = document.getElementById('grid');
+const countdownEl = document.getElementById('reset-countdown');
+const eyebrowEl = document.getElementById('reset-eyebrow');
+
+let PRODUCTS = [];
+let WHATSAPP_NUMBER = "";
+let nextReset = 0;
+
+async function loadShop(){
+  try{
+    const res = await fetch('/api/products');
+    const data = await res.json();
+    PRODUCTS = data.products;
+    WHATSAPP_NUMBER = data.whatsapp;
+    nextReset = data.nextReset;
+    render('all');
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('.chip[data-filter="all"]').classList.add('active');
+  }catch(err){
+    grid.innerHTML = '<div class="state-msg">No se pudo cargar el catálogo. Intenta recargar la página.</div>';
+  }
+}
+
+function render(filter="all"){
+  grid.innerHTML = "";
+  const items = filter === "all" ? PRODUCTS : PRODUCTS.filter(p => p.rarity === filter);
+
+  if (items.length === 0){
+    grid.innerHTML = '<div class="state-msg">No hay skins en esta categoría hoy.</div>';
+    return;
+  }
+
+  items.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.setProperty('--rarity-color', RARITY_VAR[p.rarity]);
+
+    const mediaInner = p.image
+      ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div class="card-media-icon"></div>`;
+
+    const msg = encodeURIComponent(`Hola! Quiero comprar: ${p.name} (${RARITY_LABEL[p.rarity]}) a S/ ${p.priceNew}`);
+
+    card.innerHTML = `
+      <div class="card-rarity-bar"></div>
+      <div class="card-media">
+        <span class="card-rarity-label">${RARITY_LABEL[p.rarity]}</span>
+        ${mediaInner}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+        <div class="card-set">${p.set || ''}</div>
+        <div class="price-row">
+          ${p.priceOld ? `<span class="price-old">S/ ${p.priceOld}</span>` : ''}
+          <span class="price-new">S/ ${p.priceNew}</span>
+        </div>
+        <button class="buy-btn" onclick="window.open('https://wa.me/${WHATSAPP_NUMBER}?text=${msg}','_blank')">Comprar</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    render(chip.dataset.filter);
+  });
+});
+
+function tickCountdown(){
+  const now = Date.now();
+  const diff = Math.max(0, nextReset - now);
+
+  const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+  countdownEl.textContent = `${h}:${m}:${s}`;
+
+  if (diff <= 0){
+    eyebrowEl.textContent = "¡Renovando stock!";
+    loadShop().then(() => {
+      setTimeout(() => { eyebrowEl.textContent = "Stock actualizado hoy"; }, 4000);
+    });
+  }
+}
+
+loadShop();
+setInterval(tickCountdown, 1000);
+</script>
+
+</body>
+</html>
