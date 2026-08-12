@@ -1183,11 +1183,13 @@ body .modal-pago.oculto:not(.mostrar) {
     flex: 1 1 auto;
   }
 
-  /* "Cerrar Sesión" pasa a la esquina superior derecha del header */
+  /* "Cerrar Sesión" pasa a la esquina superior derecha del header,
+     alineado con la altura del logo/nombre CachinaStore */
   #btn-cerrar {
     position: absolute;
-    top: 14px;
+    top: 16px;
     right: 16px;
+    font-weight: 700;
   }
 
   .nav-links {
