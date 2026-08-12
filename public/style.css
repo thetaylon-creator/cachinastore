@@ -1144,3 +1144,23 @@ body .modal-pago.oculto:not(.mostrar) {
     font-size: 0.8rem;
   }
 }
+
+/* ==========================================
+   FIX RENDIMIENTO EN MÓVIL
+   backdrop-filter: blur() es caro para el GPU de celulares de gama
+   media/baja: se nota como "trabas" o delay al abrir/cerrar el
+   carrito, el modal de pago y el zoom del QR, o al hacer scroll con
+   alguno abierto. En pantallas angostas se reduce/baja bastante la
+   intensidad para que se sienta fluido, manteniendo el efecto visual
+   en pantallas grandes (escritorio) donde el GPU no es un problema.
+   ========================================== */
+@media (max-width: 900px) {
+  .overlay-carrito,
+  .overlay-pago {
+    backdrop-filter: none;
+  }
+
+  .modal-qr-zoom {
+    backdrop-filter: blur(3px);
+  }
+}
