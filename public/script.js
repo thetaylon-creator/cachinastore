@@ -135,8 +135,8 @@ async function obtenerTiendaFortnite() {
 
       
 
-      generarMenuFiltros(productosGlobales);
       renderizarProductos(productosGlobales);
+      generarMenuFiltros(window._ordenSeccionesActual || []);
     }  } catch (error) {
     console.error("Error al conectar con la API:", error);
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
@@ -243,7 +243,7 @@ function obtenerSeccionesOrdenadas(entries) {
   return [...normales, ...pistas];
 }
 
-function generarMenuFiltros(entries) {
+function generarMenuFiltros(secciones) {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
@@ -253,8 +253,6 @@ function generarMenuFiltros(entries) {
   sidebar.style.overflow = 'hidden';
 
   inyectarEstilosFiltros();
-
-  const secciones = obtenerSeccionesOrdenadas(entries);
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
@@ -338,15 +336,16 @@ function renderizarProductos(entries) {
 
   if (entries.length === 0) {
     contenedor.innerHTML = '<p style="color: #a29bfe; text-align: center;">No hay productos en la tienda.</p>';
+    window._ordenSeccionesActual = [];
     return;
   }
 
-  // Agrupa las entradas por sección, respetando el orden en que
-  // aparece cada sección por primera vez (mismo orden que usa
-  // generarMenuFiltros para armar el menú).
   const seccionesMapa = new Map();
 
   entries.forEach(entry => {
+    const seccionNombre = obtenerNombreSeccion(entry).trim();
+    if (seccionNombre === "Destacados") return;
+
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
@@ -354,12 +353,6 @@ function renderizarProductos(entries) {
                  (entry.items && entry.items[0]) ||
                  entry.bundle || {};
 
-    // FIX: cuando la entrada es un LOTE (bundle) que además trae
-    // items individuales (brItems, cars, etc.), antes se usaba el
-    // nombre del primer item individual ("Pica") en vez del nombre
-    // real del lote ("Rasca y Pica"). Ahora se prioriza
-    // entry.bundle.name cuando existe, y solo si no hay bundle se
-    // cae al nombre del item individual.
     let nombre = entry.bundle?.name || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
@@ -367,15 +360,28 @@ function renderizarProductos(entries) {
     const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
-    const seccionNombre = obtenerNombreSeccion(entry);
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
     seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen });
   });
 
+  // Orden ÚNICO: mismo orden en que aparecieron las secciones al
+  // recorrer los productos, pero cualquier sección cuyo nombre
+  // contenga "pista" (ej. "Pistas de improvisación") se manda
+  // siempre al final. Este mismo arreglo lo va a usar el menú
+  // de filtros, así los dos SIEMPRE coinciden.
+  const esPistas = (n) => n.toLowerCase().includes('pista');
+  const todasLasSecciones = Array.from(seccionesMapa.keys());
+  const normales = todasLasSecciones.filter(n => !esPistas(n));
+  const pistas = todasLasSecciones.filter(esPistas);
+  const ordenSecciones = [...normales, ...pistas];
+
   const fragmento = document.createDocumentFragment();
 
-  seccionesMapa.forEach((productos, nombreSeccion) => {
+  ordenSecciones.forEach(nombreSeccion => {
+    const productos = seccionesMapa.get(nombreSeccion);
+    if (!productos || productos.length === 0) return;
+
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
     bloqueSeccion.id = slugificarSeccion(nombreSeccion);
@@ -400,7 +406,10 @@ function renderizarProductos(entries) {
 
   contenedor.appendChild(fragmento);
 
-  // Vuelve a observar las secciones recién creadas para el scroll-spy.
+  // Guarda el orden final para que generarMenuFiltros use EXACTAMENTE
+  // el mismo, sin recalcularlo por su cuenta.
+  window._ordenSeccionesActual = ordenSecciones;
+
   iniciarScrollSpySecciones();
 }
 
