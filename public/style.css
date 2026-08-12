@@ -334,6 +334,64 @@ header {
   margin-bottom: 10px;
 }
 
+/* ==========================================
+   BARRA DE BÚSQUEDA Y CHIP DE MONEDA
+   ========================================== */
+.catalogo-controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.buscador-tienda {
+  flex: 1;
+  min-width: 220px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.buscador-tienda svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.buscador-tienda input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.buscador-tienda input::placeholder {
+  color: var(--text-muted);
+}
+
+.moneda-chip {
+  background: rgba(108, 92, 231, 0.12);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 9px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.moneda-chip strong {
+  color: #fff;
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1310,6 +1368,63 @@ body .modal-pago.oculto:not(.mostrar) {
 /* FIX RENDIMIENTO GLOBAL: en dispositivos que declaran preferir
    menos movimiento (accesibilidad / ahorro de batería), se apagan
    las animaciones y transiciones decorativas. */
+/* ==========================================
+   ESCRITORIO: EL HEADER, EL BANNER "TIENDA DE
+   OBJETOS" Y LOS FILTROS SE QUEDAN FIJOS; SOLO
+   LA CUADRÍCULA DE PRODUCTOS SE DESPLAZA.
+   ========================================== */
+@media (min-width: 901px) {
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+  }
+
+  .contenedor-tienda {
+    height: calc(100vh - 70px);
+    overflow: hidden;
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .panel-filtros-header {
+    flex-shrink: 0;
+  }
+
+  /* El listado de filtros ocupa el resto del alto del sidebar y
+     hace scroll internamente si hay muchas categorías, sin mover
+     el header ni el resto de la página. */
+  .panel-filtros {
+    flex: 1;
+    max-height: none;
+  }
+
+  .catalogo {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .hero-banner,
+  .catalogo-controles {
+    flex-shrink: 0;
+  }
+
+  /* Único elemento que se desplaza al hacer scroll: la cuadrícula
+     de productos. */
+  .catalogo-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .btn-brillante {
     animation: none;
