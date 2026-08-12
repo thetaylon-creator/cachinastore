@@ -338,14 +338,21 @@ function limpiarNombre(nombreFeo) {
     .trim();
 }
 
+// ==========================================
 // 10. LÓGICA DEL CARRITO
+// FIX: ya no se permite aumentar la cantidad de un producto que
+// ya está en el carrito. Si el usuario intenta agregarlo de nuevo,
+// simplemente se abre el carrito (sin sumar cantidad). Cada producto
+// solo puede eliminarse por completo con el botón "×".
+// ==========================================
 function agregarAlCarrito(nombre, precio, imagen) {
   const existe = carritoItems.find(prod => prod.nombre === nombre);
   if (existe) {
-    existe.cantidad++;
-  } else {
-    carritoItems.push({ nombre, precio: parseFloat(precio), imagen, cantidad: 1 });
+    // Ya está en el carrito: no se aumenta la cantidad.
+    abrirCarrito();
+    return;
   }
+  carritoItems.push({ nombre, precio: parseFloat(precio), imagen, cantidad: 1 });
   actualizarVistaCarrito();
   abrirCarrito();
 }
@@ -376,11 +383,6 @@ function actualizarVistaCarrito() {
         <div class="item-info">
           <h5>${item.nombre}</h5>
           <span class="precio-item">${subtotal.toFixed(2)} PEN</span>
-          <div class="item-controles">
-            <button class="btn-cant" onclick="cambiarCantidad(${index}, -1)">-</button>
-            <span>${item.cantidad}</span>
-            <button class="btn-cant" onclick="cambiarCantidad(${index}, 1)">+</button>
-          </div>
         </div>
         <button class="btn-eliminar-item" onclick="eliminarDelCarrito(${index})">&times;</button>
       `;
@@ -390,12 +392,6 @@ function actualizarVistaCarrito() {
 
   if (totalTexto) totalTexto.innerText = `${sumaTotal.toFixed(2)} PEN`;
   if (contadorHeader) contadorHeader.innerText = totalCantidad;
-}
-
-function cambiarCantidad(index, cambio) {
-  carritoItems[index].cantidad += cambio;
-  if (carritoItems[index].cantidad <= 0) carritoItems.splice(index, 1);
-  actualizarVistaCarrito();
 }
 
 function eliminarDelCarrito(index) {
