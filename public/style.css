@@ -18,6 +18,8 @@
 
 html {
   height: 100%;
+  /* FIX RENDIMIENTO: scroll nativo suave en iOS/Android */
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -212,28 +214,52 @@ body.bloquear-scroll {
   color: white;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background 0.3s;
 }
 
 .btn-principal:hover {
   background: var(--accent-hover);
 }
 
+/* FIX RENDIMIENTO: animar box-shadow en bucle infinito obliga al
+   navegador a repintar constantemente. Se reemplaza por una capa
+   (::after) que solo cambia su opacity, mucho más barato para el
+   GPU, sobre todo en celulares de gama media/baja. */
 .btn-brillante {
+  position: relative;
   box-shadow: 0 0 20px rgba(108, 92, 231, 0.7), 0 0 40px rgba(108, 92, 231, 0.4);
-  animation: pulso-brillo 2s ease-in-out infinite;
+  isolation: isolate;
+}
+
+.btn-brillante::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: 0 0 28px rgba(108, 92, 231, 0.9), 0 0 55px rgba(108, 92, 231, 0.6);
+  opacity: 0;
+  z-index: -1;
+  animation: pulso-opacidad 2s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .btn-brillante:hover {
   box-shadow: 0 0 25px rgba(108, 92, 231, 0.9), 0 0 50px rgba(108, 92, 231, 0.6);
 }
 
-@keyframes pulso-brillo {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(108, 92, 231, 0.7), 0 0 40px rgba(108, 92, 231, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 28px rgba(108, 92, 231, 0.9), 0 0 55px rgba(108, 92, 231, 0.55);
+@keyframes pulso-opacidad {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* En pantallas chicas, quitar la animación infinita del brillo:
+   es la pantalla de bienvenida, la más pesada en cargar y donde
+   menos aporta un efecto tan costoso en batería/CPU. */
+@media (max-width: 900px) {
+  .btn-brillante::after {
+    animation: none;
+    opacity: 0.6;
   }
 }
 
@@ -406,6 +432,13 @@ header {
   overflow: hidden;
   aspect-ratio: 1 / 1.15;
   position: relative;
+  /* FIX RENDIMIENTO: le dice al navegador que no calcule el layout
+     ni pinte tarjetas que están fuera de la pantalla todavía, hasta
+     que el usuario esté por llegar a ellas con el scroll. Con
+     catálogos de 30-50+ productos esto reduce muchísimo el trabajo
+     por frame durante el scroll en celulares de gama media/baja. */
+  content-visibility: auto;
+  contain-intrinsic-size: 220px 253px;
 }
 
 .tarjeta-fondo {
@@ -425,7 +458,16 @@ header {
   box-sizing: border-box;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+  /* FIX RENDIMIENTO: drop-shadow() recalcula la sombra siguiendo la
+     silueta real (con transparencia) de CADA imagen, en CADA tarjeta
+     del catálogo — muy caro para el GPU y una de las causas
+     principales del scroll trabado en móvil. Se reemplaza por una
+     sombra normal en el contenedor (mucho más barata), ver
+     .tarjeta-fondo abajo. */
+}
+
+.tarjeta-fondo {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
 }
 
 .tarjeta-overlay {
@@ -474,7 +516,6 @@ header {
   border-radius: 50%;
   border: none;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
   color: #fff;
   font-size: 1.3rem;
   font-weight: 400;
@@ -586,6 +627,7 @@ header {
   box-shadow: -5px 0 25px rgba(0, 0, 0, 0.7);
   transform: translateX(0);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 /* Estado Oculto Panel */
@@ -1080,6 +1122,39 @@ body .modal-pago.oculto:not(.mostrar) {
 }
 
 /* ==========================================
+   PANEL DE FILTROS (SIDEBAR) — ESTILOS DINÁMICOS
+   Estos se inyectan también desde script.js, pero se listan aquí
+   para que el sidebar no se vea "roto" antes de que cargue el JS.
+   ========================================== */
+.panel-filtros-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111;
+  padding: 11px 16px;
+  border-radius: 10px 10px 0 0;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.panel-filtros {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(10, 8, 18, 0.94);
+  border-radius: 0 0 10px 10px;
+  box-sizing: border-box;
+  padding: 6px;
+}
+
+/* ==========================================
    RESPONSIVE MÓVIL
    FIX: .contenedor-tienda usaba "240px 1fr" fijo, sin apilarse
    en pantallas angostas. Eso obligaba al navegador a ampliar el
@@ -1150,7 +1225,7 @@ body .modal-pago.oculto:not(.mostrar) {
    backdrop-filter: blur() es caro para el GPU de celulares de gama
    media/baja: se nota como "trabas" o delay al abrir/cerrar el
    carrito, el modal de pago y el zoom del QR, o al hacer scroll con
-   alguno abierto. En pantallas angostas se reduce/baja bastante la
+   alguno abierto. En pantallas angostas se quita/baja bastante la
    intensidad para que se sienta fluido, manteniendo el efecto visual
    en pantallas grandes (escritorio) donde el GPU no es un problema.
    ========================================== */
@@ -1160,7 +1235,29 @@ body .modal-pago.oculto:not(.mostrar) {
     backdrop-filter: none;
   }
 
+  /* FIX: antes quedaba blur(3px) fijo en el zoom del QR incluso en
+     móvil; se quita del todo en pantallas chicas, que es donde más
+     se nota el costo. */
   .modal-qr-zoom {
-    backdrop-filter: blur(3px);
+    backdrop-filter: none;
+  }
+
+  /* FIX: el blur del login (box-login) también pesa en móvil;
+     se reduce a la mitad manteniendo el efecto visual de vidrio. */
+  .box-login {
+    backdrop-filter: blur(5px);
+  }
+}
+
+/* FIX RENDIMIENTO GLOBAL: en dispositivos que declaran preferir
+   menos movimiento (accesibilidad / ahorro de batería), se apagan
+   las animaciones y transiciones decorativas. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-brillante::after {
+    animation: none;
+    opacity: 0.6;
+  }
+  * {
+    scroll-behavior: auto !important;
   }
 }
