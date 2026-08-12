@@ -273,17 +273,14 @@ function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // FIX: el "sticky" solo tiene sentido en el layout de escritorio
-  // (sidebar al costado). En móvil, donde el sidebar va apilado
-  // arriba del catálogo, "sticky" hacía que la lista de filtros se
-  // quedara pegada arriba mientras se hacía scroll, superponiéndose
-  // con las tarjetas de productos.
-  if (window.innerWidth <= 900) {
-    sidebar.style.position = 'static';
-    sidebar.style.top = 'auto';
-    sidebar.style.maxHeight = 'none';
-    return;
-  }
+  // FIX: se quita el "sticky" por completo. El sidebar ya no
+  // persigue el scroll de la página; se queda fijo en su posición
+  // original dentro del layout, como cualquier columna normal.
+  sidebar.style.position = 'static';
+  sidebar.style.top = 'auto';
+  sidebar.style.alignSelf = 'auto';
+  sidebar.style.maxHeight = 'none';
+}
 
   sidebar.style.position = 'sticky';
   sidebar.style.top = '20px';
