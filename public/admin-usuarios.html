@@ -150,12 +150,17 @@
         totalTexto.textContent = `Total: ${datos.total} usuario(s)`;
 
         let filas = '';
-        datos.usuarios.forEach(u => {
+        datos.usuarios.forEach((u, index) => {
           const fecha = new Date(u.created_at).toLocaleString('es-PE', {
             dateStyle: 'medium',
             timeStyle: 'short'
           });
-          filas += `<tr data-fila-usuario="${u.user_code}"><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td><td><button class="btn-eliminar" data-usuario="${u.user_code}">Eliminar</button></td></tr>`;
+          // FIX: se muestra un número correlativo (1, 2, 3...) en vez
+          // del ID real de la base de datos. El ID real de la BD deja
+          // huecos cuando se elimina un usuario (ej: 16,15,14,13,12,
+          // 11,10,9,7,6,5,3 — salta el 8,4,2,1), así que ahora la
+          // columna siempre arranca en 1 y sigue sin saltos.
+          filas += `<tr data-fila-usuario="${u.user_code}"><td>${index + 1}</td><td>${u.user_code}</td><td>${fecha}</td><td><button class="btn-eliminar" data-usuario="${u.user_code}">Eliminar</button></td></tr>`;
         });
 
         resultado.innerHTML = `
