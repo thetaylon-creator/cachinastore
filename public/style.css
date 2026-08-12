@@ -517,13 +517,18 @@ header {
   overflow: hidden;
   aspect-ratio: 1 / 1.15;
   position: relative;
-  /* FIX RENDIMIENTO: le dice al navegador que no calcule el layout
-     ni pinte tarjetas que están fuera de la pantalla todavía, hasta
-     que el usuario esté por llegar a ellas con el scroll. Con
-     catálogos de 30-50+ productos esto reduce muchísimo el trabajo
-     por frame durante el scroll en celulares de gama media/baja. */
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   content-visibility: auto;
   contain-intrinsic-size: 220px 253px;
+}
+
+.tarjeta-producto:hover {
+  transform: translateY(-6px);
+  border-color: rgba(108, 92, 231, 0.45);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(108, 92, 231, 0.15);
 }
 
 .tarjeta-fondo {
@@ -531,85 +536,87 @@ header {
   height: 100%;
   position: relative;
   background:
-    repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 8px),
-    linear-gradient(160deg, #6d3fc0, #3a1e7a);
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 2px, transparent 2px, transparent 8px),
+    linear-gradient(160deg, #2a2244, #181528);
 }
 
 .tarjeta-imagen {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 30px 16px 60px;
+  padding: 24px 16px 64px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
-  /* FIX RENDIMIENTO: drop-shadow() recalcula la sombra siguiendo la
-     silueta real (con transparencia) de CADA imagen, en CADA tarjeta
-     del catálogo — muy caro para el GPU y una de las causas
-     principales del scroll trabado en móvil. Se reemplaza por una
-     sombra normal en el contenedor (mucho más barata), ver
-     .tarjeta-fondo abajo. */
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.tarjeta-fondo {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+.tarjeta-producto:hover .tarjeta-imagen {
+  transform: scale(1.04);
 }
 
+/* Overlay tipo LIMX: gradiente oscuro que sube desde abajo, degradado suave */
 .tarjeta-overlay {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 45%;
-  background: linear-gradient(to top, rgba(0,0,0,0.65), transparent);
+  height: 60%;
+  background: linear-gradient(to top,
+    rgba(0,0,0,.92) 0%,
+    rgba(0,0,0,.75) 35%,
+    rgba(0,0,0,.35) 70%,
+    transparent 100%);
   z-index: 1;
+  pointer-events: none;
 }
 
 .tarjeta-info {
   position: absolute;
-  bottom: 12px; left: 14px; right: 14px;
+  bottom: 12px; left: 14px; right: 48px;
   z-index: 2;
 }
 
 .tarjeta-nombre {
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
   margin: 0 0 4px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 6px rgba(0,0,0,.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.2px;
 }
 
 .tarjeta-precio {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
+  color: rgba(255,255,255,.85);
+  font-weight: 600;
+  font-size: 0.78rem;
   margin: 0;
 }
 
 .tarjeta-precio-pen {
   color: #00ffaa;
   font-weight: 900;
-  font-size: 0.85rem;
-  margin: 2px 0 0;
-  -webkit-text-stroke: 0.4px #00ffaa;
+  font-size: 0.9rem;
+  margin: 3px 0 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5), 0 0 10px rgba(0,255,170,.25);
   letter-spacing: 0.2px;
 }
 
-.icono-pavos { width: 16px; height: 16px; }
+.icono-pavos { width: 15px; height: 15px; }
 
 .btn-agregar-icono {
   position: absolute;
   bottom: 12px;
   right: 14px;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--accent-purple);
   color: #fff;
   font-size: 1.3rem;
   font-weight: 400;
@@ -618,62 +625,19 @@ header {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 2;
-  transition: background 0.15s, transform 0.15s;
+  z-index: 3;
+  box-shadow: 0 4px 14px rgba(108, 92, 231, 0.5);
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .btn-agregar-icono:hover {
-  background: rgba(0, 0, 0, 0.7);
-  transform: scale(1.08);
+  background: var(--accent-hover);
+  transform: scale(1.1);
+  box-shadow: 0 6px 18px rgba(108, 92, 231, 0.7);
 }
 
 .btn-agregar-icono:active {
-  transform: scale(0.95);
-}
-
-.tarjeta-producto:hover {
-  transform: translateY(-6px) scale(1.02);
-  border-color: #7c4dff;
-  box-shadow: 0 12px 24px rgba(124, 77, 255, 0.35);
-}
-
-.imagen-placeholder {
-  height: 200px;
-  background: #231f38;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text-muted);
-  overflow: hidden;
-  position: relative;
-}
-
-.imagen-placeholder img {
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  will-change: transform;
-}
-
-.tarjeta-producto:hover .imagen-placeholder img {
-  transform: scale(1.12);
-}
-
-.btn-agregar {
-  background: #6c5ce7;
-  color: #ffffff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.btn-agregar:hover {
-  background: #8b78ff;
-}
-
-.btn-agregar:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
 }
 
 /* ==========================================
