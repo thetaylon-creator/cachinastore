@@ -221,45 +221,30 @@ body.bloquear-scroll {
   background: var(--accent-hover);
 }
 
-/* FIX RENDIMIENTO: animar box-shadow en bucle infinito obliga al
-   navegador a repintar constantemente. Se reemplaza por una capa
-   (::after) que solo cambia su opacity, mucho más barato para el
-   GPU, sobre todo en celulares de gama media/baja. */
 .btn-brillante {
-  position: relative;
   box-shadow: 0 0 20px rgba(108, 92, 231, 0.7), 0 0 40px rgba(108, 92, 231, 0.4);
-  isolation: isolate;
-}
-
-.btn-brillante::after {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  border-radius: inherit;
-  background: transparent;
-  box-shadow: 0 0 28px rgba(108, 92, 231, 0.9), 0 0 55px rgba(108, 92, 231, 0.6);
-  opacity: 0;
-  z-index: -1;
-  animation: pulso-opacidad 2s ease-in-out infinite;
-  will-change: opacity;
+  animation: pulso-brillo 2s ease-in-out infinite;
 }
 
 .btn-brillante:hover {
   box-shadow: 0 0 25px rgba(108, 92, 231, 0.9), 0 0 50px rgba(108, 92, 231, 0.6);
 }
 
-@keyframes pulso-opacidad {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+@keyframes pulso-brillo {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.7), 0 0 40px rgba(108, 92, 231, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(108, 92, 231, 0.9), 0 0 55px rgba(108, 92, 231, 0.55);
+  }
 }
 
-/* En pantallas chicas, quitar la animación infinita del brillo:
-   es la pantalla de bienvenida, la más pesada en cargar y donde
-   menos aporta un efecto tan costoso en batería/CPU. */
+/* En pantallas chicas se deja el brillo fijo (sin loop) para
+   ahorrar batería/CPU, ya que es la primera pantalla que carga. */
 @media (max-width: 900px) {
-  .btn-brillante::after {
+  .btn-brillante {
     animation: none;
-    opacity: 0.6;
+    box-shadow: 0 0 24px rgba(108, 92, 231, 0.8), 0 0 45px rgba(108, 92, 231, 0.5);
   }
 }
 
@@ -1253,9 +1238,8 @@ body .modal-pago.oculto:not(.mostrar) {
    menos movimiento (accesibilidad / ahorro de batería), se apagan
    las animaciones y transiciones decorativas. */
 @media (prefers-reduced-motion: reduce) {
-  .btn-brillante::after {
+  .btn-brillante {
     animation: none;
-    opacity: 0.6;
   }
   * {
     scroll-behavior: auto !important;
