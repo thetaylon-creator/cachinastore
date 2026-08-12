@@ -187,7 +187,7 @@ style.textContent = `
     .filtros-label{ display:flex; align-items:center; gap:6px; }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
-      max-height:480px; min-height:0;
+      max-height:calc(100vh - 170px); min-height:0;
       overflow-y:auto; overflow-x:hidden;
       background:rgba(10,8,18,0.94);
       border-radius:0 0 10px 10px;
@@ -266,13 +266,21 @@ function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // FIX: se quita el "sticky" por completo. El sidebar ya no
-  // persigue el scroll de la página; se queda fijo en su posición
-  // original dentro del layout, como cualquier columna normal.
-  sidebar.style.position = 'static';
-  sidebar.style.top = 'auto';
-  sidebar.style.alignSelf = 'auto';
-  sidebar.style.maxHeight = 'none';
+  // En móvil (sidebar apilado arriba del catálogo) no aplica sticky.
+  if (window.innerWidth <= 900) {
+    sidebar.style.position = 'static';
+    sidebar.style.top = 'auto';
+    sidebar.style.alignSelf = 'auto';
+    sidebar.style.maxHeight = 'none';
+    return;
+  }
+
+  // En escritorio: el sidebar se queda "pegado" a 90px del tope
+  // (debajo del header) mientras se hace scroll de toda la página.
+  sidebar.style.position = 'sticky';
+  sidebar.style.top = '90px';
+  sidebar.style.alignSelf = 'start';
+  sidebar.style.maxHeight = 'calc(100vh - 110px)';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
