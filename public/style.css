@@ -399,6 +399,34 @@ header {
   color: #fff;
 }
 
+/* ==========================================
+   CATÁLOGO AGRUPADO POR SECCIONES
+   Ahora todas las secciones se pintan seguidas (como en la tienda
+   oficial de Fortnite). Bajar con el scroll pasa de una sección a
+   la siguiente, y el menú de filtros se sincroniza solo.
+   ========================================== */
+.contenedor-secciones {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.seccion-tienda {
+  /* Deja aire arriba al hacer scrollIntoView, para que el título no
+     quede pegado al borde superior del área visible. */
+  scroll-margin-top: 12px;
+}
+
+.seccion-titulo {
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1211,6 +1239,28 @@ body .modal-pago.oculto:not(.mostrar) {
   border-radius: 0 0 18px 18px;
   box-sizing: border-box;
   padding: 6px;
+  /* FIX: scrollbar delgado y visible en vez del scrollbar por
+     defecto del navegador (casi invisible sobre fondo oscuro), para
+     que quede claro que la lista de filtros tiene más scroll. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.panel-filtros::-webkit-scrollbar {
+  width: 7px;
+}
+
+.panel-filtros::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-filtros::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+}
+
+.panel-filtros::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Cuando el panel desplegable está cerrado, la barra FILTROS
@@ -1438,6 +1488,25 @@ body .modal-pago.oculto:not(.mostrar) {
     flex: 1;
     overflow-y: auto;
     padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  }
+
+  .catalogo-scroll::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .catalogo-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .catalogo-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+  }
+
+  .catalogo-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 }
 
