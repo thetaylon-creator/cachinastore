@@ -1071,8 +1071,12 @@ body .modal-pago.oculto:not(.mostrar) {
   .sidebar {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
-    position: static;
-    max-height: none;
+  }
+
+  /* Barra "FILTROS" tocable para desplegar/ocultar la lista */
+  .panel-filtros-header {
+    cursor: pointer;
+    justify-content: space-between;
   }
 
   header {
