@@ -85,6 +85,16 @@
       color: #71717a;
       padding: 30px;
     }
+    .btn-eliminar {
+  background: #ff4757;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.btn-eliminar:hover { background: #e63946; }
   </style>
 </head>
 <body>
@@ -136,13 +146,13 @@
             dateStyle: 'medium',
             timeStyle: 'short'
           });
-          filas += `<tr><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td></tr>`;
+          filas += `<tr><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td><td><button class="btn-eliminar" data-usuario="${u.user_code}">Eliminar</button></td></tr>`;
         });
 
         resultado.innerHTML = `
           <table>
             <thead>
-              <tr><th>ID</th><th>Usuario</th><th>Registrado</th></tr>
+              <tr><th>ID</th><th>Usuario</th><th>Registrado</th><th></th></tr>
             </thead>
             <tbody>${filas}</tbody>
           </table>
@@ -156,6 +166,31 @@
     inputClave.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') cargarUsuarios();
     });
+    resultado.addEventListener('click', async (e) => {
+  const boton = e.target.closest('.btn-eliminar');
+  if (!boton) return;
+
+  const usuario = boton.getAttribute('data-usuario');
+  const clave = inputClave.value.trim();
+
+  if (!confirm(`¿Seguro que quieres eliminar al usuario "${usuario}"?`)) return;
+
+  try {
+    const respuesta = await fetch(`/api/admin/usuarios/${encodeURIComponent(usuario)}?key=${encodeURIComponent(clave)}`, {
+      method: 'DELETE'
+    });
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      alert(datos.error || 'No se pudo eliminar');
+      return;
+    }
+
+    cargarUsuarios(); // recarga la lista
+  } catch (error) {
+    alert('Error de conexión al eliminar');
+  }
+});
   </script>
 </body>
 </html>
