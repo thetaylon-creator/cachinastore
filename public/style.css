@@ -675,7 +675,7 @@ header {
   height: 50px;
   object-fit: contain;
   border-radius: 6px;
-  background: #0f1017;
+  background: transparent;
 }
 
 .item-info {
