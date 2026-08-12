@@ -84,7 +84,20 @@
       <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Skins y cosméticos del día.</p>
     </div>
 
-    <div class="grid-productos" id="contenedor-productos"></div>
+    <div class="catalogo-controles">
+      <div class="buscador-tienda">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="input-buscar" placeholder="Buscar skin, emote, lote...">
+      </div>
+      <div class="moneda-chip">Moneda: <strong>PEN</strong></div>
+    </div>
+
+    <div class="catalogo-scroll">
+      <div class="grid-productos" id="contenedor-productos"></div>
+    </div>
   </main>
 </div>
   </section>
