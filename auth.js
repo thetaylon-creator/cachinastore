@@ -80,4 +80,31 @@ router.get('/admin/usuarios', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/usuarios/:user_code?key=TU_CLAVE
+// Elimina un usuario por su ID/nick
+router.delete('/admin/usuarios/:user_code', async (req, res) => {
+  const claveIngresada = req.query.key;
+  const claveCorrecta = process.env.ADMIN_KEY || 'cambia-esta-clave';
+
+  if (claveIngresada !== claveCorrecta) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      'DELETE FROM users WHERE user_code = $1 RETURNING user_code',
+      [req.params.user_code]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ success: true, eliminado: rows[0].user_code });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 module.exports = router;
