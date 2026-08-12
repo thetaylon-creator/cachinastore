@@ -186,23 +186,30 @@ function inyectarEstilosFiltros() {
     .panel-filtros-header{
       display:flex; align-items:center; gap:8px; justify-content:space-between;
       background:rgba(255,255,255,0.96); color:#111;
-      padding:11px 16px; border-radius:10px 10px 0 0;
-      font-weight:800; font-size:0.82rem; letter-spacing:0.3px;
+      padding:14px 18px; border-radius:10px 10px 0 0;
+      font-weight:800; font-size:0.9rem; letter-spacing:0.3px;
       text-transform:uppercase;
     }
-    .panel-filtros-header svg{ width:15px; height:15px; flex-shrink:0; }
+    .panel-filtros-header svg{ width:16px; height:16px; flex-shrink:0; }
     .filtros-label{ display:flex; align-items:center; gap:6px; }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
-      max-height:calc(100vh - 120px); overflow-y:auto; overflow-x:hidden;
+      max-height:calc(100vh - 90px); min-height:420px;
+      overflow-y:auto; overflow-x:hidden;
       background:rgba(10,8,18,0.94);
       border-radius:0 0 10px 10px;
-      box-sizing:border-box; padding:6px;
+      box-sizing:border-box; padding:8px;
       box-shadow:0 10px 30px rgba(0,0,0,0.4);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
     }
+    .panel-filtros::-webkit-scrollbar{ width:7px; }
+    .panel-filtros::-webkit-scrollbar-track{ background:transparent; }
+    .panel-filtros::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.3); border-radius:8px; }
+    .panel-filtros::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.5); }
     .panel-filtros .item-filtro{
-      list-style:none; padding:12px 10px; margin:2px 0;
-      color:#fff; font-weight:700; font-size:0.76rem;
+      list-style:none; padding:15px 12px; margin:3px 0;
+      color:#fff; font-weight:700; font-size:0.85rem;
       letter-spacing:0.3px; text-transform:uppercase;
       border-radius:8px; cursor:pointer; transition:0.15s;
       background:transparent;
