@@ -133,6 +133,8 @@ async function obtenerTiendaFortnite() {
     if (datos && datos.data && datos.data.entries) {
       productosGlobales = datos.data.entries;
 
+      
+
       generarMenuFiltros(productosGlobales);
       renderizarProductos(productosGlobales);
     }  } catch (error) {
@@ -213,6 +215,33 @@ style.textContent = `
   `;
   document.head.appendChild(style);
 }
+// ==========================================
+// 4.6 ORDEN ÚNICO Y COMPARTIDO DE SECCIONES
+// Se usa tanto para pintar el menú de FILTROS como para renderizar
+// el catálogo, así los dos van SIEMPRE en el mismo orden (evita que
+// el scroll-spy "salte" o resalte algo que no corresponde).
+// Excluye "Destacados" por completo y manda "Pistas de
+// improvisación" al final, sin importar en qué posición la
+// devuelva la API.
+// ==========================================
+function obtenerSeccionesOrdenadas(entries) {
+  const vistas = new Set();
+  const orden = [];
+
+  entries.forEach(entry => {
+    const nombre = obtenerNombreSeccion(entry);
+    if (nombre === "Destacados") return; // se quita por completo
+    if (!vistas.has(nombre)) {
+      vistas.add(nombre);
+      orden.push(nombre);
+    }
+  });
+
+  const esPistas = (n) => n.toLowerCase().includes('pista');
+  const normales = orden.filter(n => !esPistas(n));
+  const pistas = orden.filter(esPistas);
+  return [...normales, ...pistas];
+}
 
 function generarMenuFiltros(entries) {
   const sidebar = document.querySelector('.sidebar');
@@ -225,12 +254,7 @@ function generarMenuFiltros(entries) {
 
   inyectarEstilosFiltros();
 
-  const seccionesSet = new Set();
-  entries.forEach(entry => {
-    const nombreSeccion = obtenerNombreSeccion(entry);
-    if (nombreSeccion !== "Destacados") seccionesSet.add(nombreSeccion);
-  });
-  const secciones = Array.from(seccionesSet);
+  const secciones = obtenerSeccionesOrdenadas(entries);
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
@@ -252,9 +276,6 @@ function generarMenuFiltros(entries) {
   htmlMenu += `</ul>`;
   sidebar.innerHTML = htmlMenu;
 
-  // FIX: en móvil (apilado arriba del catálogo) los filtros empiezan
-  // cerrados, mostrando solo la barra "FILTROS". En escritorio (lado
-  // a lado) se quedan siempre visibles, como antes.
   if (window.innerWidth <= 900) {
     document.getElementById('panel-filtros')?.classList.add('oculto');
   }
