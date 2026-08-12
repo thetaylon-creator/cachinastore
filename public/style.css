@@ -16,10 +16,23 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* FIX MÓVIL: cuando un panel/modal está abierto, bloqueamos el
+   scroll del fondo con esta clase (la agrega/quita script.js) */
+body.bloquear-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 /* Regla general de ocultar */
@@ -59,6 +72,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  height: 100dvh;
   text-align: center;
 }
 
@@ -82,6 +96,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  height: 100dvh;
 }
 
 .pantalla-con-fondo {
@@ -527,6 +542,7 @@ header {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* FIX móvil: evita franja sin cubrir por la barra de direcciones */
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   z-index: 998;
@@ -551,6 +567,7 @@ header {
   width: 380px;
   max-width: 85vw;
   height: 100vh;
+  height: 100dvh; /* FIX móvil */
   background: #0d0e15;
   color: #fff;
   z-index: 999;
@@ -615,6 +632,7 @@ header {
   flex: 1;
   padding: 15px 20px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .usuario-seccion {
@@ -665,23 +683,6 @@ header {
   font-size: 0.85rem;
 }
 
-.item-controles {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.btn-cant {
-  background: #27273a;
-  border: none;
-  color: #fff;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .btn-eliminar-item {
   position: absolute;
   top: 8px;
@@ -694,6 +695,7 @@ header {
 
 .carrito-footer {
   padding: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom)); /* FIX móvil: notch/gestos */
   border-top: 1px solid #1a1c29;
   display: flex;
   flex-direction: column;
@@ -759,23 +761,6 @@ header {
 }
 
 /* ==========================================
-   MODAL DE PAGO (YAPE) - ESTILOS
-   ========================================== */
-
-/* Overlay de fondo */
-.overlay-pago {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
-  z-index: 1000; /* Por encima del carrito */
-  transition: opacity 0.3s ease;
-}
-
-/* ==========================================
    MODAL DE PAGO (YAPE) - ESTILOS CORREGIDOS
    ========================================== */
 
@@ -786,6 +771,7 @@ header {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* FIX móvil */
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(5px);
   z-index: 1000; /* Asegúrate de que esté sobre el carrito */
@@ -811,6 +797,9 @@ body .overlay-pago.oculto {
   transform: translate(-50%, -50%) scale(0.9); /* Empieza más pequeño */
   width: 420px;
   max-width: 90vw;
+  max-height: 90dvh; /* FIX móvil: nunca más alto que la pantalla visible */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #0d0e15;
   color: #fff;
   border-radius: 16px;
@@ -910,7 +899,7 @@ body .modal-pago.oculto:not(.mostrar) {
 
 /* Contenedor del ícono pequeño */
 .icono-metodo.yape-plin {
-  width: 40px;  /* <--- Debe ser 40px, no 420px */
+  width: 40px;
   height: 40px;
   background: transparent;
   border-radius: 8px;
@@ -918,7 +907,7 @@ body .modal-pago.oculto:not(.mostrar) {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-shrink: 0; /* Evita que se deforme si el texto es largo */
+  flex-shrink: 0;
 }
 
 /* Imagen del logo de Yape */
@@ -985,22 +974,6 @@ body .modal-pago.oculto:not(.mostrar) {
 
 /* Botón de Whatsapp */
 .btn-whatsapp {
-  background: #25d366; /* Verde Whatsapp */
-  color: #fff;
-  border: none;
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-whatsapp {
   width: 100%;
   background-color: #25d366; /* Verde oficial de WhatsApp */
   color: #ffffff;
@@ -1054,6 +1027,7 @@ body .modal-pago.oculto:not(.mostrar) {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* FIX móvil: ya no queda espacio sin cubrir abajo */
   background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(8px);
   display: flex;
@@ -1065,7 +1039,7 @@ body .modal-pago.oculto:not(.mostrar) {
 
 .modal-qr-zoom img {
   max-width: 90vw;
-  max-height: 85vh;
+  max-height: 85dvh;
   border-radius: 16px;
   box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
   object-fit: contain;
