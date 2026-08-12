@@ -276,17 +276,17 @@ function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // En móvil (sidebar apilado arriba del catálogo) no aplica sticky.
   if (window.innerWidth <= 900) {
-    sidebar.style.position = 'static';
-    sidebar.style.top = 'auto';
+    // En móvil también se queda flotando, pegado arriba del todo,
+    // para no tener que subir el scroll para cambiar de filtro.
+    sidebar.style.position = 'sticky';
+    sidebar.style.top = '0';
+    sidebar.style.zIndex = '50';
     sidebar.style.alignSelf = 'auto';
     sidebar.style.maxHeight = 'none';
     return;
   }
 
-  // En escritorio: el sidebar se queda "pegado" a 90px del tope
-  // (debajo del header) mientras se hace scroll de toda la página.
   sidebar.style.position = 'sticky';
   sidebar.style.top = '90px';
   sidebar.style.alignSelf = 'start';
