@@ -1443,19 +1443,17 @@ body .modal-pago.oculto:not(.mostrar) {
    LISTADO DE FILTROS (ver .panel-filtros más arriba).
    ========================================== */
 @media (min-width: 901px) {
-.sidebar {
+  header {
     position: sticky;
-    top: 20px;
-    align-self: start;
+    top: 0;
+    z-index: 60;
   }
 
-  /* El sidebar se queda pegado (sticky) mientras se hace scroll de
-     toda la página; su posición/alto exacto los termina de ajustar
-     script.js (aplicarScrollSticky), esto es solo el respaldo en CSS. */
   .sidebar {
     position: sticky;
-    top: 20px;
+    top: 90px;
     align-self: start;
+    max-height: calc(100vh - 110px);
   }
 }
 
