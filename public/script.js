@@ -348,12 +348,13 @@ function renderizarProductos(entries) {
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
 
-    const imagen = obtenerImagenReal(entry, item);
+const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
+    const expira = seVaHoy(entry.outDate);
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira });
   });
 
   // Orden ÚNICO: mismo orden en que aparecieron las secciones al
@@ -388,7 +389,7 @@ function renderizarProductos(entries) {
     grid.className = 'grid-productos';
 
     productos.forEach(p => {
-      grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion));
+      grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira));
     });
 
     bloqueSeccion.appendChild(grid);
@@ -404,16 +405,34 @@ function renderizarProductos(entries) {
   iniciarScrollSpySecciones();
 }
 
-function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion) {
+// ==========================================
+// 9.5 DETECTAR SI EL PRODUCTO SE VA HOY
+// La API de Fortnite trae "outDate" (fecha en que el item sale de
+// la tienda). Si faltan 24h o menos, se considera "se va hoy".
+// ==========================================
+function seVaHoy(outDate) {
+  if (!outDate) return false;
+  try {
+    const salida = new Date(outDate).getTime();
+    const ahora = Date.now();
+    const horasRestantes = (salida - ahora) / (1000 * 60 * 60);
+    return horasRestantes > 0 && horasRestantes <= 24;
+  } catch (e) {
+    return false;
+  }
+}
+
+function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira) {
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto');
 
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
-  // FIX RENDIMIENTO: loading="lazy" hace que el navegador solo
-  // descargue la imagen cuando está por entrar en pantalla, en vez
-  // de bajar todas las imágenes de golpe apenas carga la tienda.
+  const badgeExpira = expira
+    ? `<span class="badge-se-va-hoy"><span class="punto-pulso"></span>SE VA HOY</span>`
+    : '';
+
   tarjeta.innerHTML = `
     <div class="tarjeta-fondo">
       <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
@@ -421,6 +440,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion) {
            onerror="this.onerror=null; this.src='https://placehold.co/200x200/181528/ffffff?text=Fortnite';">
       <div class="tarjeta-overlay"></div>
       <div class="tarjeta-info">
+        ${badgeExpira}
         <h4 class="tarjeta-nombre">${nombre}</h4>
         <p class="tarjeta-precio">
           <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">
