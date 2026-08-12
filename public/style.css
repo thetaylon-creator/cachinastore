@@ -289,7 +289,7 @@ header {
      (monitores grandes/ultrawide). Ahora se limita a un ancho máximo
      y se centra, dejando el fondo oscuro visible a los costados,
      igual que la referencia de diseño. */
-  max-width: 1600px;
+  max-width: 1850px;
   margin: 0 auto;
   width: 100%;
 }
@@ -418,13 +418,20 @@ header {
 }
 
 .seccion-titulo {
-  color: #fff;
-  font-size: 1.05rem;
+  display: inline-block;
+  font-family: 'Baloo 2', 'Segoe UI', sans-serif;
+  font-size: 1.7rem;
   font-weight: 800;
-  letter-spacing: 0.2px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
+  color: #fff;
+  letter-spacing: 0.3px;
+  padding: 10px 28px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+  /* El color de fondo de cada píldora lo pone script.js según la
+     sección (obtenerColorSerie), para que cada categoría tenga su
+     propio color como en la tienda de referencia. */
 }
 
 .grid-productos {
@@ -1426,9 +1433,12 @@ body .modal-pago.oculto:not(.mostrar) {
    menos movimiento (accesibilidad / ahorro de batería), se apagan
    las animaciones y transiciones decorativas. */
 /* ==========================================
-   ESCRITORIO: EL HEADER, EL BANNER "TIENDA DE
-   OBJETOS" Y LOS FILTROS SE QUEDAN FIJOS; SOLO
-   LA CUADRÍCULA DE PRODUCTOS SE DESPLAZA.
+   ESCRITORIO: EL HEADER Y EL PANEL DE FILTROS SE
+   QUEDAN FIJOS (STICKY). LA PÁGINA SE DESPLAZA
+   COMPLETA, COMO EN LA TIENDA DE REFERENCIA — YA NO
+   HAY UN SCROLL PROPIO ADENTRO DEL CATÁLOGO. EL
+   ÚNICO SCROLL "INTERNO" QUE QUEDA ES EL DEL PROPIO
+   LISTADO DE FILTROS (ver .panel-filtros más arriba).
    ========================================== */
 @media (min-width: 901px) {
   header {
@@ -1437,76 +1447,13 @@ body .modal-pago.oculto:not(.mostrar) {
     z-index: 60;
   }
 
-  .contenedor-tienda {
-    height: calc(100vh - 70px);
-    overflow: hidden;
-  }
-
+  /* El sidebar se queda pegado (sticky) mientras se hace scroll de
+     toda la página; su posición/alto exacto los termina de ajustar
+     script.js (aplicarScrollSticky), esto es solo el respaldo en CSS. */
   .sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    /* FIX: sin esto, un flex item no se encoge más allá del alto de
-       su contenido (min-height:auto por defecto), así que el listado
-       de filtros empujaba el alto del sidebar en vez de hacer scroll
-       propio cuando había muchas categorías. */
-    min-height: 0;
-  }
-
-  .panel-filtros-header {
-    flex-shrink: 0;
-  }
-
-  /* El listado de filtros ocupa el resto del alto del sidebar y
-     hace scroll internamente si hay muchas categorías, sin mover
-     el header ni el resto de la página. */
-  .panel-filtros {
-    flex: 1;
-    max-height: none;
-    /* FIX: mismo motivo que arriba, min-height:0 es lo que realmente
-       permite que overflow-y:auto entre en acción en vez de estirar
-       el sidebar entero. */
-    min-height: 0;
-  }
-
-  .catalogo {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  .hero-banner,
-  .catalogo-controles {
-    flex-shrink: 0;
-  }
-
-  /* Único elemento que se desplaza al hacer scroll: la cuadrícula
-     de productos. */
-  .catalogo-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 4px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  }
-
-  .catalogo-scroll::-webkit-scrollbar {
-    width: 7px;
-  }
-
-  .catalogo-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .catalogo-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-  }
-
-  .catalogo-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    position: sticky;
+    top: 20px;
+    align-self: start;
   }
 }
 
