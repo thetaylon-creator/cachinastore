@@ -96,13 +96,19 @@ function enviarPedidoWhatsApp() {
 
 // ==========================================
 // ==========================================
-// ID DEL CLIENTE EN EL HEADER
-// Muestra "ID: usuario" al lado de "Fortnite" en el encabezado.
+// ID DEL CLIENTE EN EL HEADER Y EN EL CARRITO
+// Muestra "ID: usuario" al lado de "Fortnite" en el encabezado,
+// y también dentro del carrito (reemplaza el texto "👤 Usuario").
 // ==========================================
 function mostrarIdClienteHeader(idCliente) {
-  const contenedor = document.getElementById('id-cliente-header');
-  if (contenedor && idCliente) {
-    contenedor.textContent = `ID: ${idCliente}`;
+  const contenedorHeader = document.getElementById('id-cliente-header');
+  if (contenedorHeader && idCliente) {
+    contenedorHeader.textContent = `ID: ${idCliente}`;
+  }
+
+  const contenedorCarrito = document.getElementById('nombre-usuario-carrito');
+  if (contenedorCarrito && idCliente) {
+    contenedorCarrito.textContent = `ID: ${idCliente}`;
   }
 }
 
@@ -393,13 +399,13 @@ function limpiarNombre(nombreFeo) {
 function agregarAlCarrito(nombre, precio, imagen) {
   const existe = carritoItems.find(prod => prod.nombre === nombre);
   if (existe) {
-    // Ya está en el carrito: no se aumenta la cantidad.
-    abrirCarrito();
+    // Ya está en el carrito: no se aumenta la cantidad ni se abre el carrito.
     return;
   }
   carritoItems.push({ nombre, precio: parseFloat(precio), imagen, cantidad: 1 });
   actualizarVistaCarrito();
-  abrirCarrito();
+  // FIX: ya no se abre el carrito automáticamente al agregar un producto.
+  // Solo se abre cuando el usuario toca el ícono del carrito.
 }
 
 function actualizarVistaCarrito() {
