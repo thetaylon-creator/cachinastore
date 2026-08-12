@@ -59,4 +59,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// GET /api/admin/usuarios?key=TU_CLAVE
+// Muestra la lista de usuarios registrados (sin mostrar el PIN)
+router.get('/admin/usuarios', async (req, res) => {
+  const claveIngresada = req.query.key;
+  const claveCorrecta = process.env.ADMIN_KEY || 'cambia-esta-clave';
+
+  if (claveIngresada !== claveCorrecta) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, user_code, created_at FROM users ORDER BY created_at DESC'
+    );
+    res.json({ total: rows.length, usuarios: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
 module.exports = router;
