@@ -283,7 +283,7 @@ header {
 
 .contenedor-tienda {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 300px 1fr;
   min-height: calc(100vh - 70px);
   /* FIX: antes esto se estiraba de punta a punta en pantallas anchas
      (monitores grandes/ultrawide). Ahora se limita a un ancho máximo
