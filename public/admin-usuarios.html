@@ -95,6 +95,7 @@
   cursor: pointer;
 }
 .btn-eliminar:hover { background: #e63946; }
+.btn-eliminar:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -125,7 +126,14 @@
       totalTexto.textContent = '';
 
       try {
-        const respuesta = await fetch(`/api/admin/usuarios?key=${encodeURIComponent(clave)}`);
+        // FIX: se agrega cache: 'no-store' para que el navegador
+        // siempre pida la lista fresca al servidor. Sin esto, después
+        // de eliminar un usuario, el navegador a veces devolvía la
+        // respuesta anterior guardada en caché y la tabla no se
+        // actualizaba hasta refrescar la página manualmente.
+        const respuesta = await fetch(`/api/admin/usuarios?key=${encodeURIComponent(clave)}`, {
+          cache: 'no-store'
+        });
         const datos = await respuesta.json();
 
         if (!respuesta.ok) {
@@ -134,6 +142,7 @@
         }
 
         if (datos.usuarios.length === 0) {
+          totalTexto.textContent = 'Total: 0 usuario(s)';
           resultado.innerHTML = '<p class="vacio">Aún no hay usuarios registrados</p>';
           return;
         }
@@ -146,7 +155,7 @@
             dateStyle: 'medium',
             timeStyle: 'short'
           });
-          filas += `<tr><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td><td><button class="btn-eliminar" data-usuario="${u.user_code}">Eliminar</button></td></tr>`;
+          filas += `<tr data-fila-usuario="${u.user_code}"><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td><td><button class="btn-eliminar" data-usuario="${u.user_code}">Eliminar</button></td></tr>`;
         });
 
         resultado.innerHTML = `
@@ -166,31 +175,54 @@
     inputClave.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') cargarUsuarios();
     });
+
     resultado.addEventListener('click', async (e) => {
-  const boton = e.target.closest('.btn-eliminar');
-  if (!boton) return;
+      const boton = e.target.closest('.btn-eliminar');
+      if (!boton) return;
 
-  const usuario = boton.getAttribute('data-usuario');
-  const clave = inputClave.value.trim();
+      const usuario = boton.getAttribute('data-usuario');
+      const clave = inputClave.value.trim();
 
-  if (!confirm(`¿Seguro que quieres eliminar al usuario "${usuario}"?`)) return;
+      if (!confirm(`¿Seguro que quieres eliminar al usuario "${usuario}"?`)) return;
 
-  try {
-    const respuesta = await fetch(`/api/admin/usuarios/${encodeURIComponent(usuario)}?key=${encodeURIComponent(clave)}`, {
-      method: 'DELETE'
+      // FIX: se deshabilita el botón mientras se procesa, para evitar
+      // doble clic y dejar claro que la acción está en curso.
+      boton.disabled = true;
+      boton.textContent = 'Eliminando...';
+
+      try {
+        const respuesta = await fetch(`/api/admin/usuarios/${encodeURIComponent(usuario)}?key=${encodeURIComponent(clave)}`, {
+          method: 'DELETE',
+          cache: 'no-store'
+        });
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+          alert(datos.error || 'No se pudo eliminar');
+          boton.disabled = false;
+          boton.textContent = 'Eliminar';
+          return;
+        }
+
+        // FIX: actualización inmediata (optimista) — se quita la fila
+        // de la pantalla al instante en vez de esperar solo a
+        // cargarUsuarios(), así se ve el cambio de inmediato aunque
+        // la recarga desde el servidor tarde un poco.
+        const fila = resultado.querySelector(`tr[data-fila-usuario="${CSS.escape(usuario)}"]`);
+        fila?.remove();
+
+        const filasRestantes = resultado.querySelectorAll('tbody tr').length;
+        totalTexto.textContent = `Total: ${filasRestantes} usuario(s)`;
+
+        // Igual se vuelve a pedir la lista real al servidor (ya sin
+        // caché) para asegurar que quede exactamente sincronizada.
+        cargarUsuarios();
+      } catch (error) {
+        alert('Error de conexión al eliminar');
+        boton.disabled = false;
+        boton.textContent = 'Eliminar';
+      }
     });
-    const datos = await respuesta.json();
-
-    if (!respuesta.ok) {
-      alert(datos.error || 'No se pudo eliminar');
-      return;
-    }
-
-    cargarUsuarios(); // recarga la lista
-  } catch (error) {
-    alert('Error de conexión al eliminar');
-  }
-});
   </script>
 </body>
 </html>
