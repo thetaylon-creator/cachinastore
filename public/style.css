@@ -1173,28 +1173,38 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 
   header {
-    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    row-gap: 12px;
+    column-gap: 10px;
     padding: 14px 16px 16px;
-    flex-wrap: wrap;
-    gap: 12px 10px;
+  }
+
+  /* Se "desarma" el contenedor de acciones para poder ubicar el
+     carrito y el botón de Cerrar Sesión en filas distintas del grid,
+     sin tocar el HTML. */
+  .header-acciones {
+    display: contents;
   }
 
   .logo-header {
-    flex: 1 1 auto;
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  /* "Cerrar Sesión" pasa a la esquina superior derecha del header,
-     alineado con la altura del logo/nombre CachinaStore */
+  /* Se alinea con el texto "CachinaStore" (misma fila y mismo
+     align-items: center del grid), no con el ícono del logo. */
   #btn-cerrar {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
     font-weight: 700;
   }
 
   .nav-links {
-    order: 2;
-    width: 100%;
+    grid-column: 1 / -1;
+    grid-row: 2;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1202,10 +1212,10 @@ body .modal-pago.oculto:not(.mostrar) {
 
   /* El carrito baja de línea para que el badge rojo no se
      superponga con la fila de "Fortnite" / ID de arriba */
-  .header-acciones {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
+  .btn-carrito {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
     margin-top: 4px;
   }
 
