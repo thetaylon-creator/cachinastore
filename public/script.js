@@ -533,15 +533,22 @@ function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
 
-  // FIX: el sidebar de filtros ahora es sticky (flota arriba tanto en
-  // móvil como en escritorio), así que tapa la parte de arriba de la
-  // sección si usamos scrollIntoView normal. Calculamos su altura real
-  // y restamos ese espacio al destino del scroll.
-  const sidebar = document.querySelector('.sidebar');
-  const alturaSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
-  const margenExtra = 16;
+  const esMovil = window.innerWidth <= 900;
+  let offset;
 
-  const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - alturaSidebar - margenExtra;
+  if (esMovil) {
+    // En móvil el sidebar flota ARRIBA del catálogo (una sola columna),
+    // así que hay que restar su altura real para no taparlo.
+    const sidebar = document.querySelector('.sidebar');
+    offset = (sidebar ? sidebar.getBoundingClientRect().height : 0) + 16;
+  } else {
+    // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
+    // no lo tapa verticalmente. Solo hay que restar el header sticky.
+    const header = document.querySelector('header');
+    offset = (header ? header.getBoundingClientRect().height : 70) + 20;
+  }
+
+  const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - offset;
 
   window.scrollTo({
     top: Math.max(0, posicionDestino),
