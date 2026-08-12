@@ -313,6 +313,12 @@ function renderizarProductos(entries) {
     return;
   }
 
+  // FIX RENDIMIENTO: en vez de insertar cada tarjeta al DOM una por
+  // una (lo que obliga al navegador a recalcular el layout en cada
+  // producto), se arman todas primero en un DocumentFragment
+  // (en memoria) y se insertan al DOM de una sola vez al final.
+  const fragmento = document.createDocumentFragment();
+
   entries.forEach(entry => {
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
@@ -330,27 +336,33 @@ function renderizarProductos(entries) {
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
     const seccionNombre = obtenerNombreSeccion(entry);
 
-    crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccionNombre);
+    const tarjeta = crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccionNombre);
+    fragmento.appendChild(tarjeta);
   });
+
+  contenedor.appendChild(fragmento);
 }
 
 function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion) {
-  const contenedor = document.getElementById('contenedor-productos');
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto');
 
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
+  // FIX RENDIMIENTO: loading="lazy" hace que el navegador solo
+  // descargue la imagen cuando está por entrar en pantalla, en vez
+  // de bajar todas las imágenes de golpe apenas carga la tienda.
   tarjeta.innerHTML = `
     <div class="tarjeta-fondo">
       <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
+           loading="lazy" decoding="async"
            onerror="this.onerror=null; this.src='https://placehold.co/200x200/181528/ffffff?text=Fortnite';">
       <div class="tarjeta-overlay"></div>
       <div class="tarjeta-info">
         <h4 class="tarjeta-nombre">${nombre}</h4>
         <p class="tarjeta-precio">
-          <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos">
+          <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">
           ${pavos}
         </p>
         <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
@@ -361,7 +373,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion) {
               data-imagen="${imagen}">+</button>
     </div>
   `;
-  contenedor.appendChild(tarjeta);
+  return tarjeta;
 }
 
 // 9. COLORES POR SERIE / SECCIÓN
@@ -430,7 +442,7 @@ function actualizarVistaCarrito() {
       const itemElement = document.createElement('div');
       itemElement.classList.add('item-cart');
       itemElement.innerHTML = `
-        <img src="${item.imagen}" alt="${item.nombre}">
+        <img src="${item.imagen}" alt="${item.nombre}" loading="lazy" decoding="async">
         <div class="item-info">
           <h5>${item.nombre}</h5>
           <span class="precio-item">${subtotal.toFixed(2)} PEN</span>
