@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios - CachinaStore Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body {
+      background: #0f0c1b;
+      color: #fff;
+      min-height: 100vh;
+      padding: 30px 20px;
+    }
+    .contenedor {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+    .subtitulo {
+      color: #a09cb0;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+    }
+    .caja-clave {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .caja-clave input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #2a2640;
+      background: #181528;
+      color: #fff;
+      outline: none;
+    }
+    .caja-clave button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #6c5ce7;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .caja-clave button:hover { background: #574b90; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #181528;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #131021;
+      color: #a09cb0;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    tr:not(:last-child) td {
+      border-bottom: 1px solid #2a2640;
+    }
+    .total {
+      color: #00ffaa;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .mensaje {
+      color: #ff6b6b;
+      margin-top: 15px;
+    }
+    .vacio {
+      text-align: center;
+      color: #71717a;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <h1>👥 Usuarios registrados</h1>
+    <p class="subtitulo">CachinaStore — Panel de administración</p>
+
+    <div class="caja-clave">
+      <input type="password" id="clave-admin" placeholder="Ingresa tu clave de administrador">
+      <button id="btn-ver">Ver usuarios</button>
+    </div>
+
+    <p class="total" id="total-usuarios"></p>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const btnVer = document.getElementById('btn-ver');
+    const inputClave = document.getElementById('clave-admin');
+    const resultado = document.getElementById('resultado');
+    const totalTexto = document.getElementById('total-usuarios');
+
+    async function cargarUsuarios() {
+      const clave = inputClave.value.trim();
+      if (!clave) return;
+
+      resultado.innerHTML = '<p class="vacio">Cargando...</p>';
+      totalTexto.textContent = '';
+
+      try {
+        const respuesta = await fetch(`/api/admin/usuarios?key=${encodeURIComponent(clave)}`);
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+          resultado.innerHTML = `<p class="mensaje">${datos.error || 'Error al cargar usuarios'}</p>`;
+          return;
+        }
+
+        if (datos.usuarios.length === 0) {
+          resultado.innerHTML = '<p class="vacio">Aún no hay usuarios registrados</p>';
+          return;
+        }
+
+        totalTexto.textContent = `Total: ${datos.total} usuario(s)`;
+
+        let filas = '';
+        datos.usuarios.forEach(u => {
+          const fecha = new Date(u.created_at).toLocaleString('es-PE', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          });
+          filas += `<tr><td>${u.id}</td><td>${u.user_code}</td><td>${fecha}</td></tr>`;
+        });
+
+        resultado.innerHTML = `
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Usuario</th><th>Registrado</th></tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+        `;
+      } catch (error) {
+        resultado.innerHTML = '<p class="mensaje">No se pudo conectar al servidor</p>';
+      }
+    }
+
+    btnVer.addEventListener('click', cargarUsuarios);
+    inputClave.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') cargarUsuarios();
+    });
+  </script>
+</body>
+</html>
