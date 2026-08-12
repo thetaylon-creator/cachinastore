@@ -260,6 +260,16 @@ header {
   padding-bottom: 5px;
 }
 
+.id-cliente-header {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(108, 92, 231, 0.12);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
 .contenedor-tienda {
   display: grid;
   grid-template-columns: 240px 1fr;
