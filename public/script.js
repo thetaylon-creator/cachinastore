@@ -192,12 +192,6 @@ function inyectarEstilosFiltros() {
     }
     .panel-filtros-header svg{ width:15px; height:15px; flex-shrink:0; }
     .filtros-label{ display:flex; align-items:center; gap:6px; }
-    .filtro-seleccionado{
-      color: var(--accent-purple, #6c5ce7);
-      font-weight: 700;
-      text-transform:none;
-      letter-spacing: normal;
-    }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
       max-height:calc(100vh - 120px); overflow-y:auto; overflow-x:hidden;
@@ -240,7 +234,7 @@ function generarMenuFiltros(entries) {
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
-      <span class="filtros-label">FILTROS <span id="filtro-seleccionado-texto" class="filtro-seleccionado"></span></span>
+      <span class="filtros-label">FILTROS</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
         <line x1="7" y1="12" x2="17" y2="12"></line>
@@ -257,12 +251,6 @@ function generarMenuFiltros(entries) {
 
   htmlMenu += `</ul>`;
   sidebar.innerHTML = htmlMenu;
-
-  // Muestra la sección activa por defecto (la primera) en la barra FILTROS
-  const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
-  if (textoFiltroActual && secciones[0]) {
-    textoFiltroActual.textContent = `· ${secciones[0]}`;
-  }
 
   // FIX: en móvil (apilado arriba del catálogo) los filtros empiezan
   // cerrados, mostrando solo la barra "FILTROS". En escritorio (lado
@@ -376,6 +364,7 @@ function renderizarProductos(entries) {
     const titulo = document.createElement('h3');
     titulo.className = 'seccion-titulo';
     titulo.textContent = nombreSeccion;
+    titulo.style.background = obtenerColorSerie(nombreSeccion);
     bloqueSeccion.appendChild(titulo);
 
     const grid = document.createElement('div');
@@ -531,11 +520,6 @@ function activarFiltroEnMenu(nombreSeccion) {
   const itemCorrespondiente = Array.from(document.querySelectorAll('.item-filtro'))
     .find(el => el.getAttribute('data-seccion') === nombreSeccion);
   itemCorrespondiente?.classList.add('activo');
-
-  const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
-  if (textoFiltroActual) {
-    textoFiltroActual.textContent = `· ${nombreSeccion}`;
-  }
 
   // Mantiene el filtro activo visible dentro del propio scroll de
   // la lista de filtros, por si quedó fuera de vista.
@@ -701,8 +685,6 @@ document.addEventListener('click', (e) => {
     // y evita que el scroll-spy lo pise mientras dura el scroll suave.
     document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
     itemFiltro.classList.add('activo');
-    const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
-    if (textoFiltroActual) textoFiltroActual.textContent = `· ${seccion}`;
 
     bloqueoScrollSpy = true;
     irASeccion(seccion);
