@@ -224,24 +224,6 @@ style.textContent = `
 // improvisación" al final, sin importar en qué posición la
 // devuelva la API.
 // ==========================================
-function obtenerSeccionesOrdenadas(entries) {
-  const vistas = new Set();
-  const orden = [];
-
-  entries.forEach(entry => {
-    const nombre = obtenerNombreSeccion(entry);
-    if (nombre === "Destacados") return; // se quita por completo
-    if (!vistas.has(nombre)) {
-      vistas.add(nombre);
-      orden.push(nombre);
-    }
-  });
-
-  const esPistas = (n) => n.toLowerCase().includes('pista');
-  const normales = orden.filter(n => !esPistas(n));
-  const pistas = orden.filter(esPistas);
-  return [...normales, ...pistas];
-}
 
 function generarMenuFiltros(secciones) {
   const sidebar = document.querySelector('.sidebar');
