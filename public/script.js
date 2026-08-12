@@ -182,23 +182,12 @@ function inyectarEstilosFiltros() {
 
   const style = document.createElement('style');
   style.id = 'estilos-filtros-dinamicos';
-  style.textContent = `
-.panel-filtros{
-      position:relative; width:100%; max-width:100%;
-      max-height:480px; min-height:0;
-      overflow-y:auto; overflow-x:hidden;
-      background:rgba(10,8,18,0.94);
-      border-radius:0 0 10px 10px;
-      box-sizing:border-box; padding:8px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.4);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.3) transparent;
-    }
+style.textContent = `
     .panel-filtros-header svg{ width:16px; height:16px; flex-shrink:0; }
     .filtros-label{ display:flex; align-items:center; gap:6px; }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
-      max-height:calc(100vh - 90px); min-height:420px;
+      max-height:480px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
       background:rgba(10,8,18,0.94);
       border-radius:0 0 10px 10px;
@@ -284,12 +273,6 @@ function aplicarScrollSticky() {
   sidebar.style.top = 'auto';
   sidebar.style.alignSelf = 'auto';
   sidebar.style.maxHeight = 'none';
-}
-
-  sidebar.style.position = 'sticky';
-  sidebar.style.top = '20px';
-  sidebar.style.alignSelf = 'start';
-  sidebar.style.maxHeight = 'calc(100vh - 40px)';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
