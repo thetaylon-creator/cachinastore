@@ -413,10 +413,12 @@ const overlayCarrito = document.getElementById('overlay-carrito');
 function abrirCarrito() {
   panelCarrito?.classList.remove('oculto');
   overlayCarrito?.classList.remove('oculto');
+  document.body.classList.add('bloquear-scroll');
 }
 function cerrarCarrito() {
   panelCarrito?.classList.add('oculto');
   overlayCarrito?.classList.add('oculto');
+  document.body.classList.remove('bloquear-scroll');
 }
 
 document.getElementById('btn-carrito')?.addEventListener('click', (e) => {
@@ -453,12 +455,14 @@ function abrirModalPago() {
   overlayPago?.classList.remove('oculto');
   modalPago?.classList.remove('oculto');
   modalPago?.classList.add('mostrar');
+  document.body.classList.add('bloquear-scroll');
 }
 
 function cerrarModalPago() {
   overlayPago?.classList.add('oculto');
   modalPago?.classList.remove('mostrar');
   modalPago?.classList.add('oculto');
+  document.body.classList.remove('bloquear-scroll');
 }
 
 // ==========================================
@@ -535,10 +539,12 @@ document.addEventListener('click', (e) => {
     if (qrImg && modalZoom && imgAmpliada) {
       imgAmpliada.src = qrImg.src;
       modalZoom.classList.remove('oculto');
+      document.body.classList.add('bloquear-scroll');
     }
   }
 
   if (e.target.closest('#modal-qr-zoom') || e.target.closest('#cerrar-qr-zoom')) {
     modalZoom?.classList.add('oculto');
+    document.body.classList.remove('bloquear-scroll');
   }
 });
