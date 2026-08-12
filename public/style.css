@@ -1443,10 +1443,10 @@ body .modal-pago.oculto:not(.mostrar) {
    LISTADO DE FILTROS (ver .panel-filtros más arriba).
    ========================================== */
 @media (min-width: 901px) {
-  header {
+.sidebar {
     position: sticky;
-    top: 0;
-    z-index: 60;
+    top: 20px;
+    align-self: start;
   }
 
   /* El sidebar se queda pegado (sticky) mientras se hace scroll de
