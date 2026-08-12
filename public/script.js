@@ -42,6 +42,7 @@ document.getElementById('form-login')?.addEventListener('submit', async (e) => {
     }
 
     localStorage.setItem('usuarioLogueado', datos.user_code);
+    mostrarIdClienteHeader(datos.user_code);
     mostrarPantalla('pantalla-tienda');
     obtenerTiendaFortnite();
 
@@ -94,6 +95,17 @@ function enviarPedidoWhatsApp() {
 }
 
 // ==========================================
+// ==========================================
+// ID DEL CLIENTE EN EL HEADER
+// Muestra "ID: usuario" al lado de "Fortnite" en el encabezado.
+// ==========================================
+function mostrarIdClienteHeader(idCliente) {
+  const contenedor = document.getElementById('id-cliente-header');
+  if (contenedor && idCliente) {
+    contenedor.textContent = `ID: ${idCliente}`;
+  }
+}
+
 // 3. OBTENER TIENDA COMPLETA EN ESPAÑOL
 // ==========================================
 async function obtenerTiendaFortnite() {
@@ -148,13 +160,20 @@ function inyectarEstilosFiltros() {
   style.id = 'estilos-filtros-dinamicos';
   style.textContent = `
     .panel-filtros-header{
-      display:flex; align-items:center; gap:8px;
+      display:flex; align-items:center; gap:8px; justify-content:space-between;
       background:rgba(255,255,255,0.96); color:#111;
       padding:11px 16px; border-radius:10px 10px 0 0;
       font-weight:800; font-size:0.82rem; letter-spacing:0.3px;
       text-transform:uppercase;
     }
-    .panel-filtros-header svg{ width:15px; height:15px; }
+    .panel-filtros-header svg{ width:15px; height:15px; flex-shrink:0; }
+    .filtros-label{ display:flex; align-items:center; gap:6px; }
+    .filtro-seleccionado{
+      color: var(--accent-purple, #6c5ce7);
+      font-weight: 700;
+      text-transform:none;
+      letter-spacing: normal;
+    }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
       max-height:calc(100vh - 120px); overflow-y:auto; overflow-x:hidden;
@@ -197,7 +216,7 @@ function generarMenuFiltros(entries) {
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
-      FILTROS
+      <span class="filtros-label">FILTROS <span id="filtro-seleccionado-texto" class="filtro-seleccionado"></span></span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
         <line x1="7" y1="12" x2="17" y2="12"></line>
@@ -214,6 +233,12 @@ function generarMenuFiltros(entries) {
 
   htmlMenu += `</ul>`;
   sidebar.innerHTML = htmlMenu;
+
+  // Muestra la sección activa por defecto (la primera) en la barra FILTROS
+  const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
+  if (textoFiltroActual && secciones[0]) {
+    textoFiltroActual.textContent = `· ${secciones[0]}`;
+  }
 
   // FIX: en móvil (apilado arriba del catálogo) los filtros empiezan
   // cerrados, mostrando solo la barra "FILTROS". En escritorio (lado
@@ -540,6 +565,13 @@ document.addEventListener('click', (e) => {
     itemFiltro.classList.add('activo');
 
     filtrarPorSeccion(itemFiltro.getAttribute('data-seccion'));
+
+    // Actualiza el nombre del filtro activo visible en la barra "FILTROS"
+    const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
+    if (textoFiltroActual) {
+      textoFiltroActual.textContent = `· ${itemFiltro.getAttribute('data-seccion')}`;
+    }
+
     // Solo se cierra automáticamente en móvil (donde el panel
     // funciona como un desplegable); en escritorio se queda visible.
     if (window.innerWidth <= 900) {
