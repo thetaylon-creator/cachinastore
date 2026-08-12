@@ -246,6 +246,9 @@ body.bloquear-scroll {
     animation: none;
     box-shadow: 0 0 24px rgba(108, 92, 231, 0.8), 0 0 45px rgba(108, 92, 231, 0.5);
   }
+  .sidebar {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* 3. TIENDA */
