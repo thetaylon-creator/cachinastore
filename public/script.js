@@ -134,14 +134,7 @@ async function obtenerTiendaFortnite() {
       productosGlobales = datos.data.entries;
 
       generarMenuFiltros(productosGlobales);
-
-      const primerFiltro = document.querySelector('.item-filtro');
-      if (primerFiltro) {
-        const primeraSec = primerFiltro.getAttribute('data-seccion');
-        filtrarPorSeccion(primeraSec);
-      } else {
-        renderizarProductos(productosGlobales);
-      }
+      renderizarProductos(productosGlobales);
     }  } catch (error) {
     console.error("Error al conectar con la API:", error);
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
@@ -158,6 +151,25 @@ function obtenerNombreSeccion(entry) {
   if (entry.layout && entry.layout.category) return entry.layout.category;
   if (entry.section && entry.section.name) return entry.section.name;
   return "Destacados";
+}
+
+// ==========================================
+// 4.5 SLUG DE SECCIÓN
+// Convierte el nombre de una sección ("BLEACH", "Fiesta de la
+// victoria") en un id de HTML válido y único ("seccion-bleach",
+// "seccion-fiesta-de-la-victoria"), para poder saltar a ella con
+// scrollIntoView desde el menú de filtros.
+// ==========================================
+function slugificarSeccion(nombreSeccion) {
+  const base = nombreSeccion
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `seccion-${base || 'general'}`;
 }
 
 // ==========================================
@@ -266,22 +278,22 @@ function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // FIX: en escritorio, el header, el banner "Tienda de Objetos" y
-  // el panel de filtros ahora se quedan fijos mediante flexbox
-  // (ver .contenedor-tienda / .sidebar / .catalogo-scroll en
-  // style.css) — solo la cuadrícula de productos se desplaza. Por
-  // eso ya no se usa "position: sticky" con valores en píxeles: se
-  // limpian esos estilos inline para que las reglas de CSS (altura
-  // 100%, overflow controlado) tomen efecto sin ser sobreescritas.
-  //
-  // En móvil, donde el sidebar va apilado arriba del catálogo,
-  // se mantiene "static" para que la lista de filtros no se quede
-  // pegada arriba mientras se hace scroll, superponiéndose con las
-  // tarjetas de productos.
-  sidebar.style.position = 'static';
-  sidebar.style.top = 'auto';
-  sidebar.style.maxHeight = 'none';
-  sidebar.style.alignSelf = '';
+  // FIX: el "sticky" solo tiene sentido en el layout de escritorio
+  // (sidebar al costado). En móvil, donde el sidebar va apilado
+  // arriba del catálogo, "sticky" hacía que la lista de filtros se
+  // quedara pegada arriba mientras se hacía scroll, superponiéndose
+  // con las tarjetas de productos.
+  if (window.innerWidth <= 900) {
+    sidebar.style.position = 'static';
+    sidebar.style.top = 'auto';
+    sidebar.style.maxHeight = 'none';
+    return;
+  }
+
+  sidebar.style.position = 'sticky';
+  sidebar.style.top = '20px';
+  sidebar.style.alignSelf = 'start';
+  sidebar.style.maxHeight = 'calc(100vh - 40px)';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
@@ -300,14 +312,16 @@ function obtenerImagenReal(entry, item) {
   return "https://placehold.co/200x200/181528/ffffff?text=Fortnite";
 }
 
+// 7. RENDERIZAR PRODUCTOS AGRUPADOS POR SECCIÓN
+// FIX: antes se renderizaba una sola sección a la vez (la que
+// estuviera activa en el filtro) y por eso no existía forma de
+// "bajar" de una sección a otra con el scroll de la tienda. Ahora
+// se pintan TODAS las secciones seguidas, cada una con su propio
+// título, en el mismo orden del menú de filtros. Bajar con el
+// scroll del catálogo pasa naturalmente de una sección a la
+// siguiente, y el menú de filtros se sincroniza solo (ver sección
+// 10.5, scroll-spy).
 // ==========================================
-// FIX: se eliminó por completo el listener duplicado que usaba
-// la variable inexistente TODAS_LAS_ENTRADAS (causaba un error
-// en consola cada vez que hacías clic en un filtro). El único
-// manejador de clics en filtros ahora vive en la sección 10.
-// ==========================================
-
-// 7. RENDERIZAR PRODUCTOS
 function renderizarProductos(entries) {
   const contenedor = document.getElementById('contenedor-productos');
   if (!contenedor) return;
@@ -315,15 +329,14 @@ function renderizarProductos(entries) {
   contenedor.innerHTML = "";
 
   if (entries.length === 0) {
-    contenedor.innerHTML = '<p style="color: #a29bfe; grid-column: 1/-1; text-align: center;">No hay productos en esta sección.</p>';
+    contenedor.innerHTML = '<p style="color: #a29bfe; text-align: center;">No hay productos en la tienda.</p>';
     return;
   }
 
-  // FIX RENDIMIENTO: en vez de insertar cada tarjeta al DOM una por
-  // una (lo que obliga al navegador a recalcular el layout en cada
-  // producto), se arman todas primero en un DocumentFragment
-  // (en memoria) y se insertan al DOM de una sola vez al final.
-  const fragmento = document.createDocumentFragment();
+  // Agrupa las entradas por sección, respetando el orden en que
+  // aparece cada sección por primera vez (mismo orden que usa
+  // generarMenuFiltros para armar el menú).
+  const seccionesMapa = new Map();
 
   entries.forEach(entry => {
     const item = (entry.brItems && entry.brItems[0]) ||
@@ -348,11 +361,38 @@ function renderizarProductos(entries) {
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
     const seccionNombre = obtenerNombreSeccion(entry);
 
-    const tarjeta = crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccionNombre);
-    fragmento.appendChild(tarjeta);
+    if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen });
+  });
+
+  const fragmento = document.createDocumentFragment();
+
+  seccionesMapa.forEach((productos, nombreSeccion) => {
+    const bloqueSeccion = document.createElement('section');
+    bloqueSeccion.className = 'seccion-tienda';
+    bloqueSeccion.id = slugificarSeccion(nombreSeccion);
+    bloqueSeccion.setAttribute('data-seccion-nombre', nombreSeccion);
+
+    const titulo = document.createElement('h3');
+    titulo.className = 'seccion-titulo';
+    titulo.textContent = nombreSeccion;
+    bloqueSeccion.appendChild(titulo);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid-productos';
+
+    productos.forEach(p => {
+      grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion));
+    });
+
+    bloqueSeccion.appendChild(grid);
+    fragmento.appendChild(bloqueSeccion);
   });
 
   contenedor.appendChild(fragmento);
+
+  // Vuelve a observar las secciones recién creadas para el scroll-spy.
+  iniciarScrollSpySecciones();
 }
 
 function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion) {
@@ -474,11 +514,75 @@ function eliminarDelCarrito(index) {
   actualizarVistaCarrito();
 }
 
+// ==========================================
+// 10.4 IR A UNA SECCIÓN (clic en el menú de filtros)
+// Ya no se filtra/reemplaza el catálogo: como ahora todas las
+// secciones están renderizadas seguidas, un clic en el filtro
+// simplemente hace scroll suave hasta el bloque de esa sección.
+// ==========================================
+function irASeccion(nombreSeccion) {
+  const destino = document.getElementById(slugificarSeccion(nombreSeccion));
+  if (!destino) return;
+  destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function activarFiltroEnMenu(nombreSeccion) {
+  document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
+  const itemCorrespondiente = Array.from(document.querySelectorAll('.item-filtro'))
+    .find(el => el.getAttribute('data-seccion') === nombreSeccion);
+  itemCorrespondiente?.classList.add('activo');
+
+  const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
+  if (textoFiltroActual) {
+    textoFiltroActual.textContent = `· ${nombreSeccion}`;
+  }
+
+  // Mantiene el filtro activo visible dentro del propio scroll de
+  // la lista de filtros, por si quedó fuera de vista.
+  itemCorrespondiente?.scrollIntoView({ block: 'nearest' });
+}
+
+// ==========================================
+// 10.5 SCROLL-SPY: AL BAJAR EN LA TIENDA, CAMBIA
+// AUTOMÁTICAMENTE LA SECCIÓN ACTIVA EN "FILTROS"
+// FIX: esto es lo que faltaba para que el scroll de la tienda
+// "pase de sección" solo. Se observa cada bloque .seccion-tienda;
+// la que esté cruzando la franja superior de la pantalla en un
+// momento dado se marca como activa en el menú lateral.
+// ==========================================
+let observadorSecciones = null;
+let bloqueoScrollSpy = false;
+
+function iniciarScrollSpySecciones() {
+  if (observadorSecciones) observadorSecciones.disconnect();
+
+  const secciones = document.querySelectorAll('.seccion-tienda');
+  if (!secciones.length) return;
+
+  observadorSecciones = new IntersectionObserver((entradas) => {
+    if (bloqueoScrollSpy) return;
+
+    entradas.forEach(entrada => {
+      if (entrada.isIntersecting) {
+        const nombreSeccion = entrada.target.getAttribute('data-seccion-nombre');
+        if (nombreSeccion) activarFiltroEnMenu(nombreSeccion);
+      }
+    });
+  }, {
+    root: null,
+    // Considera "activa" la sección que está cruzando una franja
+    // angosta cerca de la parte superior de la pantalla/scroll.
+    rootMargin: '-15% 0px -75% 0px',
+    threshold: 0
+  });
+
+  secciones.forEach(sec => observadorSecciones.observe(sec));
+}
+
 function filtrarPorSeccion(seccion) {
-  const filtrados = seccion === "Todos"
-    ? productosGlobales
-    : productosGlobales.filter(entry => obtenerNombreSeccion(entry) === seccion);
-  renderizarProductos(filtrados);
+  // FIX: se mantiene esta función por compatibilidad, pero ahora
+  // en vez de reemplazar el catálogo, navega a la sección pedida.
+  irASeccion(seccion);
 }
 
 // ==========================================
@@ -591,16 +695,19 @@ document.addEventListener('click', (e) => {
   // Filtros de categoría
   const itemFiltro = e.target.closest('.item-filtro');
   if (itemFiltro) {
+    const seccion = itemFiltro.getAttribute('data-seccion');
+
+    // Marca el filtro como activo al instante (feedback inmediato),
+    // y evita que el scroll-spy lo pise mientras dura el scroll suave.
     document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
     itemFiltro.classList.add('activo');
-
-    filtrarPorSeccion(itemFiltro.getAttribute('data-seccion'));
-
-    // Actualiza el nombre del filtro activo visible en la barra "FILTROS"
     const textoFiltroActual = document.getElementById('filtro-seleccionado-texto');
-    if (textoFiltroActual) {
-      textoFiltroActual.textContent = `· ${itemFiltro.getAttribute('data-seccion')}`;
-    }
+    if (textoFiltroActual) textoFiltroActual.textContent = `· ${seccion}`;
+
+    bloqueoScrollSpy = true;
+    irASeccion(seccion);
+    window.clearTimeout(window._timeoutScrollSpy);
+    window._timeoutScrollSpy = window.setTimeout(() => { bloqueoScrollSpy = false; }, 900);
 
     // Solo se cierra automáticamente en móvil (donde el panel
     // funciona como un desplegable); en escritorio se queda visible.
@@ -667,38 +774,4 @@ document.addEventListener('click', (e) => {
       desbloquearScrollBody();
     }
   }
-});
-
-// ==========================================
-// 16. BUSCADOR DE PRODUCTOS
-// Filtra en vivo por nombre (incluyendo el nombre completo de los
-// lotes/bundles, no solo el primer item suelto) sin importar el
-// filtro de categoría activo en ese momento. Al vaciar el campo,
-// se vuelve a mostrar la categoría que estaba seleccionada.
-// ==========================================
-function obtenerItemPrincipal(entry) {
-  return (entry.brItems && entry.brItems[0]) ||
-         (entry.tracks && entry.tracks[0]) ||
-         (entry.instruments && entry.instruments[0]) ||
-         (entry.cars && entry.cars[0]) ||
-         (entry.items && entry.items[0]) ||
-         entry.bundle || {};
-}
-
-document.getElementById('input-buscar')?.addEventListener('input', (e) => {
-  const termino = e.target.value.trim().toLowerCase();
-
-  if (!termino) {
-    const filtroActivo = document.querySelector('.item-filtro.activo');
-    filtrarPorSeccion(filtroActivo ? filtroActivo.getAttribute('data-seccion') : 'Todos');
-    return;
-  }
-
-  const filtrados = productosGlobales.filter(entry => {
-    const item = obtenerItemPrincipal(entry);
-    const nombre = (entry.bundle?.name || item.name || entry.devName || '').toLowerCase();
-    return nombre.includes(termino);
-  });
-
-  renderizarProductos(filtrados);
 });
