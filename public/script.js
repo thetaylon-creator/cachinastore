@@ -113,6 +113,12 @@ function mostrarIdClienteHeader(idCliente) {
 }
 
 // 3. OBTENER TIENDA COMPLETA EN ESPAÑOL
+// FIX: se cambia el idioma de la API de "es" (español de España) a
+// "es-419" (español latinoamericano/México). Con "es" algunos
+// nombres de lotes especiales (ej. "Itchy & Scratchy") no venían
+// traducidos y se veían en inglés o incompletos; con "es-419" la
+// API los devuelve como "Rasca y Pica", que es como se conocen en
+// Los Simpson en Latinoamérica/México.
 // ==========================================
 async function obtenerTiendaFortnite() {
   const contenedor = document.getElementById('contenedor-productos');
@@ -121,7 +127,7 @@ async function obtenerTiendaFortnite() {
   contenedor.innerHTML = '<p style="color: #a29bfe; grid-column: 1/-1; text-align: center;">Cargando la tienda en vivo...</p>';
 
   try {
-    const respuesta = await fetch('https://fortnite-api.com/v2/shop?language=es');
+    const respuesta = await fetch('https://fortnite-api.com/v2/shop?language=es-419');
     const datos = await respuesta.json();
 
     if (datos && datos.data && datos.data.entries) {
@@ -327,7 +333,13 @@ function renderizarProductos(entries) {
                  (entry.items && entry.items[0]) ||
                  entry.bundle || {};
 
-    let nombre = item.name || entry.devName || "Objeto de Fortnite";
+    // FIX: cuando la entrada es un LOTE (bundle) que además trae
+    // items individuales (brItems, cars, etc.), antes se usaba el
+    // nombre del primer item individual ("Pica") en vez del nombre
+    // real del lote ("Rasca y Pica"). Ahora se prioriza
+    // entry.bundle.name cuando existe, y solo si no hay bundle se
+    // cae al nombre del item individual.
+    let nombre = entry.bundle?.name || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
 
