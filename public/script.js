@@ -266,22 +266,22 @@ function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // FIX: el "sticky" solo tiene sentido en el layout de escritorio
-  // (sidebar al costado). En móvil, donde el sidebar va apilado
-  // arriba del catálogo, "sticky" hacía que la lista de filtros se
-  // quedara pegada arriba mientras se hacía scroll, superponiéndose
-  // con las tarjetas de productos.
-  if (window.innerWidth <= 900) {
-    sidebar.style.position = 'static';
-    sidebar.style.top = 'auto';
-    sidebar.style.maxHeight = 'none';
-    return;
-  }
-
-  sidebar.style.position = 'sticky';
-  sidebar.style.top = '20px';
-  sidebar.style.alignSelf = 'start';
-  sidebar.style.maxHeight = 'calc(100vh - 40px)';
+  // FIX: en escritorio, el header, el banner "Tienda de Objetos" y
+  // el panel de filtros ahora se quedan fijos mediante flexbox
+  // (ver .contenedor-tienda / .sidebar / .catalogo-scroll en
+  // style.css) — solo la cuadrícula de productos se desplaza. Por
+  // eso ya no se usa "position: sticky" con valores en píxeles: se
+  // limpian esos estilos inline para que las reglas de CSS (altura
+  // 100%, overflow controlado) tomen efecto sin ser sobreescritas.
+  //
+  // En móvil, donde el sidebar va apilado arriba del catálogo,
+  // se mantiene "static" para que la lista de filtros no se quede
+  // pegada arriba mientras se hace scroll, superponiéndose con las
+  // tarjetas de productos.
+  sidebar.style.position = 'static';
+  sidebar.style.top = 'auto';
+  sidebar.style.maxHeight = 'none';
+  sidebar.style.alignSelf = '';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
@@ -667,4 +667,38 @@ document.addEventListener('click', (e) => {
       desbloquearScrollBody();
     }
   }
+});
+
+// ==========================================
+// 16. BUSCADOR DE PRODUCTOS
+// Filtra en vivo por nombre (incluyendo el nombre completo de los
+// lotes/bundles, no solo el primer item suelto) sin importar el
+// filtro de categoría activo en ese momento. Al vaciar el campo,
+// se vuelve a mostrar la categoría que estaba seleccionada.
+// ==========================================
+function obtenerItemPrincipal(entry) {
+  return (entry.brItems && entry.brItems[0]) ||
+         (entry.tracks && entry.tracks[0]) ||
+         (entry.instruments && entry.instruments[0]) ||
+         (entry.cars && entry.cars[0]) ||
+         (entry.items && entry.items[0]) ||
+         entry.bundle || {};
+}
+
+document.getElementById('input-buscar')?.addEventListener('input', (e) => {
+  const termino = e.target.value.trim().toLowerCase();
+
+  if (!termino) {
+    const filtroActivo = document.querySelector('.item-filtro.activo');
+    filtrarPorSeccion(filtroActivo ? filtroActivo.getAttribute('data-seccion') : 'Todos');
+    return;
+  }
+
+  const filtrados = productosGlobales.filter(entry => {
+    const item = obtenerItemPrincipal(entry);
+    const nombre = (entry.bundle?.name || item.name || entry.devName || '').toLowerCase();
+    return nombre.includes(termino);
+  });
+
+  renderizarProductos(filtrados);
 });
