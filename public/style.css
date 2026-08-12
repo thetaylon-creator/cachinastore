@@ -1227,10 +1227,10 @@ body .modal-pago.oculto:not(.mostrar) {
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.96);
   color: #111;
-  padding: 11px 16px;
+  padding: 13px 18px;
   border-radius: 18px 18px 0 0;
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.9rem; /* un poco más grande */
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -1239,16 +1239,14 @@ body .modal-pago.oculto:not(.mostrar) {
   position: relative;
   width: 100%;
   max-width: 100%;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 90px); /* antes -120px: ahora se ve más alto */
+  min-height: 400px;              /* fuerza un tamaño mínimo aunque haya pocos filtros */
   overflow-y: auto;
   overflow-x: hidden;
   background: rgba(10, 8, 18, 0.94);
   border-radius: 0 0 18px 18px;
   box-sizing: border-box;
-  padding: 6px;
-  /* FIX: scrollbar delgado y visible en vez del scrollbar por
-     defecto del navegador (casi invisible sobre fondo oscuro), para
-     que quede claro que la lista de filtros tiene más scroll. */
+  padding: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -1289,10 +1287,14 @@ body .modal-pago.oculto:not(.mostrar) {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
+.sidebar li {
+  padding: 12px 16px;      /* antes 10px 15px */
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 6px;
+  font-size: 0.95rem;      /* nuevo: texto más grande */
+}
 
   /* Barra "FILTROS" tocable para desplegar/ocultar la lista */
   .panel-filtros-header {
