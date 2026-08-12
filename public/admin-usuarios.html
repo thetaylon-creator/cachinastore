@@ -150,11 +150,11 @@
         totalTexto.textContent = `Total: ${datos.total} usuario(s)`;
 
         // FIX: se ordena explícitamente por fecha de creación (más
-        // reciente primero) antes de numerar, para garantizar que el
-        // ID 1 sea siempre el usuario registrado más recientemente,
+        // antiguo primero) antes de numerar, para garantizar que el
+        // ID 1 sea siempre el usuario que se registró primero,
         // sin depender del orden en que lo devuelva el servidor.
         const usuariosOrdenados = [...datos.usuarios].sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          (a, b) => new Date(a.created_at) - new Date(b.created_at)
         );
 
         let filas = '';
