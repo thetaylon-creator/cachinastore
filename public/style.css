@@ -285,6 +285,13 @@ header {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: calc(100vh - 70px);
+  /* FIX: antes esto se estiraba de punta a punta en pantallas anchas
+     (monitores grandes/ultrawide). Ahora se limita a un ancho máximo
+     y se centra, dejando el fondo oscuro visible a los costados,
+     igual que la referencia de diseño. */
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .sidebar {
@@ -1390,6 +1397,11 @@ body .modal-pago.oculto:not(.mostrar) {
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    /* FIX: sin esto, un flex item no se encoge más allá del alto de
+       su contenido (min-height:auto por defecto), así que el listado
+       de filtros empujaba el alto del sidebar en vez de hacer scroll
+       propio cuando había muchas categorías. */
+    min-height: 0;
   }
 
   .panel-filtros-header {
@@ -1402,6 +1414,10 @@ body .modal-pago.oculto:not(.mostrar) {
   .panel-filtros {
     flex: 1;
     max-height: none;
+    /* FIX: mismo motivo que arriba, min-height:0 es lo que realmente
+       permite que overflow-y:auto entre en acción en vez de estirar
+       el sidebar entero. */
+    min-height: 0;
   }
 
   .catalogo {
