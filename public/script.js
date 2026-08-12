@@ -532,7 +532,21 @@ function eliminarDelCarrito(index) {
 function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
-  destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // FIX: el sidebar de filtros ahora es sticky (flota arriba tanto en
+  // móvil como en escritorio), así que tapa la parte de arriba de la
+  // sección si usamos scrollIntoView normal. Calculamos su altura real
+  // y restamos ese espacio al destino del scroll.
+  const sidebar = document.querySelector('.sidebar');
+  const alturaSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
+  const margenExtra = 16;
+
+  const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - alturaSidebar - margenExtra;
+
+  window.scrollTo({
+    top: Math.max(0, posicionDestino),
+    behavior: 'smooth'
+  });
 }
 
 function activarFiltroEnMenu(nombreSeccion) {
