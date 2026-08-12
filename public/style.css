@@ -1203,19 +1203,32 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 
   .nav-links {
-    grid-column: 1 / -1;
+    display: contents;
+  }
+
+  /* "Fortnite" se queda solo en su fila, a la izquierda */
+  .nav-links span.activo {
+    grid-column: 1;
     grid-row: 2;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  }
+
+  /* El ID baja a la fila del carrito, alineado a la derecha (en
+     paralelo con "Cerrar Sesión" arriba) y centrado verticalmente
+     junto con el ícono del carrito. */
+  #id-cliente-header {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: end;
+    align-self: center;
   }
 
   /* El carrito baja de línea para que el badge rojo no se
      superponga con la fila de "Fortnite" / ID de arriba */
   .btn-carrito {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 3;
     justify-self: start;
+    align-self: center;
     margin-top: 4px;
   }
 
@@ -1244,11 +1257,6 @@ body .modal-pago.oculto:not(.mostrar) {
 @media (max-width: 420px) {
   header {
     padding: 12px 12px 14px;
-  }
-
-  #btn-cerrar {
-    top: 12px;
-    right: 12px;
   }
 
   .header-acciones {
