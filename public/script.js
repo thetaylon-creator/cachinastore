@@ -196,7 +196,7 @@ function generarMenuFiltros(entries) {
   const secciones = Array.from(seccionesSet);
 
   let htmlMenu = `
-    <div class="panel-filtros-header">
+    <div class="panel-filtros-header" id="btn-toggle-filtros">
       FILTROS
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
@@ -204,7 +204,7 @@ function generarMenuFiltros(entries) {
         <line x1="10" y1="18" x2="14" y2="18"></line>
       </svg>
     </div>
-    <ul class="panel-filtros">
+    <ul class="panel-filtros" id="panel-filtros">
   `;
 
   secciones.forEach((sec, index) => {
@@ -214,17 +214,37 @@ function generarMenuFiltros(entries) {
 
   htmlMenu += `</ul>`;
   sidebar.innerHTML = htmlMenu;
+
+  // FIX: en móvil (apilado arriba del catálogo) los filtros empiezan
+  // cerrados, mostrando solo la barra "FILTROS". En escritorio (lado
+  // a lado) se quedan siempre visibles, como antes.
+  if (window.innerWidth <= 900) {
+    document.getElementById('panel-filtros')?.classList.add('oculto');
+  }
+
   aplicarScrollSticky();
 }
 
 function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
-  if (sidebar) {
-    sidebar.style.position = 'sticky';
-    sidebar.style.top = '20px';
-    sidebar.style.alignSelf = 'start';
-    sidebar.style.maxHeight = 'calc(100vh - 40px)';
+  if (!sidebar) return;
+
+  // FIX: el "sticky" solo tiene sentido en el layout de escritorio
+  // (sidebar al costado). En móvil, donde el sidebar va apilado
+  // arriba del catálogo, "sticky" hacía que la lista de filtros se
+  // quedara pegada arriba mientras se hacía scroll, superponiéndose
+  // con las tarjetas de productos.
+  if (window.innerWidth <= 900) {
+    sidebar.style.position = 'static';
+    sidebar.style.top = 'auto';
+    sidebar.style.maxHeight = 'none';
+    return;
   }
+
+  sidebar.style.position = 'sticky';
+  sidebar.style.top = '20px';
+  sidebar.style.alignSelf = 'start';
+  sidebar.style.maxHeight = 'calc(100vh - 40px)';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
@@ -520,7 +540,11 @@ document.addEventListener('click', (e) => {
     itemFiltro.classList.add('activo');
 
     filtrarPorSeccion(itemFiltro.getAttribute('data-seccion'));
-    document.getElementById('panel-filtros')?.classList.add('oculto');
+    // Solo se cierra automáticamente en móvil (donde el panel
+    // funciona como un desplegable); en escritorio se queda visible.
+    if (window.innerWidth <= 900) {
+      document.getElementById('panel-filtros')?.classList.add('oculto');
+    }
     return;
   }
 
