@@ -1128,7 +1128,7 @@ body .modal-pago.oculto:not(.mostrar) {
   background: rgba(255, 255, 255, 0.96);
   color: #111;
   padding: 11px 16px;
-  border-radius: 10px 10px 0 0;
+  border-radius: 18px 18px 0 0;
   font-weight: 800;
   font-size: 0.82rem;
   letter-spacing: 0.3px;
@@ -1143,9 +1143,15 @@ body .modal-pago.oculto:not(.mostrar) {
   overflow-y: auto;
   overflow-x: hidden;
   background: rgba(10, 8, 18, 0.94);
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 18px 18px;
   box-sizing: border-box;
   padding: 6px;
+}
+
+/* Cuando el panel desplegable está cerrado, la barra FILTROS
+   queda como una píldora con las 4 esquinas redondeadas. */
+.panel-filtros-header:has(+ .panel-filtros.oculto) {
+  border-radius: 18px;
 }
 
 /* ==========================================
