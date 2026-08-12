@@ -490,6 +490,15 @@ header {
   margin: 0;
 }
 
+.tarjeta-precio-pen {
+  color: #00ffaa;
+  font-weight: 900;
+  font-size: 0.85rem;
+  margin: 2px 0 0;
+  -webkit-text-stroke: 0.4px #00ffaa;
+  letter-spacing: 0.2px;
+}
+
 .icono-pavos { width: 16px; height: 16px; }
 
 .btn-agregar-icono {
