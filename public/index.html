@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda Gamer - CachinaStore</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 1. PANTALLA INICIO / LOGO -->
+<section id="pantalla-bienvenida" class="pantalla-con-fondo">
+  <img src="logo.png" alt="CachinaStore Logo" class="img-logo-bienvenida">
+  <h1 style="margin-bottom: 25px;">CachinaStore</h1>
+  <button class="btn-principal btn-brillante" style="width: auto; padding: 12px 30px;" id="btn-entrar">Entrar / Registrarse</button>
+</section>
+
+<!-- 2. PANTALLA LOGIN / REGISTRO -->
+<section id="pantalla-auth" class="oculto">
+  <div class="auth-fondo">
+    <div class="box-login">
+      <img src="logo.png" alt="CachinaStore Logo" class="auth-logo">
+      <h2>CachinaStore</h2>
+      <p class="auth-subtitulo">Ingresa tus credenciales para acceder</p>
+
+<form id="form-login">
+  <div class="input-grupo">
+    <input type="text" id="login-id" required placeholder="Tu usuario">
+  </div>
+  <div class="input-grupo">
+    <input type="password" id="login-pin" required placeholder="Tu PIN">
+  </div>
+  <p id="login-error" class="login-error oculto"></p>
+  <button type="submit" class="btn-principal btn-entrar-auth">Entrar →</button>
+</form>
+    </div>
+  </div>
+</section>
+
+  <!-- 3. PANTALLA TIENDA -->
+  <section id="pantalla-tienda" class="oculto">
+    <header>
+      <div class="logo-header">
+        <img src="logo.png" alt="CachinaStore Logo">
+        <span>CachinaStore</span>
+      </div>
+
+      <nav class="nav-links">
+        <span class="activo">Fortnite</span>
+      </nav>
+
+      <div class="header-acciones">
+        <!-- Carrito con contador -->
+        <button class="btn-carrito" id="btn-carrito" title="Carrito de compras">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="badge-carrito" id="contador-carrito">0</span>
+        </button>
+        <button id="btn-cerrar" class="btn-cerrar-sesion">Cerrar Sesión</button>
+      </div>
+    </header>
+
+<div class="contenedor-tienda">
+  <!-- Menú lateral -->
+  <aside class="sidebar">
+    <div style="background: #e882e8; color: #000; padding: 12px 15px; border-radius: 12px 12px 0 0; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+      <span>☰</span> FILTROS
+    </div>
+    <ul style="list-style: none; padding: 15px; margin: 0; background: #0a0812; border-radius: 0 0 12px 12px; color: #a0a0a0; font-size: 0.85rem;">
+      Cargando filtros...
+    </ul>
+  </aside>
+
+  <!-- Catálogo -->
+  <main class="catalogo">
+    <div class="hero-banner" style="padding: 12px 20px;">
+      <p style="color: #00ffaa; font-weight: bold; font-size: 0.75rem; margin-bottom: 4px;">• ACTUALIZADO DIARIAMENTE A LAS 7:00 PM</p>
+      <h1 style="margin-bottom: 4px; font-size: 1.8rem;">Tienda de Objetos</h1>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Skins y cosméticos del día.</p>
+    </div>
+
+    <div class="grid-productos" id="contenedor-productos"></div>
+  </main>
+</div>
+  </section>
+
+  <!-- PANEL LATERAL DEL CARRITO (Antes de script.js) -->
+  <div id="overlay-carrito" class="overlay-carrito oculto"></div>
+
+  <aside id="panel-carrito" class="panel-carrito oculto">
+    <!-- Cabecera -->
+    <div class="carrito-header">
+      <div class="carrito-titulo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <h2>Carrito</h2>
+      </div>
+      <button id="btn-cerrar-carrito" class="btn-cerrar-modal">&times;</button>
+    </div>
+
+    <div class="moneda-info">
+      <span>Moneda activa</span>
+      <strong>PEN</strong>
+    </div>
+
+    <!-- Contenedor de Items Dinámicos -->
+    <div class="carrito-body" id="lista-carrito">
+      <div class="usuario-seccion">
+        <span id="nombre-usuario-carrito">👤 Usuario</span>
+      </div>
+      <div id="items-carrito">
+        <!-- Los productos agregados se insertarán aquí dinámicamente -->
+      </div>
+    </div>
+
+<!-- Pie del Carrito -->
+<div class="carrito-footer">
+  <div class="total-box">
+    <span>Total</span>
+    <strong id="total-precio-carrito">0.00 PEN</strong>
+  </div>
+
+  <button class="btn-realizar-pago btn-principal">
+    💳 Realizar pago
+  </button>
+
+  <div class="alerta-pago">
+    ⓘ Recuerda enviar captura del pago al hacer clic en "Ya pagué"
+  </div>
+</div>
+</aside>
+
+<!-- PANTALLA (MODAL) DE REALIZAR PAGO (YAPE) -->
+<div id="overlay-pago" class="overlay-pago oculto"></div>
+
+<div id="modal-pago" class="modal-pago oculto">
+  <div class="pago-header">
+    <h2>Realizar pago</h2>
+    <button id="btn-cerrar-pago" class="btn-cerrar-modal">&times;</button>
+  </div>
+
+  <div class="pago-resumen">
+    <span>Total a pagar</span>
+    <strong id="monto-total-pago">0.00 PEN</strong>
+  </div>
+
+  <div class="pago-metodos">
+    <p class="metodos-titulo">SELECCIONA TU MÉTODO DE PAGO</p>
+    
+    <div class="metodo-opcion opcion-activa">
+      <div class="metodo-info">
+        <div class="icono-metodo yape-plin">
+         <img src="yape-logo.png" alt="Yape" class="img-yape-icono">
+        </div>
+        <span>Yape/Plin/Sip</span>
+      </div>
+    </div>
+  </div>
+
+<div class="pago-detalle yape-detalle">
+  <div class="qr-contenedor">
+    <img src="qr-yape.jpg" alt="Código QR Yape - Frank Mendoza" class="qr-imagen">
+    <p class="qr-ayuda">Toca para ampliar</p>
+  </div>
+
+  <div class="pago-instrucciones">
+    <p class="instrucciones-titulo">ESCANEA EL QR O TOMA CAPTURA PARA PAGAR MAS RAPIDO</p>
+    <p class="instrucciones-texto">
+      SI EL QR NO FUNCIONA, Enviar al numero: 
+      <strong>969639154</strong>
+      - OTROS BANCOS - AGORA/FINANCIERA OH o YAPE DIRECTO (Solo en casos de que el QR NO FUNCIONE)
+    </p>
+  </div>
+
+  <button class="btn-whatsapp" id="btn-pago-whatsapp">
+    <svg class="icono-ws-svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.299.429 2.502 1.156 3.473l-.758 2.766 2.836-.744a5.728 5.728 0 002.534.591h.003c3.18 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.766-5.771-5.766zm3.385 8.131c-.144.405-.837.774-1.17.822-.312.043-.717.076-2.286-.572-1.879-.777-3.08-2.705-3.174-2.83-.093-.125-.765-1.02-.765-1.944 0-.925.485-1.378.658-1.553.172-.175.375-.219.5-.219.125 0 .25.001.359.006.115.005.27-.044.422.322.156.375.531 1.298.578 1.393.047.094.078.204.016.33-.063.125-.094.203-.188.312-.094.109-.198.244-.282.328-.094.094-.192.196-.083.384.109.187.486.803 1.042 1.298.715.637 1.317.835 1.505.929.188.094.297.078.406-.047.109-.125.469-.547.594-.735.125-.188.25-.156.422-.094.172.063 1.094.516 1.281.609.188.094.313.141.359.219.047.078.047.453-.097.858zM12 2C6.477 2 2 6.477 2 12c0 2.201.713 4.236 1.92 5.882L2 22l4.246-1.859A9.948 9.948 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.167a8.118 8.118 0 01-4.137-1.132l-.297-.176-2.518 1.101 1.09-2.457-.193-.306A8.128 8.128 0 013.833 12c0-4.503 3.664-8.167 8.167-8.167 4.503 0 8.167 3.664 8.167 8.167 0 4.503-3.664 8.167-8.167 8.167z"/>
+    </svg>
+    YA PAGUÉ - IR A WHATSAPP
+  </button>
+</div>
+
+<!-- MODAL PARA AMPLIAR QR -->
+<div id="modal-qr-zoom" class="modal-qr-zoom oculto">
+  <span id="cerrar-qr-zoom" class="cerrar-qr-zoom">&times;</span>
+  <img id="img-qr-ampliada" src="" alt="QR Ampliado">
+</div>
+
+<!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
+<script src="script.js"></script>
+</body>
+</html>
