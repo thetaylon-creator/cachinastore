@@ -19,6 +19,19 @@ function actualizarAlturaCabecera() {
   if (alto > 0) {
     document.documentElement.style.setProperty('--cab-h', `${alto}px`);
   }
+
+  // FIX: además de la altura del header, se mide la altura real del
+  // panel de FILTROS (sidebar) y se guarda en --sidebar-h. Así, en
+  // móvil (donde el sidebar va apilado ARRIBA del catálogo), la
+  // píldora del título de sección puede quedar "sticky" justo
+  // debajo del panel de filtros, sin taparlo ni dejar un hueco.
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) {
+    const altoSidebar = Math.ceil(sidebar.getBoundingClientRect().height);
+    if (altoSidebar > 0) {
+      document.documentElement.style.setProperty('--sidebar-h', `${altoSidebar}px`);
+    }
+  }
 }
 
 window.addEventListener('resize', actualizarAlturaCabecera);
@@ -828,6 +841,7 @@ document.addEventListener('click', (e) => {
   const btnToggleFiltros = e.target.closest('#btn-toggle-filtros');
   if (btnToggleFiltros) {
     document.getElementById('panel-filtros')?.classList.toggle('oculto');
+    requestAnimationFrame(actualizarAlturaCabecera);
     return;
   }
 
