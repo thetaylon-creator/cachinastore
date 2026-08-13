@@ -4,6 +4,28 @@ let productosGlobales = [];
 let carritoItems = [];
 
 // ==========================================
+// 0. ALTURA REAL DEL HEADER (cabecera-fija)
+// Mide el alto real del bloque header + subbar-moneda y lo guarda
+// en la variable CSS --cab-h. Así el panel de FILTROS (sidebar)
+// siempre queda pegado justo debajo del header, sin overlap y sin
+// huecos, tanto en escritorio como en móvil, y aunque el header
+// cambie de tamaño (por ejemplo al pasar a una fila extra en
+// pantallas angostas).
+// ==========================================
+function actualizarAlturaCabecera() {
+  const cabecera = document.querySelector('.cabecera-fija');
+  if (!cabecera) return;
+  const alto = Math.ceil(cabecera.getBoundingClientRect().height);
+  if (alto > 0) {
+    document.documentElement.style.setProperty('--cab-h', `${alto}px`);
+  }
+}
+
+window.addEventListener('resize', actualizarAlturaCabecera);
+window.addEventListener('load', actualizarAlturaCabecera);
+document.addEventListener('DOMContentLoaded', actualizarAlturaCabecera);
+
+// ==========================================
 // 1. MANEJO DE AUTENTICACIÓN (LOGIN)
 // FIX: antes había 2 listeners distintos en 'form-login'
 // (uno guardaba el ID, el otro cambiaba de pantalla).
@@ -45,6 +67,10 @@ document.getElementById('form-login')?.addEventListener('submit', async (e) => {
     mostrarIdClienteHeader(datos.user_code);
     mostrarPantalla('pantalla-tienda');
     obtenerTiendaFortnite();
+    // El header puede cambiar de alto al mostrar la pantalla de
+    // tienda (antes estaba oculta con display:none), así que se
+    // vuelve a medir después de mostrarla.
+    requestAnimationFrame(actualizarAlturaCabecera);
 
   } catch (error) {
     console.error('Error de conexión:', error);
@@ -138,6 +164,7 @@ async function obtenerTiendaFortnite() {
       renderizarProductos(productosGlobales);
       generarMenuFiltros(window._ordenSeccionesActual || []);
       inicializarBuscador();
+      requestAnimationFrame(actualizarAlturaCabecera);
     }  } catch (error) {
     console.error("Error al conectar con la API:", error);
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
@@ -190,12 +217,15 @@ style.textContent = `
     .filtros-label{ display:flex; align-items:center; gap:6px; }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
-      max-height:480px; min-height:0;
+      max-height:320px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
-      background:rgba(10,8,18,0.94);
+      background:rgba(20,16,36,0.55);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius:0 0 10px 10px;
-      box-sizing:border-box; padding:8px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.4);
+      box-sizing:border-box; padding:6px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
       scrollbar-width: thin;
       scrollbar-color: rgba(255,255,255,0.3) transparent;
     }
@@ -204,7 +234,7 @@ style.textContent = `
     .panel-filtros::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.3); border-radius:8px; }
     .panel-filtros::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.5); }
     .panel-filtros .item-filtro{
-      list-style:none; padding:11px 14px; margin:2px 0;
+      list-style:none; padding:8px 14px; margin:2px 0;
       color:var(--text-muted); font-weight:500; font-size:0.85rem;
       letter-spacing:0.2px; text-transform:none;
       border-radius:8px; cursor:pointer; transition:color .15s, background .15s, font-weight .15s;
@@ -214,11 +244,11 @@ style.textContent = `
     }
     .panel-filtros .item-filtro:hover{
       color:#fff;
-      background:rgba(255,255,255,0.05);
+      background:rgba(255,255,255,0.06);
     }
     .panel-filtros .item-filtro.activo{
       color: var(--accent-purple) !important;
-      background: rgba(108,92,231,0.12) !important;
+      background: rgba(108,92,231,0.14) !important;
       font-weight: 700;
       border-left: 3px solid var(--accent-purple);
     }
@@ -271,27 +301,33 @@ function generarMenuFiltros(secciones) {
   }
 
   aplicarScrollSticky();
+  requestAnimationFrame(actualizarAlturaCabecera);
 }
 
+// ==========================================
+// FIX: el sidebar (FILTROS) ahora se queda pegado SIEMPRE justo
+// debajo del header (cabecera-fija), usando la altura real medida
+// en --cab-h, tanto en escritorio como en móvil. Antes en móvil
+// usaba top:0, lo que lo hacía pegarse en el mismo punto que el
+// header y quedar tapado por él (mismo z-index/posición): por eso
+// solo se veía el header "quedarse fijo" y el filtro no.
+// ==========================================
 function aplicarScrollSticky() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
+  sidebar.style.position = 'sticky';
+  sidebar.style.top = 'var(--cab-h, 118px)';
+  sidebar.style.zIndex = '60';
+
   if (window.innerWidth <= 900) {
-    // En móvil también se queda flotando, pegado arriba del todo,
-    // para no tener que subir el scroll para cambiar de filtro.
-    sidebar.style.position = 'sticky';
-    sidebar.style.top = '0';
-    sidebar.style.zIndex = '50';
     sidebar.style.alignSelf = 'auto';
-    sidebar.style.maxHeight = 'none';
+    sidebar.style.maxHeight = 'calc(100vh - var(--cab-h, 118px) - 16px)';
     return;
   }
 
-  sidebar.style.position = 'sticky';
-  sidebar.style.top = '90px';
   sidebar.style.alignSelf = 'start';
-  sidebar.style.maxHeight = 'calc(100vh - 110px)';
+  sidebar.style.maxHeight = 'calc(100vh - var(--cab-h, 118px) - 20px)';
 }
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
@@ -592,7 +628,7 @@ function irASeccion(nombreSeccion) {
   } else {
     // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
     // no lo tapa verticalmente. Solo hay que restar el header sticky.
-    const header = document.querySelector('header');
+    const header = document.querySelector('.cabecera-fija');
     offset = (header ? header.getBoundingClientRect().height : 70) + 20;
   }
 
