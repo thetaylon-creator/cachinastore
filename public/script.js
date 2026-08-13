@@ -221,7 +221,7 @@ style.textContent = `
       position:relative; width:100%; max-width:100%;
       max-height:320px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
-      background:#181528;
+      background:rgba(24,21,40,0.85);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius:0 0 10px 10px;
       box-sizing:border-box; padding:6px;
