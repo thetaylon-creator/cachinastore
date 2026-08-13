@@ -63,8 +63,10 @@ body.bloquear-scroll {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: bold;
-  font-size: 1.2rem;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
   color: #ffffff;
 }
 
@@ -219,7 +221,9 @@ body.bloquear-scroll {
   border: none;
   border-radius: 6px;
   color: white;
-  font-weight: bold;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.3px;
   cursor: pointer;
   transition: background 0.3s;
 }
@@ -271,6 +275,8 @@ header {
 .nav-links span {
   margin: 0 15px;
   color: var(--text-muted);
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 0.85rem;
   cursor: pointer;
 }
 
@@ -439,7 +445,7 @@ header {
 
 .seccion-titulo {
   display: inline-block;
-  font-family: 'Baloo 2', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
   font-size: 1.7rem;
   font-weight: 800;
   color: #fff;
@@ -585,14 +591,15 @@ header {
 
 .tarjeta-nombre {
   color: #fff;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
   margin: 0 0 4px;
   text-shadow: 0 1px 6px rgba(0,0,0,.7);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
 }
 
 .tarjeta-precio {
@@ -1203,36 +1210,11 @@ body .modal-pago.oculto:not(.mostrar) {
   color: #111;
   padding: 8px 16px;
   border-radius: 14px 14px 0 0;
-  font-weight: 800;
-  font-size: 0.8rem;
-  letter-spacing: 0.3px;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-}
-
-/* Cajita que muestra el nombre del filtro/sección activa, siempre
-   DEBAJO de la barra "FILTROS" (nunca reemplaza su texto ni se
-   superpone a lo de arriba). Fondo morado difuminado en vez de
-   transparente. */
-.filtro-activo-box {
-  background: rgba(108, 92, 231, 0.38);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.8rem;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  padding: 10px 16px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.filtro-activo-box:has(+ .panel-filtros.oculto) {
-  border-radius: 0 0 14px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .panel-filtros {
@@ -1402,11 +1384,6 @@ body .modal-pago.oculto:not(.mostrar) {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
-
-  .filtro-activo-box {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
 }
 
 /* FIX RENDIMIENTO GLOBAL: en dispositivos que declaran preferir
@@ -1438,8 +1415,9 @@ body .modal-pago.oculto:not(.mostrar) {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 3px 8px 3px 6px;
@@ -1507,11 +1485,11 @@ body .modal-pago.oculto:not(.mostrar) {
 /* Título "Tienda de Objetos" grande, tipografía Baloo 2 (ya la
    tienes importada), como en la referencia. */
 .hero-titulo-grande {
-  font-family: 'Baloo 2', 'Segoe UI', sans-serif;
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   color: #fff;
   margin: 0;
 }
