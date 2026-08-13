@@ -1191,6 +1191,8 @@ body .modal-pago.oculto:not(.mostrar) {
    PANEL DE FILTROS (SIDEBAR) — ESTILOS DINÁMICOS
    Estos se inyectan también desde script.js, pero se listan aquí
    para que el sidebar no se vea "roto" antes de que cargue el JS.
+   AJUSTE: barra "FILTROS" más delgada y panel desplegable más
+   transparente, a pedido.
    ========================================== */
 .panel-filtros-header {
   display: flex;
@@ -1199,10 +1201,10 @@ body .modal-pago.oculto:not(.mostrar) {
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.96);
   color: #111;
-  padding: 13px 18px;
-  border-radius: 18px 18px 0 0;
+  padding: 8px 16px;
+  border-radius: 14px 14px 0 0;
   font-weight: 800;
-  font-size: 0.9rem; /* un poco más grande */
+  font-size: 0.8rem;
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -1215,13 +1217,13 @@ body .modal-pago.oculto:not(.mostrar) {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(20, 16, 36, 0.55); /* más transparente */
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(20, 16, 36, 0.28); /* más transparente */
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0 0 18px 18px;
+  border-radius: 0 0 14px 14px;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 6px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -1246,7 +1248,7 @@ body .modal-pago.oculto:not(.mostrar) {
 /* Cuando el panel desplegable está cerrado, la barra FILTROS
    queda como una píldora con las 4 esquinas redondeadas. */
 .panel-filtros-header:has(+ .panel-filtros.oculto) {
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 /* ==========================================
@@ -1301,12 +1303,7 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 
   .nav-links {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .nav-links span.activo {
-    width: fit-content;
+    display: none;
   }
 
   .logo-header span {
