@@ -458,23 +458,6 @@ header {
   /* El color de fondo de cada píldora lo pone script.js según la
      sección (obtenerColorSerie), para que cada categoría tenga su
      propio color como en la tienda de referencia. */
-  /* AJUSTE: la píldora ahora queda "sticky" (fija) justo debajo del
-     panel de FILTROS mientras se hace scroll dentro de esa sección,
-     como en la referencia de LIMX. --cab-h es la altura del header
-     y --sidebar-h la altura real del panel de filtros (ambas las
-     mide script.js). En escritorio el sidebar va al costado, así
-     que solo se resta --cab-h; en móvil el sidebar va arriba del
-     catálogo, así que también se resta su altura (ver media query
-     más abajo). */
-  position: sticky;
-  top: var(--cab-h, 118px);
-  z-index: 55;
-}
-
-@media (max-width: 900px) {
-  .seccion-titulo {
-    top: calc(var(--cab-h, 118px) + var(--sidebar-h, 56px));
-  }
 }
 
 .grid-productos {
