@@ -1539,3 +1539,13 @@ header {
     padding: 6px 16px;
   }
 }
+
+@media (min-width: 901px) {
+  .contenedor-tienda {
+    grid-template-columns: 340px 1fr;
+  }
+  .panel-filtros-header {
+    font-size: 0.95rem;
+    padding: 12px 18px;
+  }
+}
