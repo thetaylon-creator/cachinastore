@@ -254,6 +254,29 @@ style.textContent = `
       font-weight: 700;
       border-left: 3px solid var(--accent-purple);
     }
+    .panel-filtros-header{
+      border-radius: 14px 14px 0 0 !important;
+    }
+    .filtro-activo-box{
+      background: rgba(108, 92, 231, 0.38);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .filtro-activo-box:has(+ .panel-filtros.oculto){
+      border-radius: 0 0 14px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
   `;
   document.head.appendChild(style);
 }
@@ -282,12 +305,15 @@ function generarMenuFiltros(secciones) {
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
-      <span class="filtros-label">${primeraSeccion}</span>
+      <span class="filtros-label">FILTROS</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
         <line x1="7" y1="12" x2="17" y2="12"></line>
         <line x1="10" y1="18" x2="14" y2="18"></line>
       </svg>
+    </div>
+    <div class="filtro-activo-box" id="filtro-activo-box">
+      <span id="filtro-activo-nombre">${primeraSeccion}</span>
     </div>
     <ul class="panel-filtros" id="panel-filtros">
   `;
@@ -654,13 +680,13 @@ function activarFiltroEnMenu(nombreSeccion) {
   // la lista de filtros, por si quedó fuera de vista.
   itemCorrespondiente?.scrollIntoView({ block: 'nearest' });
 
-  // FIX: el botón "FILTROS" ahora muestra el nombre de la sección
-  // activa (ej. "BLEACH"), en vez de quedarse siempre en el texto
-  // fijo "FILTROS". Se actualiza tanto al hacer clic como al
-  // detectar el cambio de sección por scroll.
-  const etiqueta = document.querySelector('.filtros-label');
-  if (etiqueta && nombreSeccion) {
-    etiqueta.textContent = nombreSeccion;
+  // FIX: el botón "FILTROS" se queda siempre con el texto fijo
+  // "FILTROS". El nombre de la sección activa (ej. "BLEACH") se
+  // muestra ahora en la cajita morada difuminada que va DEBAJO del
+  // botón, para que no se superponga con nada de arriba.
+  const nombreActivo = document.getElementById('filtro-activo-nombre');
+  if (nombreActivo && nombreSeccion) {
+    nombreActivo.textContent = nombreSeccion;
   }
 }
 
@@ -844,6 +870,10 @@ document.addEventListener('click', (e) => {
     // y evita que el scroll-spy lo pise mientras dura el scroll suave.
     document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
     itemFiltro.classList.add('activo');
+
+    // Actualiza también la cajita morada con el nombre elegido de inmediato.
+    const nombreActivo = document.getElementById('filtro-activo-nombre');
+    if (nombreActivo && seccion) nombreActivo.textContent = seccion;
 
     bloqueoScrollSpy = true;
     irASeccion(seccion);
