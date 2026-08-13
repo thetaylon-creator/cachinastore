@@ -217,13 +217,11 @@ function inyectarEstilosFiltros() {
 style.textContent = `
     .panel-filtros-header svg{ width:14px; height:14px; flex-shrink:0; }
     .filtros-label{ display:flex; align-items:center; gap:6px; }
-    .panel-filtros{
+.panel-filtros{
       position:relative; width:100%; max-width:100%;
       max-height:320px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
-      background:rgba(20,16,36,0.28);
-      backdrop-filter: blur(10px) saturate(140%);
-      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      background:#181528;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius:0 0 10px 10px;
       box-sizing:border-box; padding:6px;
