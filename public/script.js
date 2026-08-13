@@ -839,16 +839,16 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
     itemFiltro.classList.add('activo');
 
-    bloqueoScrollSpy = true;
-    irASeccion(seccion);
-    window.clearTimeout(window._timeoutScrollSpy);
-    window._timeoutScrollSpy = window.setTimeout(() => { bloqueoScrollSpy = false; }, 900);
-
-    // Solo se cierra automáticamente en móvil (donde el panel
+// Solo se cierra automáticamente en móvil (donde el panel
     // funciona como un desplegable); en escritorio se queda visible.
     if (window.innerWidth <= 900) {
       document.getElementById('panel-filtros')?.classList.add('oculto');
     }
+
+    bloqueoScrollSpy = true;
+    irASeccion(seccion);
+    window.clearTimeout(window._timeoutScrollSpy);
+    window._timeoutScrollSpy = window.setTimeout(() => { bloqueoScrollSpy = false; }, 900);
     return;
   }
 
