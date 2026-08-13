@@ -1191,8 +1191,8 @@ body .modal-pago.oculto:not(.mostrar) {
    PANEL DE FILTROS (SIDEBAR) — ESTILOS DINÁMICOS
    Estos se inyectan también desde script.js, pero se listan aquí
    para que el sidebar no se vea "roto" antes de que cargue el JS.
-   AJUSTE: barra "FILTROS" más delgada y panel desplegable más
-   transparente, a pedido.
+   AJUSTE: barra "FILTROS" más delgada, cajita del filtro activo en
+   morado difuminado justo debajo, y panel desplegable transparente.
    ========================================== */
 .panel-filtros-header {
   display: flex;
@@ -1207,6 +1207,32 @@ body .modal-pago.oculto:not(.mostrar) {
   font-size: 0.8rem;
   letter-spacing: 0.3px;
   text-transform: uppercase;
+}
+
+/* Cajita que muestra el nombre del filtro/sección activa, siempre
+   DEBAJO de la barra "FILTROS" (nunca reemplaza su texto ni se
+   superpone a lo de arriba). Fondo morado difuminado en vez de
+   transparente. */
+.filtro-activo-box {
+  background: rgba(108, 92, 231, 0.38);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filtro-activo-box:has(+ .panel-filtros.oculto) {
+  border-radius: 0 0 14px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .panel-filtros {
@@ -1243,12 +1269,6 @@ body .modal-pago.oculto:not(.mostrar) {
 
 .panel-filtros::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
-}
-
-/* Cuando el panel desplegable está cerrado, la barra FILTROS
-   queda como una píldora con las 4 esquinas redondeadas. */
-.panel-filtros-header:has(+ .panel-filtros.oculto) {
-  border-radius: 14px;
 }
 
 /* ==========================================
@@ -1381,6 +1401,11 @@ body .modal-pago.oculto:not(.mostrar) {
   .panel-filtros {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+  }
+
+  .filtro-activo-box {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
