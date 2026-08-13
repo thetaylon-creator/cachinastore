@@ -278,9 +278,11 @@ function generarMenuFiltros(secciones) {
 
   inyectarEstilosFiltros();
 
+  const primeraSeccion = secciones && secciones.length ? secciones[0] : 'FILTROS';
+
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
-      <span class="filtros-label">FILTROS</span>
+      <span class="filtros-label">${primeraSeccion}</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
         <line x1="7" y1="12" x2="17" y2="12"></line>
@@ -651,6 +653,15 @@ function activarFiltroEnMenu(nombreSeccion) {
   // Mantiene el filtro activo visible dentro del propio scroll de
   // la lista de filtros, por si quedó fuera de vista.
   itemCorrespondiente?.scrollIntoView({ block: 'nearest' });
+
+  // FIX: el botón "FILTROS" ahora muestra el nombre de la sección
+  // activa (ej. "BLEACH"), en vez de quedarse siempre en el texto
+  // fijo "FILTROS". Se actualiza tanto al hacer clic como al
+  // detectar el cambio de sección por scroll.
+  const etiqueta = document.querySelector('.filtros-label');
+  if (etiqueta && nombreSeccion) {
+    etiqueta.textContent = nombreSeccion;
+  }
 }
 
 // ==========================================
@@ -661,33 +672,54 @@ function activarFiltroEnMenu(nombreSeccion) {
 // la que esté cruzando la franja superior de la pantalla en un
 // momento dado se marca como activa en el menú lateral.
 // ==========================================
-let observadorSecciones = null;
 let bloqueoScrollSpy = false;
+let _handlerScrollSpy = null;
 
+// FIX: antes se usaba IntersectionObserver con una franja ancha
+// (-15% a -75%), lo que a veces dejaba DOS secciones "intersectando"
+// al mismo tiempo (la que termina y la que empieza). Como el código
+// recorría todas las entradas intersectando y marcaba la última que
+// procesaba, el filtro resaltado no siempre coincidía con lo que
+// realmente se veía en pantalla (ej: marcaba "BLEACH" mientras se
+// veía "Un show más").
+//
+// Ahora se usa un cálculo directo en cada scroll: se recorren TODAS
+// las secciones en orden y se elige la ÚLTIMA cuyo borde superior ya
+// cruzó la línea de referencia (justo debajo del header). Esa es,
+// sin ambigüedad, la sección que está siendo vista en ese momento.
 function iniciarScrollSpySecciones() {
-  if (observadorSecciones) observadorSecciones.disconnect();
-
-  const secciones = document.querySelectorAll('.seccion-tienda');
+  const secciones = Array.from(document.querySelectorAll('.seccion-tienda'));
   if (!secciones.length) return;
 
-  observadorSecciones = new IntersectionObserver((entradas) => {
+  if (_handlerScrollSpy) {
+    window.removeEventListener('scroll', _handlerScrollSpy);
+  }
+
+  function calcularSeccionActiva() {
     if (bloqueoScrollSpy) return;
 
-    entradas.forEach(entrada => {
-      if (entrada.isIntersecting) {
-        const nombreSeccion = entrada.target.getAttribute('data-seccion-nombre');
-        if (nombreSeccion) activarFiltroEnMenu(nombreSeccion);
-      }
-    });
-  }, {
-    root: null,
-    // Considera "activa" la sección que está cruzando una franja
-    // angosta cerca de la parte superior de la pantalla/scroll.
-    rootMargin: '-15% 0px -75% 0px',
-    threshold: 0
-  });
+    const cabH = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--cab-h')
+    ) || 118;
+    const lineaReferencia = cabH + 24; // un poco debajo del header/filtros
 
-  secciones.forEach(sec => observadorSecciones.observe(sec));
+    let seccionActiva = secciones[0];
+    for (const sec of secciones) {
+      const top = sec.getBoundingClientRect().top;
+      if (top - lineaReferencia <= 0) {
+        seccionActiva = sec;
+      } else {
+        break;
+      }
+    }
+
+    const nombreSeccion = seccionActiva.getAttribute('data-seccion-nombre');
+    if (nombreSeccion) activarFiltroEnMenu(nombreSeccion);
+  }
+
+  _handlerScrollSpy = calcularSeccionActiva;
+  window.addEventListener('scroll', _handlerScrollSpy, { passive: true });
+  calcularSeccionActiva();
 }
 
 function filtrarPorSeccion(seccion) {
