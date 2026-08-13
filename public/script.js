@@ -243,6 +243,12 @@ style.textContent = `
       word-wrap:break-word; overflow-wrap:break-word;
       border-left: 3px solid transparent;
     }
+    @media (min-width: 901px){
+      .panel-filtros .item-filtro{
+        font-size: 0.9rem;
+        padding: 10px 14px;
+      }
+    }
     .panel-filtros .item-filtro:hover{
       color:#fff;
       background:rgba(255,255,255,0.06);
