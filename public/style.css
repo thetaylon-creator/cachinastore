@@ -7,6 +7,7 @@
   --text-main: #ffffff;
   --text-muted: #a09cb0;
   --border-color: #2a2640;
+  --cab-h: 118px;
 }
 
 * {
@@ -307,6 +308,16 @@ header {
   background: var(--bg-sidebar);
   padding: 20px;
   border-right: 1px solid var(--border-color);
+  /* FIX: el sidebar (FILTROS) ahora se queda pegado justo debajo
+     del header/subbar (cabecera-fija), usando la altura real de
+     esa cabecera (--cab-h, medida por JS) en vez de un valor fijo
+     adivinado. Así header + filtro bajan/se quedan SIEMPRE juntos,
+     tanto en escritorio como en móvil. */
+  position: sticky;
+  top: var(--cab-h, 118px);
+  align-self: start;
+  max-height: calc(100vh - var(--cab-h, 118px) - 20px);
+  z-index: 60;
 }
 
 .sidebar h4 {
@@ -1200,11 +1211,14 @@ body .modal-pago.oculto:not(.mostrar) {
   position: relative;
   width: 100%;
   max-width: 100%;
-  max-height: calc(100vh - 90px); /* antes -120px: ahora se ve más alto */
-  min-height: 400px;              /* fuerza un tamaño mínimo aunque haya pocos filtros */
+  max-height: 320px; /* antes: calc(100vh - 90px). Ahora más delgado */
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(10, 8, 18, 0.94);
+  background: rgba(20, 16, 36, 0.55); /* más transparente */
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0 0 18px 18px;
   box-sizing: border-box;
   padding: 8px;
@@ -1361,26 +1375,30 @@ body .modal-pago.oculto:not(.mostrar) {
   .box-login {
     backdrop-filter: blur(5px);
   }
+
+  /* FIX RENDIMIENTO: el blur del panel de filtros también se baja
+     en móvil, donde más se nota el costo en la GPU. */
+  .panel-filtros {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
 }
 
 /* FIX RENDIMIENTO GLOBAL: en dispositivos que declaran preferir
    menos movimiento (accesibilidad / ahorro de batería), se apagan
    las animaciones y transiciones decorativas. */
 /* ==========================================
-   ESCRITORIO: EL HEADER Y EL PANEL DE FILTROS SE
-   QUEDAN FIJOS (STICKY). LA PÁGINA SE DESPLAZA
+   HEADER Y PANEL DE FILTROS SE QUEDAN FIJOS
+   (STICKY) JUNTOS, UNO DEBAJO DEL OTRO, TANTO EN
+   ESCRITORIO COMO EN MÓVIL. LA PÁGINA SE DESPLAZA
    COMPLETA, COMO EN LA TIENDA DE REFERENCIA — YA NO
    HAY UN SCROLL PROPIO ADENTRO DEL CATÁLOGO. EL
    ÚNICO SCROLL "INTERNO" QUE QUEDA ES EL DEL PROPIO
    LISTADO DE FILTROS (ver .panel-filtros más arriba).
+   La regla .sidebar { position:sticky; top:var(--cab-h) }
+   ya está definida más arriba, junto al resto de
+   estilos de .sidebar, y aplica a TODOS los anchos.
    ========================================== */
-  .sidebar {
-    position: sticky;
-    top: 90px;
-    align-self: start;
-    max-height: calc(100vh - 110px);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .btn-brillante {
