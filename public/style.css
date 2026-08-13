@@ -1306,6 +1306,12 @@ body .modal-pago.oculto:not(.mostrar) {
     display: none;
   }
 
+  .sidebar {
+    background: transparent;
+    padding: 10px 12px;
+    border-right: none;
+  }
+
   .logo-header span {
     font-size: 1rem;
   }
