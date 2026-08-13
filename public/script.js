@@ -206,6 +206,8 @@ function slugificarSeccion(nombreSeccion) {
 // 5. GENERAR MENÚ DE FILTROS — BARRA LATERAL FIJA
 // (Siempre visible, sin necesidad de clic. Se ajusta al ancho
 // de su columna para no sobresalir sobre el catálogo.)
+// AJUSTE: barra "FILTROS" más delgada (menos padding/letra chica)
+// y panel desplegable con fondo más transparente, a pedido.
 // ==========================================
 function inyectarEstilosFiltros() {
   if (document.getElementById('estilos-filtros-dinamicos')) return;
@@ -213,15 +215,15 @@ function inyectarEstilosFiltros() {
   const style = document.createElement('style');
   style.id = 'estilos-filtros-dinamicos';
 style.textContent = `
-    .panel-filtros-header svg{ width:16px; height:16px; flex-shrink:0; }
+    .panel-filtros-header svg{ width:14px; height:14px; flex-shrink:0; }
     .filtros-label{ display:flex; align-items:center; gap:6px; }
     .panel-filtros{
       position:relative; width:100%; max-width:100%;
       max-height:320px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
-      background:rgba(20,16,36,0.55);
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      background:rgba(20,16,36,0.28);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius:0 0 10px 10px;
       box-sizing:border-box; padding:6px;
@@ -234,8 +236,8 @@ style.textContent = `
     .panel-filtros::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.3); border-radius:8px; }
     .panel-filtros::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.5); }
     .panel-filtros .item-filtro{
-      list-style:none; padding:8px 14px; margin:2px 0;
-      color:var(--text-muted); font-weight:500; font-size:0.85rem;
+      list-style:none; padding:6px 12px; margin:2px 0;
+      color:var(--text-muted); font-weight:500; font-size:0.82rem;
       letter-spacing:0.2px; text-transform:none;
       border-radius:8px; cursor:pointer; transition:color .15s, background .15s, font-weight .15s;
       background:transparent;
