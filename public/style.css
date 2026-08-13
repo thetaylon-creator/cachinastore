@@ -461,18 +461,6 @@ header {
   gap: 15px;
 }
 
-.btn-cerrar-sesion {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: color 0.2s;
-}
-
-.btn-cerrar-sesion:hover {
-  color: #ffffff;
-}
 
 .btn-carrito {
   position: relative;
@@ -1409,13 +1397,6 @@ body .modal-pago.oculto:not(.mostrar) {
    ÚNICO SCROLL "INTERNO" QUE QUEDA ES EL DEL PROPIO
    LISTADO DE FILTROS (ver .panel-filtros más arriba).
    ========================================== */
-@media (min-width: 901px) {
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 60;
-  }
-
   .sidebar {
     position: sticky;
     top: 90px;
@@ -1464,4 +1445,97 @@ body .modal-pago.oculto:not(.mostrar) {
 @keyframes pulso-punto-verde {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* ==========================================
+   REDISEÑO: HEADER STICKY + SUBBAR MONEDA +
+   TÍTULO GRANDE + BOTÓN SALIR
+   ========================================== */
+
+/* Envuelve header + subbar juntos, así se quedan pegados arriba
+   como una sola unidad al hacer scroll, en cualquier tamaño de
+   pantalla (no solo escritorio). */
+.cabecera-fija {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+}
+
+/* Barra "Moneda: PEN" debajo del logo */
+.subbar-moneda {
+  background: rgba(10, 8, 18, 0.92);
+  border-bottom: 1px solid var(--border-color);
+  padding: 6px 40px;
+  backdrop-filter: blur(10px);
+}
+
+.subbar-moneda-texto {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.subbar-moneda-texto strong {
+  color: var(--accent-purple);
+  font-weight: 700;
+}
+
+/* Título "Tienda de Objetos" grande, tipografía Baloo 2 (ya la
+   tienes importada), como en la referencia. */
+.hero-titulo-grande {
+  font-family: 'Baloo 2', 'Segoe UI', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: #fff;
+  margin: 0;
+}
+
+.hero-titulo-acento {
+  color: var(--accent-purple);
+  position: relative;
+}
+
+.hero-titulo-acento::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -6px;
+  height: 3px;
+  background: var(--accent-purple);
+  border-radius: 2px;
+  opacity: 0.55;
+}
+
+/* Botón "Salir" con ícono, a la izquierda del carrito */
+.btn-icono-accion {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.btn-icono-accion:hover {
+  border-color: var(--accent-purple);
+  background: rgba(108, 92, 231, 0.1);
+  color: #fff;
+}
+
+/* Ajusta el header para que no quede sticky duplicado (ya lo
+   maneja .cabecera-fija ahora) */
+header {
+  position: static !important;
+}
+
+@media (max-width: 900px) {
+  .subbar-moneda {
+    padding: 6px 16px;
+  }
 }
