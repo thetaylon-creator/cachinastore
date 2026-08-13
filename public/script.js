@@ -137,6 +137,7 @@ async function obtenerTiendaFortnite() {
 
       renderizarProductos(productosGlobales);
       generarMenuFiltros(window._ordenSeccionesActual || []);
+      inicializarBuscador();
     }  } catch (error) {
     console.error("Error al conectar con la API:", error);
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
@@ -403,6 +404,33 @@ const imagen = obtenerImagenReal(entry, item);
   window._ordenSeccionesActual = ordenSecciones;
 
   iniciarScrollSpySecciones();
+}
+// ==========================================
+// 16. BUSCADOR DE PRODUCTOS
+// Filtra las tarjetas por nombre en tiempo real. Si una sección
+// se queda sin resultados visibles, se oculta completa.
+// ==========================================
+function inicializarBuscador() {
+  const input = document.getElementById('input-buscar');
+  if (!input) return;
+
+  input.addEventListener('input', () => {
+    const termino = input.value.trim().toLowerCase();
+    const tarjetas = document.querySelectorAll('.tarjeta-producto');
+    const secciones = document.querySelectorAll('.seccion-tienda');
+
+    tarjetas.forEach(tarjeta => {
+      const nombre = (tarjeta.querySelector('.tarjeta-nombre')?.textContent || '').toLowerCase();
+      const coincide = !termino || nombre.includes(termino);
+      tarjeta.style.display = coincide ? '' : 'none';
+    });
+
+    secciones.forEach(seccion => {
+      const algunaVisible = Array.from(seccion.querySelectorAll('.tarjeta-producto'))
+        .some(t => t.style.display !== 'none');
+      seccion.style.display = algunaVisible ? '' : 'none';
+    });
+  });
 }
 
 // ==========================================
