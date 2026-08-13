@@ -1308,9 +1308,6 @@ body .modal-pago.oculto:not(.mostrar) {
   .nav-links span.activo {
     width: fit-content;
   }
-}
-
-
 
   .logo-header span {
     font-size: 1rem;
