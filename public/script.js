@@ -237,7 +237,8 @@ style.textContent = `
     .panel-filtros::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.5); }
     .panel-filtros .item-filtro{
       list-style:none; padding:6px 12px; margin:2px 0;
-      color:var(--text-muted); font-weight:500; font-size:0.82rem;
+      color:var(--text-muted); font-family:'Orbitron','Segoe UI',sans-serif;
+      font-weight:500; font-size:0.76rem;
       letter-spacing:0.2px; text-transform:none;
       border-radius:8px; cursor:pointer; transition:color .15s, background .15s, font-weight .15s;
       background:transparent;
@@ -253,29 +254,6 @@ style.textContent = `
       background: rgba(108,92,231,0.14) !important;
       font-weight: 700;
       border-left: 3px solid var(--accent-purple);
-    }
-    .panel-filtros-header{
-      border-radius: 14px 14px 0 0 !important;
-    }
-    .filtro-activo-box{
-      background: rgba(108, 92, 231, 0.38);
-      backdrop-filter: blur(14px) saturate(160%);
-      -webkit-backdrop-filter: blur(14px) saturate(160%);
-      color: #fff;
-      font-weight: 800;
-      font-size: 0.8rem;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-      padding: 10px 16px;
-      border-left: 1px solid rgba(255,255,255,0.1);
-      border-right: 1px solid rgba(255,255,255,0.1);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .filtro-activo-box:has(+ .panel-filtros.oculto){
-      border-radius: 0 0 14px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
   `;
   document.head.appendChild(style);
@@ -311,9 +289,6 @@ function generarMenuFiltros(secciones) {
         <line x1="7" y1="12" x2="17" y2="12"></line>
         <line x1="10" y1="18" x2="14" y2="18"></line>
       </svg>
-    </div>
-    <div class="filtro-activo-box" id="filtro-activo-box">
-      <span id="filtro-activo-nombre">${primeraSeccion}</span>
     </div>
     <ul class="panel-filtros" id="panel-filtros">
   `;
@@ -554,16 +529,16 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira) {
 // 9. COLORES POR SERIE / SECCIÓN
 function obtenerColorSerie(seccion) {
   const colores = {
-    'Marvel': 'linear-gradient(135deg, #1d0e0e, #801212)',
-    'BLEACH': 'linear-gradient(135deg, #230f38, #601893)',
-    'Terminator': 'linear-gradient(135deg, #111827, #374151)',
-    'Spider-Man': 'linear-gradient(135deg, #1e3a8a, #991b1b)',
-    'Gesto': 'linear-gradient(135deg, #1e1b4b, #4338ca)',
-    'Pico': 'linear-gradient(135deg, #064e3b, #047857)',
-    'Traje': 'linear-gradient(135deg, #312e81, #6366f1)',
-    'Calzado': 'linear-gradient(135deg, #701a75, #c026d3)',
-    'Destacados': 'linear-gradient(135deg, #78350f, #d97706)',
-    'default': 'linear-gradient(135deg, #181528, #2a2244)'
+    'Marvel': 'linear-gradient(135deg, #0f766e, #1e1b4b)',
+    'BLEACH': 'linear-gradient(135deg, #0e7490, #4c1d95)',
+    'Terminator': 'linear-gradient(135deg, #134e4a, #312e81)',
+    'Spider-Man': 'linear-gradient(135deg, #0891b2, #6d28d9)',
+    'Gesto': 'linear-gradient(135deg, #0d9488, #4338ca)',
+    'Pico': 'linear-gradient(135deg, #0f766e, #047857)',
+    'Traje': 'linear-gradient(135deg, #155e75, #6366f1)',
+    'Calzado': 'linear-gradient(135deg, #0e7490, #a21caf)',
+    'Destacados': 'linear-gradient(135deg, #0f766e, #7c3aed)',
+    'default': 'linear-gradient(135deg, #0d9488, #4c1d95)'
   };
   return colores[seccion] || colores['default'];
 }
@@ -680,14 +655,9 @@ function activarFiltroEnMenu(nombreSeccion) {
   // la lista de filtros, por si quedó fuera de vista.
   itemCorrespondiente?.scrollIntoView({ block: 'nearest' });
 
-  // FIX: el botón "FILTROS" se queda siempre con el texto fijo
-  // "FILTROS". El nombre de la sección activa (ej. "BLEACH") se
-  // muestra ahora en la cajita morada difuminada que va DEBAJO del
-  // botón, para que no se superponga con nada de arriba.
-  const nombreActivo = document.getElementById('filtro-activo-nombre');
-  if (nombreActivo && nombreSeccion) {
-    nombreActivo.textContent = nombreSeccion;
-  }
+  // El botón "FILTROS" se queda siempre con el texto fijo "FILTROS".
+  // La sección activa se ve directamente en el catálogo (el título
+  // de la sección, ej. "Spider-Man", que ya trae su propio color).
 }
 
 // ==========================================
@@ -870,10 +840,6 @@ document.addEventListener('click', (e) => {
     // y evita que el scroll-spy lo pise mientras dura el scroll suave.
     document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
     itemFiltro.classList.add('activo');
-
-    // Actualiza también la cajita morada con el nombre elegido de inmediato.
-    const nombreActivo = document.getElementById('filtro-activo-nombre');
-    if (nombreActivo && seccion) nombreActivo.textContent = seccion;
 
     bloqueoScrollSpy = true;
     irASeccion(seccion);
