@@ -1306,8 +1306,8 @@ body .modal-pago.oculto:not(.mostrar) {
     display: none;
   }
 
-  .sidebar {
-    background: transparent;
+.sidebar {
+    background: #181528;
     padding: 10px 12px;
     border-right: none;
   }
