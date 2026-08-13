@@ -642,7 +642,7 @@ if (esMovil) {
     // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
     // no lo tapa verticalmente. Solo hay que restar el header sticky.
     const header = document.querySelector('.cabecera-fija');
-    offset = (header ? header.getBoundingClientRect().height : 70) + 20;
+    offset = (header ? header.getBoundingClientRect().height : 70) + 45;
   }
 
   const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - offset;
