@@ -623,11 +623,15 @@ function irASeccion(nombreSeccion) {
   const esMovil = window.innerWidth <= 900;
   let offset;
 
-  if (esMovil) {
-    // En móvil el sidebar flota ARRIBA del catálogo (una sola columna),
-    // así que hay que restar su altura real para no taparlo.
+if (esMovil) {
+    // En móvil el header (cabecera-fija) Y el sidebar (filtros) quedan
+    // sticky, uno debajo del otro. Hay que restar la altura de AMBOS
+    // para que el título de la sección no quede tapado.
+    const cabecera = document.querySelector('.cabecera-fija');
     const sidebar = document.querySelector('.sidebar');
-    offset = (sidebar ? sidebar.getBoundingClientRect().height : 0) + 16;
+    const altoCabecera = cabecera ? cabecera.getBoundingClientRect().height : 0;
+    const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
+    offset = altoCabecera + altoSidebar + 16;
   } else {
     // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
     // no lo tapa verticalmente. Solo hay que restar el header sticky.
