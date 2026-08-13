@@ -1226,8 +1226,6 @@ body .modal-pago.oculto:not(.mostrar) {
   overflow-y: auto;
   overflow-x: hidden;
   background: #181528;
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0 0 14px 14px;
   box-sizing: border-box;
