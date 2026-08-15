@@ -554,6 +554,16 @@ function obtenerColorSerie(seccion) {
 // para Spider-Man, estrellas para Star Wars, etc. Si una sección
 // no tiene tema definido, usa un fondo genérico con su color.
 // ==========================================
+// ==========================================
+// FONDOS TEMÁTICOS POR SECCIÓN
+// Las franquicias conocidas tienen un tema fijo y reconocible
+// (telarañas para Spider-Man, estrellas para Star Wars, etc).
+// Cualquier sección NUEVA que no esté en la lista (colaboraciones,
+// eventos, etc.) recibe automáticamente un fondo de una paleta
+// variada, elegido según el nombre de la sección para que sea
+// SIEMPRE el mismo fondo cada vez que esa sección aparezca
+// (no cambia random en cada recarga).
+// ==========================================
 function obtenerFondoSeccion(seccion) {
   const temas = {
     'Spider-Man': {
@@ -577,16 +587,35 @@ function obtenerFondoSeccion(seccion) {
       color: '#0a0a15',
       patron: `linear-gradient(45deg, rgba(59,130,246,0.06) 25%, transparent 25%, transparent 75%, rgba(59,130,246,0.06) 75%)`,
       tamano: '32px 32px'
-    },
-    'default': {
-      color: '#131021',
-      patron: `radial-gradient(ellipse at top left, rgba(108,92,231,0.10), transparent 60%)`
     }
   };
 
-  const tema = temas[seccion] || temas['default'];
-  const tamano = tema.tamano ? `background-size: ${tema.tamano};` : '';
-  return `background-color: ${tema.color}; background-image: ${tema.patron}; ${tamano}`;
+  // Si la sección tiene tema específico, úsalo.
+  if (temas[seccion]) {
+    const t = temas[seccion];
+    const tamano = t.tamano ? `background-size: ${t.tamano};` : '';
+    return `background-color: ${t.color}; background-image: ${t.patron}; ${tamano}`;
+  }
+
+  // Si no, elige un fondo de esta paleta variada, según el nombre
+  // (mismo nombre = siempre mismo fondo, no cambia al recargar).
+  const paleta = [
+    { color: '#0a1420', patron: `radial-gradient(ellipse at top left, rgba(56,189,248,0.12), transparent 60%)` },
+    { color: '#150a20', patron: `radial-gradient(ellipse at top left, rgba(192,132,252,0.12), transparent 60%)` },
+    { color: '#0a2015', patron: `radial-gradient(ellipse at top left, rgba(74,222,128,0.12), transparent 60%)` },
+    { color: '#200a0a', patron: `radial-gradient(ellipse at top left, rgba(248,113,113,0.12), transparent 60%)` },
+    { color: '#20180a', patron: `radial-gradient(ellipse at top left, rgba(250,204,21,0.12), transparent 60%)` },
+    { color: '#0a1020', patron: `radial-gradient(ellipse at top left, rgba(99,102,241,0.14), transparent 60%)` },
+    { color: '#131021', patron: `radial-gradient(ellipse at top left, rgba(108,92,231,0.10), transparent 60%)` }
+  ];
+
+  let hash = 0;
+  for (let i = 0; i < seccion.length; i++) {
+    hash = (hash * 31 + seccion.charCodeAt(i)) >>> 0;
+  }
+  const elegido = paleta[hash % paleta.length];
+
+  return `background-color: ${elegido.color}; background-image: ${elegido.patron};`;
 }
 
 function limpiarNombre(nombreFeo) {
