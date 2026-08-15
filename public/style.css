@@ -1638,3 +1638,15 @@ header {
   border-color: rgba(108, 92, 231, 0.45);
 }
 
+.tarjeta-producto-lote {
+  grid-column: span 2;
+  aspect-ratio: 2 / 1.15;
+}
+
+@media (max-width: 700px) {
+  .tarjeta-producto-lote {
+    grid-column: span 2;
+    aspect-ratio: 16 / 10;
+  }
+}
+
