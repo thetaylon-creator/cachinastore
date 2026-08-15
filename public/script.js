@@ -424,6 +424,7 @@ const imagen = obtenerImagenReal(entry, item);
     bloqueSeccion.className = 'seccion-tienda';
     bloqueSeccion.id = slugificarSeccion(nombreSeccion);
     bloqueSeccion.setAttribute('data-seccion-nombre', nombreSeccion);
+    bloqueSeccion.style.cssText += obtenerFondoSeccion(nombreSeccion);
 
     const titulo = document.createElement('h3');
     titulo.className = 'seccion-titulo';
@@ -545,6 +546,47 @@ function obtenerColorSerie(seccion) {
     'default': 'linear-gradient(135deg, #0d9488, #4c1d95)'
   };
   return colores[seccion] || colores['default'];
+}
+// ==========================================
+// FONDOS TEMÁTICOS POR SECCIÓN
+// Cada sección puede tener un color base + un patrón de fondo
+// (SVG en data-URI) que la identifique visualmente, como telarañas
+// para Spider-Man, estrellas para Star Wars, etc. Si una sección
+// no tiene tema definido, usa un fondo genérico con su color.
+// ==========================================
+function obtenerFondoSeccion(seccion) {
+  const temas = {
+    'Spider-Man': {
+      color: '#0a0a0a',
+      patron: `radial-gradient(circle at 15% 15%, rgba(255,255,255,0.08) 0%, transparent 3%),
+               repeating-conic-gradient(from 0deg at 15% 15%, rgba(255,255,255,0.05) 0deg 8deg, transparent 8deg 24deg),
+               repeating-radial-gradient(circle at 15% 15%, rgba(255,255,255,0.06) 0px, transparent 22px, transparent 44px)`
+    },
+    'Marvel': {
+      color: '#1a0505',
+      patron: `radial-gradient(circle, rgba(255,255,255,0.06) 1.5px, transparent 1.5px)`,
+      tamano: '18px 18px'
+    },
+    'Star Wars': {
+      color: '#050510',
+      patron: `radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px),
+               radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+      tamano: '120px 120px, 70px 70px'
+    },
+    'BLEACH': {
+      color: '#0a0a15',
+      patron: `linear-gradient(45deg, rgba(59,130,246,0.06) 25%, transparent 25%, transparent 75%, rgba(59,130,246,0.06) 75%)`,
+      tamano: '32px 32px'
+    },
+    'default': {
+      color: '#131021',
+      patron: `radial-gradient(ellipse at top left, rgba(108,92,231,0.10), transparent 60%)`
+    }
+  };
+
+  const tema = temas[seccion] || temas['default'];
+  const tamano = tema.tamano ? `background-size: ${tema.tamano};` : '';
+  return `background-color: ${tema.color}; background-image: ${tema.patron}; ${tamano}`;
 }
 
 function limpiarNombre(nombreFeo) {
