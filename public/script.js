@@ -506,7 +506,7 @@ if (productos.length === 1) {
   grid.className = 'grid-productos';
 
 productos.forEach(p => {
-    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote));
+    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal));
   });
 
   bloqueSeccion.appendChild(grid);
@@ -567,20 +567,18 @@ function seVaHoy(outDate) {
   }
 }
 
-function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote) {
+function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote, fondoReal) {
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto');
   if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
-
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-
   const badgeExpira = expira
     ? `<span class="badge-se-va-hoy"><span class="punto-pulso"></span>SE VA HOY</span>`
     : '';
-
+  const estiloFondo = fondoReal ? `style="background: ${fondoReal};"` : '';
   tarjeta.innerHTML = `
-    <div class="tarjeta-fondo">
+    <div class="tarjeta-fondo" ${estiloFondo}>
       <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
            loading="lazy" decoding="async"
            onerror="this.onerror=null; this.src='https://placehold.co/200x200/181528/ffffff?text=Fortnite';">
