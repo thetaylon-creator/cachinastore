@@ -1617,3 +1617,100 @@ header {
   margin: 0 auto;
   width: 100%;
 }
+/* ==========================================
+   TARJETA GRANDE PARA SECCIONES DE 1 SOLO ITEM
+   (autos, bundles especiales, etc.)
+   ========================================== */
+.tarjeta-producto-grande {
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-producto-grande:hover {
+  transform: translateY(-4px);
+  border-color: rgba(108, 92, 231, 0.45);
+}
+
+.tg-imagen-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tg-imagen-wrap img {
+  max-width: 70%;
+  max-height: 85%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+}
+
+.tg-info {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tg-nombre {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.tg-precio-pavos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,.8);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.tg-precio-pen {
+  color: #00ffaa;
+  font-weight: 900;
+  font-size: 1.3rem;
+  margin: 6px 0 12px;
+}
+
+.tg-btn-agregar {
+  width: calc(100% - 40px);
+  margin: 0 20px 20px;
+  padding: 13px;
+  background: var(--accent-purple);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.tg-btn-agregar:hover {
+  background: var(--accent-hover);
+}
+
+@media (max-width: 700px) {
+  .tg-imagen-wrap {
+    aspect-ratio: 16 / 10;
+  }
+}
