@@ -267,9 +267,6 @@ body.bloquear-scroll {
 header {
   background: var(--bg-sidebar);
   padding: 15px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   border-bottom: 1px solid var(--border-color);
   width: 100%;
   box-sizing: border-box;
@@ -1477,9 +1474,6 @@ border-radius: 8px;
   border-bottom: 1px solid var(--border-color);
   padding: 6px 40px;
   backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 10px;
   box-sizing: border-box;
   width: 100%;
@@ -1604,5 +1598,14 @@ header {
 }
 .separador-full {
   border-top: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.header-interno {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
   width: 100%;
 }
