@@ -781,10 +781,8 @@ function eliminarDelCarrito(index) {
 function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
-
   const esMovil = window.innerWidth <= 900;
   let offset;
-
 if (esMovil) {
     // En móvil el header (cabecera-fija) Y el sidebar (filtros) quedan
     // sticky, uno debajo del otro. Hay que restar la altura de AMBOS
@@ -793,16 +791,14 @@ if (esMovil) {
     const sidebar = document.querySelector('.sidebar');
     const altoCabecera = cabecera ? cabecera.getBoundingClientRect().height : 0;
     const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
-    offset = altoCabecera + altoSidebar + 16;
+    offset = altoCabecera + altoSidebar + 34;
   } else {
     // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
     // no lo tapa verticalmente. Solo hay que restar el header sticky.
     const header = document.querySelector('.cabecera-fija');
-    offset = (header ? header.getBoundingClientRect().height : 70) + 35;
+    offset = (header ? header.getBoundingClientRect().height : 70) + 55;
   }
-
   const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - offset;
-
   window.scrollTo({
     top: Math.max(0, posicionDestino),
     behavior: 'smooth'
