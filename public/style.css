@@ -1500,7 +1500,7 @@ border-radius: 8px;
    tienes importada), como en la referencia. */
 .hero-titulo-grande {
   font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
-  font-size: clamp(3.4rem, 8.5vw, 5.8rem);
+  font-size: clamp(4rem, 10vw, 7.2rem);
   font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.1;
