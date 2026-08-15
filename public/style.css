@@ -382,7 +382,7 @@ header {
 .buscador-tienda {
   flex: 1;
   min-width: 260px;
-  max-width: 640px;
+  max-width: 900px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1495,7 +1495,7 @@ border-radius: 8px;
    tienes importada), como en la referencia. */
 .hero-titulo-grande {
   font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
-  font-size: clamp(3rem, 7.5vw, 5rem);
+  font-size: clamp(3.4rem, 8.5vw, 5.8rem);
   font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.1;
@@ -1581,7 +1581,7 @@ header {
 .hero-envoltorio {
   max-width: 1850px;
   margin: 0 auto;
-  padding: 45px 40px 0;
+  padding: 55px 40px 10px;
   box-sizing: border-box;
 }
 .alerta-amarilla {
