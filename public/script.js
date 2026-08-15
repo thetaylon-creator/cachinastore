@@ -548,24 +548,24 @@ function crearTarjetaGrandeHTML(nombre, pavos, precioSoles, imagen) {
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
   tarjeta.innerHTML = `
-    <div class="tg-imagen-wrap">
-      <img src="${imagen}" alt="${nombreLimpio}" loading="lazy" decoding="async"
+    <div class="tarjeta-fondo">
+      <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
+           loading="lazy" decoding="async"
            onerror="this.onerror=null; this.src='https://placehold.co/400x250/181528/ffffff?text=Fortnite';">
+      <div class="tarjeta-overlay"></div>
+      <div class="tarjeta-info">
+        <h4 class="tarjeta-nombre">${nombre}</h4>
+        <p class="tarjeta-precio">
+          <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">
+          ${pavos}
+        </p>
+        <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+      </div>
+      <button class="btn-agregar btn-agregar-icono"
+              data-nombre="${nombreLimpio}"
+              data-precio="${precioSoles}"
+              data-imagen="${imagen}">+</button>
     </div>
-    <div class="tg-info">
-      <span class="tg-nombre">${nombre}</span>
-      <span class="tg-precio-pavos">
-        <img src="${iconoPavos}" alt="V-Bucks" style="width:15px;height:15px;">
-        ${pavos}
-      </span>
-      <span class="tg-precio-pen">${precioSoles} PEN</span>
-    </div>
-    <button class="tg-btn-agregar btn-agregar"
-            data-nombre="${nombreLimpio}"
-            data-precio="${precioSoles}"
-            data-imagen="${imagen}">
-      🛒 Agregar
-    </button>
   `;
   return tarjeta;
 }
