@@ -439,13 +439,11 @@ header {
 }
 .seccion-tienda {
   scroll-margin-top: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 24px 24px 30px;
-  background-color: rgba(255, 255, 255, 0.015);
-  background-image:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 26px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 26px);
+  background: radial-gradient(ellipse at top left, rgba(108, 92, 231, 0.10), transparent 60%),
+              rgba(255, 255, 255, 0.02);
 }
 
 .seccion-titulo {
