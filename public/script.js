@@ -406,7 +406,41 @@ entries.forEach(entry => {
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
     seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote });
   });
+  // ==========================================
+  // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
+  // La API a veces separa las pistas musicales (Jam Tracks) y otros
+  // objetos relacionados con un artista en categorías genéricas
+  // (ej. "Pistas de improvisación"), en vez de agruparlos junto al
+  // resto de esa colaboración (ej. "Lil Tecca"). Aquí se revisan
+  // esas categorías "cajón" y se mueve cualquier producto cuyo
+  // nombre mencione a un artista/colaboración que YA tiene su
+  // propia sección, para que todo quede junto: skins, emotes,
+  // envoltorios y música, tal como en la tienda de referencia.
+  // ==========================================
+  const cajonesGenericos = [
+    'Pistas de improvisación', 'Destacados', 'Casillero candente',
+    'No hay problema', 'No te preocupes'
+  ];
+  const nombresSecciones = Array.from(seccionesMapa.keys())
+    .filter(n => !cajonesGenericos.includes(n));
 
+  cajonesGenericos.forEach(cajon => {
+    const lista = seccionesMapa.get(cajon);
+    if (!lista) return;
+
+    for (let i = lista.length - 1; i >= 0; i--) {
+      const producto = lista[i];
+      const coincide = nombresSecciones.find(sec =>
+        producto.nombre.toLowerCase().includes(sec.toLowerCase())
+      );
+      if (coincide) {
+        lista.splice(i, 1);
+        seccionesMapa.get(coincide).push(producto);
+      }
+    }
+
+    if (lista.length === 0) seccionesMapa.delete(cajon);
+  });
   // Orden ÚNICO: mismo orden en que aparecieron las secciones al
   // recorrer los productos, pero cualquier sección cuyo nombre
   // contenga "pista" (ej. "Pistas de improvisación") se manda
