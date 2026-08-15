@@ -1602,3 +1602,7 @@ header {
   border-radius: 8px;
   margin-top: 12px;
 }
+.separador-full {
+  border-top: 1px solid var(--border-color);
+  width: 100%;
+}
