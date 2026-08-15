@@ -420,9 +420,14 @@ entries.forEach(entry => {
 
   const fragmento = document.createDocumentFragment();
 
-  ordenSecciones.forEach(nombreSeccion => {
+ordenSecciones.forEach(nombreSeccion => {
     const productos = seccionesMapa.get(nombreSeccion);
     if (!productos || productos.length === 0) return;
+
+    // Los lotes/bundles siempre van primero dentro de su sección,
+    // igual que en la tienda de referencia. Entre sí, mantienen el
+    // orden en que llegaron de la API (sort estable).
+    productos.sort((a, b) => (b.esLote ? 1 : 0) - (a.esLote ? 1 : 0));
 
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
