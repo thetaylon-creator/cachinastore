@@ -64,9 +64,10 @@ body.bloquear-scroll {
   align-items: center;
   gap: 7px;
   font-family: 'Orbitron', 'Segoe UI', sans-serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.3px;
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
   color: #ffffff;
 }
 
@@ -270,10 +271,8 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  max-width: 1850px;
-  margin: 0 auto;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .nav-links span {
@@ -359,11 +358,11 @@ header {
 }
 
 .hero-banner {
-  background: linear-gradient(135deg, #2d134d 0%, #0f0c1b 100%);
-  padding: 40px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  border: 1px solid var(--border-color);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 0;
 }
 
 .hero-banner h1 {
@@ -1482,8 +1481,6 @@ border-radius: 8px;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  max-width: 1850px;
-  margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
 }
