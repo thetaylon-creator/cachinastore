@@ -1498,7 +1498,7 @@ border-radius: 8px;
   letter-spacing: -0.03em;
   line-height: 1.05;
   color: #fff;
-  margin: 0;
+  margin: 0 0 6px;
 }
 
 @media (max-width: 600px) {
@@ -1585,7 +1585,7 @@ header {
 .hero-envoltorio {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 48px 24px 36px;
+  padding: 48px 12px 36px;   /* antes decía 48px 24px 36px */
   box-sizing: border-box;
 }
 .alerta-amarilla {
