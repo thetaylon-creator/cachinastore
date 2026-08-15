@@ -379,7 +379,7 @@ function renderizarProductos(entries) {
 
   const seccionesMapa = new Map();
 
-  entries.forEach(entry => {
+entries.forEach(entry => {
     const seccionNombre = obtenerNombreSeccion(entry).trim();
     if (seccionNombre === "Destacados") return;
 
@@ -394,13 +394,17 @@ function renderizarProductos(entries) {
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
 
-const imagen = obtenerImagenReal(entry, item);
+    const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
     const expira = seVaHoy(entry.outDate);
+    // Un item es "lote" si la API trae objeto bundle, o si su
+    // propio nombre empieza con "Lote" (ambos casos indican un
+    // pack de varios cosméticos juntos, con imagen combinada).
+    const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote });
   });
 
   // Orden ÚNICO: mismo orden en que aparecieron las secciones al
@@ -443,8 +447,8 @@ if (productos.length === 1) {
   const grid = document.createElement('div');
   grid.className = 'grid-productos';
 
-  productos.forEach(p => {
-    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira));
+productos.forEach(p => {
+    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote));
   });
 
   bloqueSeccion.appendChild(grid);
@@ -505,9 +509,10 @@ function seVaHoy(outDate) {
   }
 }
 
-function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira) {
+function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote) {
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto');
+  if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
 
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
@@ -539,7 +544,6 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira) {
   `;
   return tarjeta;
 }
-
 function crearTarjetaGrandeHTML(nombre, pavos, precioSoles, imagen) {
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto-grande');
