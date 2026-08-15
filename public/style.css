@@ -1566,3 +1566,10 @@ header {
   user-select: text;
   -webkit-touch-callout: default;
 }
+
+.hero-envoltorio {
+  max-width: 1850px;
+  margin: 0 auto;
+  padding: 30px 30px 0;
+  box-sizing: border-box;
+}
