@@ -432,14 +432,23 @@ const imagen = obtenerImagenReal(entry, item);
     titulo.style.background = obtenerColorSerie(nombreSeccion);
     bloqueSeccion.appendChild(titulo);
 
-    const grid = document.createElement('div');
-    grid.className = 'grid-productos';
+if (productos.length === 1) {
+  // Sección con un solo producto (auto, bundle especial) → tarjeta grande
+  const p = productos[0];
+  const contenedorGrande = document.createElement('div');
+  contenedorGrande.style.cssText = 'max-width: 700px;';
+  contenedorGrande.appendChild(crearTarjetaGrandeHTML(p.nombre, p.pavos, p.precioSoles, p.imagen));
+  bloqueSeccion.appendChild(contenedorGrande);
+} else {
+  const grid = document.createElement('div');
+  grid.className = 'grid-productos';
 
-    productos.forEach(p => {
-      grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira));
-    });
+  productos.forEach(p => {
+    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira));
+  });
 
-    bloqueSeccion.appendChild(grid);
+  bloqueSeccion.appendChild(grid);
+}
     fragmento.appendChild(bloqueSeccion);
   });
 
@@ -527,6 +536,36 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira) {
               data-precio="${precioSoles}"
               data-imagen="${imagen}">+</button>
     </div>
+  `;
+  return tarjeta;
+}
+
+function crearTarjetaGrandeHTML(nombre, pavos, precioSoles, imagen) {
+  const tarjeta = document.createElement('div');
+  tarjeta.classList.add('tarjeta-producto-grande');
+
+  const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
+  const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+
+  tarjeta.innerHTML = `
+    <div class="tg-imagen-wrap">
+      <img src="${imagen}" alt="${nombreLimpio}" loading="lazy" decoding="async"
+           onerror="this.onerror=null; this.src='https://placehold.co/400x250/181528/ffffff?text=Fortnite';">
+    </div>
+    <div class="tg-info">
+      <span class="tg-nombre">${nombre}</span>
+      <span class="tg-precio-pavos">
+        <img src="${iconoPavos}" alt="V-Bucks" style="width:15px;height:15px;">
+        ${pavos}
+      </span>
+      <span class="tg-precio-pen">${precioSoles} PEN</span>
+    </div>
+    <button class="tg-btn-agregar btn-agregar"
+            data-nombre="${nombreLimpio}"
+            data-precio="${precioSoles}"
+            data-imagen="${imagen}">
+      🛒 Agregar
+    </button>
   `;
   return tarjeta;
 }
