@@ -62,7 +62,7 @@ body.bloquear-scroll {
 .logo-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
@@ -270,6 +270,10 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
+  max-width: 1850px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .nav-links span {
@@ -481,7 +485,7 @@ header {
 .header-acciones {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 }
 
 
@@ -1478,6 +1482,10 @@ border-radius: 8px;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  max-width: 1850px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .subbar-moneda-texto {
