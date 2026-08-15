@@ -362,11 +362,25 @@ function obtenerImagenReal(entry, item) {
 // no como un string CSS. Aquí se arma un degradado real a partir de
 // esos colores para usarlo tal cual como fondo de la tarjeta.
 // ==========================================
+// ==========================================
+// FONDO REAL DEL PRODUCTO (API de Fortnite)
+// El color oficial de cada item viene en entry.colors (color1,
+// color2, color3), como hex de 8 dígitos (los últimos 2 son
+// transparencia, ej: "586167ff"). Se arma un degradado real con
+// esos 3 colores, igual al que usa la tienda oficial.
+// ==========================================
 function obtenerFondoReal(entry) {
-  const bg = entry.displayAssets?.[0]?.background;
-  if (!Array.isArray(bg) || bg.length === 0) return null;
+  const c = entry.colors;
+  if (!c) return null;
 
-  const colores = bg.map(c => `#${c}`);
+  // Quita los últimos 2 dígitos (alpha) y agrega el "#" al inicio.
+  const limpiar = (hex) => hex ? `#${hex.slice(0, 6)}` : null;
+
+  const colores = [c.color1, c.color2, c.color3]
+    .map(limpiar)
+    .filter(Boolean);
+
+  if (colores.length === 0) return null;
   if (colores.length === 1) return colores[0];
 
   return `linear-gradient(160deg, ${colores.join(', ')})`;
