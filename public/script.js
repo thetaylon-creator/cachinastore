@@ -382,7 +382,6 @@ function renderizarProductos(entries) {
 entries.forEach(entry => {
     const seccionNombre = obtenerNombreSeccion(entry).trim();
     if (seccionNombre === "Destacados") return;
-
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
@@ -390,10 +389,16 @@ entries.forEach(entry => {
                  (entry.items && entry.items[0]) ||
                  entry.bundle || {};
 
-    let nombre = entry.bundle?.name || item.name || entry.devName || "Objeto de Fortnite";
+    // Las pistas musicales (Jam Tracks) traen el título de la
+    // canción en item.title y el nombre del artista por separado
+    // en item.artist (ej: title:"Dark Thoughts", artist:"Lil Tecca").
+    // Se guarda aparte para poder agruparlas con su artista aunque
+    // el nombre de la canción no lo mencione.
+    const artistaProducto = item.artist || '';
+
+    let nombre = entry.bundle?.name || item.title || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
-
     const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
@@ -402,9 +407,8 @@ entries.forEach(entry => {
     // propio nombre empieza con "Lote" (ambos casos indican un
     // pack de varios cosméticos juntos, con imagen combinada).
     const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
-
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto });
   });
   // ==========================================
   // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
@@ -424,21 +428,20 @@ entries.forEach(entry => {
   const nombresSecciones = Array.from(seccionesMapa.keys())
     .filter(n => !cajonesGenericos.includes(n));
 
-  cajonesGenericos.forEach(cajon => {
+cajonesGenericos.forEach(cajon => {
     const lista = seccionesMapa.get(cajon);
     if (!lista) return;
-
     for (let i = lista.length - 1; i >= 0; i--) {
       const producto = lista[i];
+      const textoComparar = `${producto.nombre} ${producto.artistaProducto}`.toLowerCase();
       const coincide = nombresSecciones.find(sec =>
-        producto.nombre.toLowerCase().includes(sec.toLowerCase())
+        textoComparar.includes(sec.toLowerCase())
       );
       if (coincide) {
         lista.splice(i, 1);
         seccionesMapa.get(coincide).push(producto);
       }
     }
-
     if (lista.length === 0) seccionesMapa.delete(cajon);
   });
   // Orden ÚNICO: mismo orden en que aparecieron las secciones al
