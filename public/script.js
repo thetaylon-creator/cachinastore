@@ -355,6 +355,21 @@ function obtenerImagenReal(entry, item) {
   return "https://placehold.co/200x200/181528/ffffff?text=Fortnite";
 }
 
+// ==========================================
+// FONDO REAL DEL PRODUCTO (API de Fortnite)
+// Muchos items de la tienda ya traen su propio fondo/degradado
+// oficial en displayAssets[0].background (ej: un degradado azul
+// para items "Épicos", dorado para "Legendarios", etc). Si existe,
+// se usa tal cual en vez del fondo genérico morado con rayas.
+// ==========================================
+function obtenerFondoReal(entry) {
+  const bg = entry.displayAssets?.[0]?.background;
+  if (bg && typeof bg === 'string' && bg.includes('gradient')) {
+    return bg;
+  }
+  return null;
+}
+
 // 7. RENDERIZAR PRODUCTOS AGRUPADOS POR SECCIÓN
 // FIX: antes se renderizaba una sola sección a la vez (la que
 // estuviera activa en el filtro) y por eso no existía forma de
@@ -399,6 +414,7 @@ entries.forEach(entry => {
     let nombre = entry.bundle?.name || item.title || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
+  const fondoReal = obtenerFondoReal(entry);
     const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
@@ -408,7 +424,7 @@ entries.forEach(entry => {
     // pack de varios cosméticos juntos, con imagen combinada).
     const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto, fondoReal });
   });
   // ==========================================
   // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
