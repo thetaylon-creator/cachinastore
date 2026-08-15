@@ -1585,7 +1585,7 @@ header {
 .hero-envoltorio {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 48px 12px 36px;   /* antes decía 48px 24px 36px */
+  padding: 24px 12px 20px;  /* antes decía 48px 24px 36px */
   box-sizing: border-box;
 }
 .alerta-amarilla {
