@@ -435,10 +435,10 @@ header {
 .seccion-tienda {
   /* Deja aire arriba al hacer scrollIntoView, para que el título no
      quede pegado al borde superior del área visible. */
-  scroll-margin-top: 12px;
+  scroll-margin-top: 30px;
 }
 .seccion-tienda {
-  scroll-margin-top: 12px;
+  scroll-margin-top: 30px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 24px 24px 30px;
