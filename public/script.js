@@ -357,17 +357,19 @@ function obtenerImagenReal(entry, item) {
 
 // ==========================================
 // FONDO REAL DEL PRODUCTO (API de Fortnite)
-// Muchos items de la tienda ya traen su propio fondo/degradado
-// oficial en displayAssets[0].background (ej: un degradado azul
-// para items "Épicos", dorado para "Legendarios", etc). Si existe,
-// se usa tal cual en vez del fondo genérico morado con rayas.
+// La API entrega el fondo oficial de cada item como un ARRAY de
+// colores hexadecimales (ej: ["0D1E30","091320","000000","000000"]),
+// no como un string CSS. Aquí se arma un degradado real a partir de
+// esos colores para usarlo tal cual como fondo de la tarjeta.
 // ==========================================
 function obtenerFondoReal(entry) {
   const bg = entry.displayAssets?.[0]?.background;
-  if (bg && typeof bg === 'string' && bg.includes('gradient')) {
-    return bg;
-  }
-  return null;
+  if (!Array.isArray(bg) || bg.length === 0) return null;
+
+  const colores = bg.map(c => `#${c}`);
+  if (colores.length === 1) return colores[0];
+
+  return `linear-gradient(160deg, ${colores.join(', ')})`;
 }
 
 // 7. RENDERIZAR PRODUCTOS AGRUPADOS POR SECCIÓN
