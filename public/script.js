@@ -846,18 +846,25 @@ let _handlerScrollSpy = null;
 function iniciarScrollSpySecciones() {
   const secciones = Array.from(document.querySelectorAll('.seccion-tienda'));
   if (!secciones.length) return;
-
   if (_handlerScrollSpy) {
     window.removeEventListener('scroll', _handlerScrollSpy);
   }
-
   function calcularSeccionActiva() {
     if (bloqueoScrollSpy) return;
-
     const cabH = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--cab-h')
     ) || 118;
-    const lineaReferencia = cabH + 24; // un poco debajo del header/filtros
+
+    const esMovil = window.innerWidth <= 900;
+    let lineaReferencia;
+
+    if (esMovil) {
+      const sidebar = document.querySelector('.sidebar');
+      const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
+      lineaReferencia = cabH + altoSidebar + 34;
+    } else {
+      lineaReferencia = cabH + 55;
+    }
 
     let seccionActiva = secciones[0];
     for (const sec of secciones) {
@@ -868,11 +875,9 @@ function iniciarScrollSpySecciones() {
         break;
       }
     }
-
     const nombreSeccion = seccionActiva.getAttribute('data-seccion-nombre');
     if (nombreSeccion) activarFiltroEnMenu(nombreSeccion);
   }
-
   _handlerScrollSpy = calcularSeccionActiva;
   window.addEventListener('scroll', _handlerScrollSpy, { passive: true });
   calcularSeccionActiva();
