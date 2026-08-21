@@ -535,13 +535,13 @@ header {
   box-sizing: border-box;
   position: relative;
   z-index: 1;
+    transform: scale(1.35);
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .tarjeta-producto:hover .tarjeta-imagen {
-  transform: scale(1.06);
+  transform: scale(1.42);
 }
-
 .tarjeta-overlay {
   position: absolute;
   bottom: 0; left: 0; right: 0;
