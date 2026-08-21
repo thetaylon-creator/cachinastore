@@ -153,7 +153,7 @@ async function obtenerTiendaFortnite() {
   contenedor.innerHTML = '<p style="color: #a29bfe; grid-column: 1/-1; text-align: center;">Cargando la tienda en vivo...</p>';
 
   try {
-    const respuesta = await fetch('https://fortnite-api.com/v2/shop?language=es-419');
+    const respuesta = await fetch(`https://fortnite-api.com/v2/shop?language=es-419&_=${Date.now()}`, { cache: 'no-store' });
     const datos = await respuesta.json();
 
     if (datos && datos.data && datos.data.entries) {
