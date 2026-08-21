@@ -170,7 +170,13 @@ async function obtenerTiendaFortnite() {
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
   }
 }
-
+// Refresca la tienda automáticamente cada 5 minutos,
+// para que se actualice sola cuando resetea (00:00 UTC).
+setInterval(() => {
+  if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
+    obtenerTiendaFortnite();
+  }
+}, 5 * 60 * 1000); // cada 5 minutos
 // 4. OBTENER SECCIÓN OFICIAL DE FORTNITE
 // FIX: el campo correcto para el nombre real de cada fila de la
 // tienda es entry.layout.name (ej: "Fiesta de la victoria", "Marvel",
