@@ -531,11 +531,12 @@ header {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 0px 0px 28px;
+  padding: 4px 0px 28px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   transform: scale(1.15);
+  transform-origin: center bottom;
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
