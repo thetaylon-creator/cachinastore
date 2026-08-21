@@ -536,7 +536,7 @@ header {
   position: relative;
   z-index: 1;
   transform: scale(1.15);
-  transform-origin: center bottom;
+  transform-origin: center top;
   transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
