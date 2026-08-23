@@ -1239,7 +1239,7 @@ body .modal-pago.oculto:not(.mostrar) {
   position: relative;
   width: 100%;
   max-width: 100%;
-  max-height: 320px;
+  max-height: 480px;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
