@@ -620,6 +620,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
     tarjeta.classList.add('tarjeta-producto');
   if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
   if (seccion === 'V-Bucks') tarjeta.setAttribute('data-vbucks', '1');
+  if (nombre === 'Fortnite Crew - 1 Mes (EPIC)') tarjeta.setAttribute('data-tapar-esquina', '1');
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
   const badgeExpira = expira
