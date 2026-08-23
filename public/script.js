@@ -521,10 +521,12 @@ entries.forEach(entry => {
     // API repite el mismo ítem en varias secciones (ej. "Destacados"
     // y su fila de colaboración), la segunda aparición (a veces la
     // correcta) se descartaba y el ítem desaparecía del todo.
-    const claveUnica = `${seccionNombre.toLowerCase()}||${nombre.toLowerCase().trim()}`;
-    if (clavesVistas.has(claveUnica)) return;
-  console.log('OCULTADO (nombre duplicado):', nombre);
-    clavesVistas.add(claveUnica);
+const claveUnica = `${seccionNombre.toLowerCase()}||${nombre.toLowerCase().trim()}`;
+if (clavesVistas.has(claveUnica)) {
+  console.log('OCULTADO (nombre duplicado):', nombre, '| sección:', seccionNombre);
+  return;
+}
+clavesVistas.add(claveUnica);
     const fondoReal = obtenerFondoReal(entry);
     const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
