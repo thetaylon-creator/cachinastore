@@ -777,10 +777,10 @@ function limpiarNombre(nombreFeo) {
 function obtenerProductosVBucks() {
   const icono = "https://fortnite-api.com/images/vbuck.png";
   return [
-    { nombre: "1.000 V-Bucks", pavos: 1000, precioSoles: "25.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "2.800 V-Bucks", pavos: 2800, precioSoles: "60.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "5.000 V-Bucks", pavos: 5000, precioSoles: "95.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "13.500 V-Bucks", pavos: 13500, precioSoles: "220.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+    { nombre: "800 V-Bucks", pavos: 800, precioSoles: "20.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "2.400 V-Bucks", pavos: 2400, precioSoles: "43.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "4.500 V-Bucks", pavos: 4500, precioSoles: "67.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "12.500 V-Bucks", pavos: 12500, precioSoles: "165.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null }
   ];
 }
 
