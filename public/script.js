@@ -532,11 +532,32 @@ if (productos.length === 1) {
   const grid = document.createElement('div');
   grid.className = 'grid-productos';
 
-productos.forEach(p => {
+  // "Pistas de improvisación" puede traer decenas de canciones.
+  // Se muestran solo las primeras 8 y el resto detrás de "Ver más".
+  const esSeccionPistas = nombreSeccion.toLowerCase().includes('pista');
+  const LIMITE_PISTAS = 8;
+  const productosVisibles = esSeccionPistas ? productos.slice(0, LIMITE_PISTAS) : productos;
+  const productosOcultos = esSeccionPistas ? productos.slice(LIMITE_PISTAS) : [];
+
+  productosVisibles.forEach(p => {
     grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal));
   });
 
   bloqueSeccion.appendChild(grid);
+
+  if (productosOcultos.length > 0) {
+    const btnVerMas = document.createElement('button');
+    btnVerMas.type = 'button';
+    btnVerMas.className = 'btn-ver-mas-pistas';
+    btnVerMas.textContent = `Ver más (${productosOcultos.length} restantes)`;
+    btnVerMas.addEventListener('click', () => {
+      productosOcultos.forEach(p => {
+        grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal));
+      });
+      btnVerMas.remove();
+    });
+    bloqueSeccion.appendChild(btnVerMas);
+  }
 }
     fragmento.appendChild(bloqueSeccion);
   });
@@ -612,11 +633,8 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
       <div class="tarjeta-overlay"></div>
       <div class="tarjeta-info">
         ${badgeExpira}
-        <h4 class="tarjeta-nombre">${nombre}</h4>
-        <p class="tarjeta-precio">
-          <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">
-          ${pavos}
-        </p>
+       <h4 class="tarjeta-nombre">${nombre}</h4>
+        ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
         <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
       </div>
       <button class="btn-agregar btn-agregar-icono"
