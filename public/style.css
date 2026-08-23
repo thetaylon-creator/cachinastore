@@ -1616,16 +1616,3 @@ body .modal-pago.oculto:not(.mostrar) {
 .btn-ver-mas-pistas:hover {
   background: rgba(108, 92, 231, 0.3);
 }
-.tarjeta-producto[data-tapar-esquina="1"] .tarjeta-fondo::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 70px 70px 0 0;
-  border-color: #1a1a3a transparent transparent transparent;
-  z-index: 2;
-  pointer-events: none;
-}
