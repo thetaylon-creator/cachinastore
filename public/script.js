@@ -445,6 +445,12 @@ function renderizarProductos(entries) {
     }
   });
 
+  // FIX: evita productos/lotes duplicados. La API a veces devuelve
+  // la misma oferta dos veces (ej. oferta normal + destacada) con
+  // distinto offerId y a veces distinta imagen. Aquí se recuerda
+  // cada producto ya agregado y se descarta cualquier repetido.
+  const clavesVistas = new Set();
+
 entries.forEach(entry => {
     const seccionNombre = obtenerNombreSeccion(entry).trim();
     const item = (entry.brItems && entry.brItems[0]) ||
@@ -464,7 +470,11 @@ entries.forEach(entry => {
     let nombre = entry.bundle?.name || item.title || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
-  const fondoReal = obtenerFondoReal(entry);
+      // FIX: descarta duplicados (mismo lote/producto ya agregado antes)
+    const claveUnica = (entry.offerId || nombre).toLowerCase().trim();
+    if (clavesVistas.has(claveUnica)) return;
+    clavesVistas.add(claveUnica);
+    const fondoReal = obtenerFondoReal(entry);
     const imagen = obtenerImagenReal(entry, item);
     const pavos = entry.finalPrice || entry.regularPrice || 500;
     const precioSoles = ((pavos / 100) * TASA_CONVERSION).toFixed(2);
