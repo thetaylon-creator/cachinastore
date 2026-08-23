@@ -812,57 +812,10 @@ function obtenerColorSerie(seccion) {
 // (no cambia random en cada recarga).
 // ==========================================
 function obtenerFondoSeccion(seccion) {
-  const temas = {
-    'Spider-Man': {
-      color: '#0a0a0a',
-      patron: `radial-gradient(circle at 15% 15%, rgba(255,255,255,0.08) 0%, transparent 3%),
-               repeating-conic-gradient(from 0deg at 15% 15%, rgba(255,255,255,0.05) 0deg 8deg, transparent 8deg 24deg),
-               repeating-radial-gradient(circle at 15% 15%, rgba(255,255,255,0.06) 0px, transparent 22px, transparent 44px)`
-    },
-    'Marvel': {
-      color: '#1a0505',
-      patron: `radial-gradient(circle, rgba(255,255,255,0.06) 1.5px, transparent 1.5px)`,
-      tamano: '18px 18px'
-    },
-    'Star Wars': {
-      color: '#050510',
-      patron: `radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px),
-               radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)`,
-      tamano: '120px 120px, 70px 70px'
-    },
-    'BLEACH': {
-      color: '#0a0a15',
-      patron: `linear-gradient(45deg, rgba(59,130,246,0.06) 25%, transparent 25%, transparent 75%, rgba(59,130,246,0.06) 75%)`,
-      tamano: '32px 32px'
-    }
-  };
-
-  // Si la sección tiene tema específico, úsalo.
-  if (temas[seccion]) {
-    const t = temas[seccion];
-    const tamano = t.tamano ? `background-size: ${t.tamano};` : '';
-    return `background-color: ${t.color}; background-image: ${t.patron}; ${tamano}`;
-  }
-
-  // Si no, elige un fondo de esta paleta variada, según el nombre
-  // (mismo nombre = siempre mismo fondo, no cambia al recargar).
-  const paleta = [
-    { color: '#0a1420', patron: `radial-gradient(ellipse at top left, rgba(56,189,248,0.12), transparent 60%)` },
-    { color: '#150a20', patron: `radial-gradient(ellipse at top left, rgba(192,132,252,0.12), transparent 60%)` },
-    { color: '#0a2015', patron: `radial-gradient(ellipse at top left, rgba(74,222,128,0.12), transparent 60%)` },
-    { color: '#200a0a', patron: `radial-gradient(ellipse at top left, rgba(248,113,113,0.12), transparent 60%)` },
-    { color: '#20180a', patron: `radial-gradient(ellipse at top left, rgba(250,204,21,0.12), transparent 60%)` },
-    { color: '#0a1020', patron: `radial-gradient(ellipse at top left, rgba(99,102,241,0.14), transparent 60%)` },
-    { color: '#131021', patron: `radial-gradient(ellipse at top left, rgba(108,92,231,0.10), transparent 60%)` }
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < seccion.length; i++) {
-    hash = (hash * 31 + seccion.charCodeAt(i)) >>> 0;
-  }
-  const elegido = paleta[hash % paleta.length];
-
-  return `background-color: ${elegido.color}; background-image: ${elegido.patron};`;
+  // FIX: se unifica el fondo de TODAS las secciones a un mismo estilo:
+  // base oscura casi negra + un resplandor blanco tenue y difuminado.
+  // Ya no hay temas por franquicia ni colores variados por sección.
+  return `background-color: #0d0c14; background-image: radial-gradient(ellipse at top left, rgba(255,255,255,0.08), transparent 65%);`;
 }
 
 function limpiarNombre(nombreFeo) {
