@@ -471,7 +471,7 @@ entries.forEach(entry => {
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
       // FIX: descarta duplicados (mismo lote/producto ya agregado antes)
-    const claveUnica = (entry.offerId || nombre).toLowerCase().trim();
+    const claveUnica = nombre.toLowerCase().trim();
     if (clavesVistas.has(claveUnica)) return;
     clavesVistas.add(claveUnica);
     const fondoReal = obtenerFondoReal(entry);
