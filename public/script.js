@@ -190,6 +190,22 @@ function obtenerNombreSeccion(entry) {
 }
 
 // ==========================================
+// IDs DE TODOS LOS ÍTEMS DENTRO DE UN LOTE
+// Recorre TODOS los arrays de objetos de una oferta (no solo el
+// primero) para saber exactamente qué cosméticos trae un lote,
+// y así poder ocultar esos mismos ítems si se venden sueltos.
+// ==========================================
+function obtenerIdsDeEntry(entry) {
+  const ids = [];
+  (entry.brItems || []).forEach(i => ids.push(i.id));
+  (entry.cars || []).forEach(i => ids.push(i.id));
+  (entry.instruments || []).forEach(i => ids.push(i.id));
+  (entry.tracks || []).forEach(i => ids.push(i.id));
+  (entry.items || []).forEach(i => ids.push(i.id));
+  return ids;
+}
+
+// ==========================================
 // 4.5 SLUG DE SECCIÓN
 // Convierte el nombre de una sección ("BLEACH", "Fiesta de la
 // victoria") en un id de HTML válido y único ("seccion-bleach",
@@ -416,6 +432,15 @@ function renderizarProductos(entries) {
 
   const seccionesMapa = new Map();
 
+  // Primero se identifican TODOS los ítems que ya vienen dentro
+  // de algún lote, para poder ocultarlos si además se venden sueltos.
+  const idsEnLotes = new Set();
+  entries.forEach(entry => {
+    if (entry.bundle) {
+      obtenerIdsDeEntry(entry).forEach(id => idsEnLotes.add(id));
+    }
+  });
+
 entries.forEach(entry => {
     const seccionNombre = obtenerNombreSeccion(entry).trim();
     if (seccionNombre === "Destacados") return;
@@ -445,6 +470,17 @@ entries.forEach(entry => {
     // propio nombre empieza con "Lote" (ambos casos indican un
     // pack de varios cosméticos juntos, con imagen combinada).
     const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
+
+    // Si este producto va suelto (no es un lote) y su ID ya está
+    // incluido dentro de algún lote de la tienda, se omite para
+    // no mostrarlo repetido.
+    if (!esLote) {
+      const idsDeEsteItem = obtenerIdsDeEntry(entry);
+      if (idsDeEsteItem.length > 0 && idsDeEsteItem.some(id => idsEnLotes.has(id))) {
+        return;
+      }
+    }
+
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
     seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto, fondoReal });
   });
