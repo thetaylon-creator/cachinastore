@@ -617,8 +617,9 @@ function seVaHoy(outDate) {
 
 function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote, fondoReal) {
   const tarjeta = document.createElement('div');
-  tarjeta.classList.add('tarjeta-producto');
+    tarjeta.classList.add('tarjeta-producto');
   if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
+  if (seccion === 'V-Bucks') tarjeta.setAttribute('data-vbucks', '1');
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
   const badgeExpira = expira
@@ -777,10 +778,10 @@ function limpiarNombre(nombreFeo) {
 function obtenerProductosVBucks() {
   const icono = "https://fortnite-api.com/images/vbuck.png";
   return [
-    { nombre: "800 V-Bucks", pavos: 800, precioSoles: "20.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "2.400 V-Bucks", pavos: 2400, precioSoles: "43.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "4.500 V-Bucks", pavos: 4500, precioSoles: "67.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "12.500 V-Bucks", pavos: 12500, precioSoles: "165.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+    { nombre: "800 V-Bucks", pavos: 800, precioSoles: "20.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #22c55e, #062e14)' },
+    { nombre: "2.400 V-Bucks", pavos: 2400, precioSoles: "43.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #38bdf8, #0a2540)' },
+    { nombre: "4.500 V-Bucks", pavos: 4500, precioSoles: "67.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #c084fc, #2e1065)' },
+    { nombre: "12.500 V-Bucks", pavos: 12500, precioSoles: "165.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #fb923c, #431407)' }
   ];
 }
 
