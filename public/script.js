@@ -519,6 +519,7 @@ entries.forEach(entry => {
       // FIX: descarta duplicados (mismo lote/producto ya agregado antes)
     const claveUnica = nombre.toLowerCase().trim();
     if (clavesVistas.has(claveUnica)) return;
+  console.log('OCULTADO (nombre duplicado):', nombre);
     clavesVistas.add(claveUnica);
     const fondoReal = obtenerFondoReal(entry);
     const imagen = obtenerImagenReal(entry, item);
@@ -533,12 +534,13 @@ entries.forEach(entry => {
     // Si este producto va suelto (no es un lote) y su ID ya está
     // incluido dentro de algún lote de la tienda, se omite para
     // no mostrarlo repetido.
-    if (!esLote) {
-      const idsDeEsteItem = obtenerIdsDeEntry(entry);
-      if (idsDeEsteItem.length > 0 && idsDeEsteItem.some(id => idsEnLotes.has(id))) {
-        return;
-      }
-    }
+if (!esLote) {
+  const idsDeEsteItem = obtenerIdsDeEntry(entry);
+  if (idsDeEsteItem.length > 0 && idsDeEsteItem.some(id => idsEnLotes.has(id))) {
+    console.log('OCULTADO (ya en un lote):', nombre, idsDeEsteItem); // <-- temporal
+    return;
+  }
+}
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
     seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto, fondoReal });
