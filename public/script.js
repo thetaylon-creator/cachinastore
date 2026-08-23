@@ -787,14 +787,14 @@ function obtenerProductosVBucks() {
 function obtenerProductosCrew() {
   return [
     { nombre: "Club - 1 Mes(Xbox)", pavos: 0, precioSoles: "16.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-   { nombre: "Club - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "crew-epic.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Club - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "crew-epic.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase de Batalla [Regalo]", pavos: 0, precioSoles: "20.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasebatallanew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasemusicnew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
-        { nombre: "Paquete de inicio Operación brillante", pavos: 0, precioSoles: "12.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/0519/d32425b9677f8c27d8ec373b562c32be36b436f0a425165b.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasemusicnew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Paquete de inicio Operación brillante", pavos: 0, precioSoles: "12.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/0519/d32425b9677f8c27d8ec373b562c32be36b436f0a425165b.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pack de inicio Ruptura de la computadora central", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202402/2900/956432d0b4111afdb63eb5a14fe11ad7bd315574991d888e.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
-  
   ];
 }
+
 
 // ==========================================
 // 10. LÓGICA DEL CARRITO
