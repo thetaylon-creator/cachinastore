@@ -182,11 +182,23 @@ setInterval(() => {
 // tienda es entry.layout.name (ej: "Fiesta de la victoria", "Marvel",
 // "BLEACH"). Antes se buscaba primero entry.section.name, que no
 // existe en la API actual, así que casi todo caía en "Destacados".
+//
+// FIX 2 (IMPORTANTE): muchos productos que se venden SUELTOS
+// (no en lote) —ruedas de autos, mochilas, algunos wraps, etc.—
+// llegan de la API SIN el objeto "layout" (solo traen "layoutId",
+// ej. "alc.0"). Antes esos productos cai­an en el fallback
+// "Destacados" y más abajo, en renderizarProductos(), había un
+// "if (seccionNombre === 'Destacados') return;" que los descartaba
+// por completo. Por eso NO se veían los productos individuales.
+// Ahora el fallback usa un nombre propio ("Más artículos") que ya
+// no coincide con ese filtro, así que estos productos sí se
+// renderizan, agrupados en su propia sección.
+// ==========================================
 function obtenerNombreSeccion(entry) {
   if (entry.layout && entry.layout.name) return entry.layout.name;
   if (entry.layout && entry.layout.category) return entry.layout.category;
   if (entry.section && entry.section.name) return entry.section.name;
-  return "Destacados";
+  return "Más artículos";
 }
 
 // ==========================================
@@ -289,9 +301,8 @@ style.textContent = `
 // Se usa tanto para pintar el menú de FILTROS como para renderizar
 // el catálogo, así los dos van SIEMPRE en el mismo orden (evita que
 // el scroll-spy "salte" o resalte algo que no corresponde).
-// Excluye "Destacados" por completo y manda "Pistas de
-// improvisación" al final, sin importar en qué posición la
-// devuelva la API.
+// Manda "Pistas de improvisación" al final, sin importar en qué
+// posición la devuelva la API.
 // ==========================================
 
 function generarMenuFiltros(secciones) {
@@ -379,13 +390,6 @@ function obtenerImagenReal(entry, item) {
 
 // ==========================================
 // FONDO REAL DEL PRODUCTO (API de Fortnite)
-// La API entrega el fondo oficial de cada item como un ARRAY de
-// colores hexadecimales (ej: ["0D1E30","091320","000000","000000"]),
-// no como un string CSS. Aquí se arma un degradado real a partir de
-// esos colores para usarlo tal cual como fondo de la tarjeta.
-// ==========================================
-// ==========================================
-// FONDO REAL DEL PRODUCTO (API de Fortnite)
 // El color oficial de cada item viene en entry.colors (color1,
 // color2, color3), como hex de 8 dígitos (los últimos 2 son
 // transparencia, ej: "586167ff"). Se arma un degradado real con
@@ -443,7 +447,6 @@ function renderizarProductos(entries) {
 
 entries.forEach(entry => {
     const seccionNombre = obtenerNombreSeccion(entry).trim();
-    if (seccionNombre === "Destacados") return;
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
@@ -496,7 +499,7 @@ entries.forEach(entry => {
   // envoltorios y música, tal como en la tienda de referencia.
   // ==========================================
   const cajonesGenericos = [
-    'Pistas de improvisación', 'Destacados', 'Casillero candente',
+    'Pistas de improvisación', 'Destacados', 'Más artículos', 'Casillero candente',
     'No hay problema', 'No te preocupes'
   ];
   const nombresSecciones = Array.from(seccionesMapa.keys())
@@ -521,13 +524,17 @@ cajonesGenericos.forEach(cajon => {
   // Orden ÚNICO: mismo orden en que aparecieron las secciones al
   // recorrer los productos, pero cualquier sección cuyo nombre
   // contenga "pista" (ej. "Pistas de improvisación") se manda
-  // siempre al final. Este mismo arreglo lo va a usar el menú
-  // de filtros, así los dos SIEMPRE coinciden.
+  // siempre al final, y "Más artículos" (ítems individuales sin
+  // fila propia en la API) se manda justo antes de las pistas.
+  // Este mismo arreglo lo va a usar el menú de filtros, así los dos
+  // SIEMPRE coinciden.
   const esPistas = (n) => n.toLowerCase().includes('pista');
+  const esMasArticulos = (n) => n === 'Más artículos';
   const todasLasSecciones = Array.from(seccionesMapa.keys());
-  const normales = todasLasSecciones.filter(n => !esPistas(n));
+  const normales = todasLasSecciones.filter(n => !esPistas(n) && !esMasArticulos(n));
+  const masArticulos = todasLasSecciones.filter(esMasArticulos);
   const pistas = todasLasSecciones.filter(esPistas);
-    const ordenSecciones = [...normales, ...pistas];
+    const ordenSecciones = [...normales, ...masArticulos, ...pistas];
 
   // Se agregan al final, igual que en la tienda de referencia.
   seccionesMapa.set('V-Bucks', obtenerProductosVBucks());
@@ -724,6 +731,7 @@ function obtenerColorSerie(seccion) {
     'Traje': 'linear-gradient(135deg, #155e75, #6366f1)',
     'Calzado': 'linear-gradient(135deg, #0e7490, #a21caf)',
     'Destacados': 'linear-gradient(135deg, #0f766e, #7c3aed)',
+    'Más artículos': 'linear-gradient(135deg, #0f766e, #7c3aed)',
     'default': 'linear-gradient(135deg, #0d9488, #4c1d95)'
   };
   return colores[seccion] || colores['default'];
@@ -1198,4 +1206,3 @@ document.addEventListener('click', (e) => {
     }
   }
 });
-
