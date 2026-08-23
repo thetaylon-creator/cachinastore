@@ -776,12 +776,11 @@ function limpiarNombre(nombreFeo) {
 // así que se arman a mano con precios reales en soles.
 // ==========================================
 function obtenerProductosVBucks() {
-  const icono = "https://fortnite-api.com/images/vbuck.png";
   return [
-    { nombre: "800 V-Bucks", pavos: 800, precioSoles: "20.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #22c55e, #062e14)' },
-    { nombre: "2.400 V-Bucks", pavos: 2400, precioSoles: "43.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #38bdf8, #0a2540)' },
-    { nombre: "4.500 V-Bucks", pavos: 4500, precioSoles: "67.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #c084fc, #2e1065)' },
-    { nombre: "12.500 V-Bucks", pavos: 12500, precioSoles: "165.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #fb923c, #431407)' }
+    { nombre: "800 V-Bucks", pavos: 800, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202606/2419/b91e936d55f1ae1d77b2ded6c3c9c1d839f664af3b7dd95a.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "2.400 V-Bucks", pavos: 2400, precioSoles: "43.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202606/2419/2dae406a226530d633c0778ccaa32775fee17adfc1515660.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "4.500 V-Bucks", pavos: 4500, precioSoles: "67.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202606/2419/8761c4c50accb6d913f7b047975fbe8447b9b1d7eeaa25a2.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "12.500 V-Bucks", pavos: 12500, precioSoles: "165.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202606/2420/7c1f091337d884e32ff2b84de29ec9c513d671065443804e.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
   ];
 }
 
