@@ -491,7 +491,12 @@ cajonesGenericos.forEach(cajon => {
   const todasLasSecciones = Array.from(seccionesMapa.keys());
   const normales = todasLasSecciones.filter(n => !esPistas(n));
   const pistas = todasLasSecciones.filter(esPistas);
-  const ordenSecciones = [...normales, ...pistas];
+    const ordenSecciones = [...normales, ...pistas];
+
+  // Se agregan al final, igual que en la tienda de referencia.
+  seccionesMapa.set('V-Bucks', obtenerProductosVBucks());
+  seccionesMapa.set('Crew · DLC · Packs', obtenerProductosCrew());
+  ordenSecciones.push('V-Bucks', 'Crew · DLC · Packs');
 
   const fragmento = document.createDocumentFragment();
 
@@ -746,7 +751,30 @@ function limpiarNombre(nombreFeo) {
     .replace(/\(SID_Placeholder_\d+\)/i, '')
     .trim();
 }
+// ==========================================
+// SECCIONES MANUALES: V-BUCKS Y CREW/DLC/PACKS
+// Estas dos NO vienen de la API de Fortnite (no son cosméticos),
+// así que se arman a mano con precios reales en soles.
+// ==========================================
+function obtenerProductosVBucks() {
+  const icono = "https://fortnite-api.com/images/vbuck.png";
+  return [
+    { nombre: "1.000 V-Bucks", pavos: 1000, precioSoles: "25.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "2.800 V-Bucks", pavos: 2800, precioSoles: "60.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "5.000 V-Bucks", pavos: 5000, precioSoles: "95.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "13.500 V-Bucks", pavos: 13500, precioSoles: "220.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+  ];
+}
 
+function obtenerProductosCrew() {
+  const icono = "https://placehold.co/300x300/6c5ce7/ffffff?text=Crew";
+  return [
+    { nombre: "Fortnite Crew - 1 Mes", pavos: 0, precioSoles: "19.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Fortnite Crew - 1 Mes (EPIC)", pavos: 0, precioSoles: "22.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Pase de Batalla [Regalo]", pavos: 0, precioSoles: "19.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: icono, expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+  ];
+}
 // ==========================================
 // 10. LÓGICA DEL CARRITO
 // FIX: ya no se permite aumentar la cantidad de un producto que
