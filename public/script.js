@@ -516,8 +516,12 @@ entries.forEach(entry => {
     let nombre = entry.bundle?.name || item.title || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
     if (nombre.includes("TBD") || nombre.length < 2) return;
-      // FIX: descarta duplicados (mismo lote/producto ya agregado antes)
-    const claveUnica = nombre.toLowerCase().trim();
+    // FIX: la clave ahora incluye la sección, no solo el nombre.
+    // Antes se comparaba el nombre contra TODA la tienda, y como la
+    // API repite el mismo ítem en varias secciones (ej. "Destacados"
+    // y su fila de colaboración), la segunda aparición (a veces la
+    // correcta) se descartaba y el ítem desaparecía del todo.
+    const claveUnica = `${seccionNombre.toLowerCase()}||${nombre.toLowerCase().trim()}`;
     if (clavesVistas.has(claveUnica)) return;
   console.log('OCULTADO (nombre duplicado):', nombre);
     clavesVistas.add(claveUnica);
