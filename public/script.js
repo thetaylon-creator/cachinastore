@@ -450,25 +450,51 @@ function renderizarProductos(entries) {
   // distinto offerId y a veces distinta imagen. Aquí se recuerda
   // cada producto ya agregado y se descarta cualquier repetido.
   const clavesVistas = new Set();
-  // redundantes y se ocultan, para no repetir esos mismos objetos.
-  // FIX: antes solo se comparaban entradas con entry.bundle presente,
-  // pero los "Lote Equipamiento de X" no traen ese campo (son detectados
-  // como lote solo por el nombre). Ahora se comparan TODAS las entradas
-  // que tengan al menos un ítem, sin importar si tienen entry.bundle.
-  const entriesConIds = entries.filter(e => obtenerIdsDeEntry(e).length > 0);
-  entriesConIds.sort((a, b) => obtenerIdsDeEntry(b).length - obtenerIdsDeEntry(a).length);
+  // FIX DEFINITIVO: el intento anterior comparaba IDs de ítems entre
+  // bundles, pero "Lote Equipamiento de X" trae ítems con IDs DISTINTOS
+  // a los del lote completo (mismo tema, distinto ID interno), así que
+  // nunca coincidían. Ahora se compara por NOMBRE: se extraen los
+  // "personajes" quitando el prefijo ("Lote", "Lote de", "Lote
+  // Equipamiento de") y si un "Equipamiento de X" coincide con un lote
+  // completo que ya cubre esos mismos personajes, se oculta.
+  function extraerPersonajesDeNombre(nombreLote) {
+    return nombreLote
+      .replace(/^lote\s+equipamiento\s+de\s+/i, '')
+      .replace(/^lote\s+de\s+/i, '')
+      .replace(/^lote\s+/i, '')
+      .toLowerCase()
+      .trim();
+  }
 
-  const idsYaCubiertos = new Set();
-  const bundlesRedundantes = new Set();
+  function obtenerNombreTemporal(entry) {
+    const item0 = (entry.brItems && entry.brItems[0]) || entry.bundle || {};
+    return limpiarNombre(entry.bundle?.name || item0.title || item0.name || entry.devName || '');
+  }
 
-  entriesConIds.forEach(entry => {
-    const ids = obtenerIdsDeEntry(entry);
-    if (ids.every(id => idsYaCubiertos.has(id))) {
-      bundlesRedundantes.add(entry);
-    } else {
-      ids.forEach(id => idsYaCubiertos.add(id));
+  const personajesConLoteCompleto = new Set();
+  entries.forEach(entry => {
+    const nombreTmp = obtenerNombreTemporal(entry);
+    const esEquipamiento = /^lote\s+equipamiento\s+de\s+/i.test(nombreTmp);
+    const esLoteTmp = !!entry.bundle || /^lote\b/i.test(nombreTmp);
+    if (esLoteTmp && !esEquipamiento && nombreTmp) {
+      personajesConLoteCompleto.add(extraerPersonajesDeNombre(nombreTmp));
     }
   });
+
+  const bundlesRedundantes = new Set();
+  entries.forEach(entry => {
+    const nombreTmp = obtenerNombreTemporal(entry);
+    if (/^lote\s+equipamiento\s+de\s+/i.test(nombreTmp)) {
+      const personajes = extraerPersonajesDeNombre(nombreTmp);
+      if (personajesConLoteCompleto.has(personajes)) {
+        bundlesRedundantes.add(entry);
+      }
+    }
+  });
+  console.log('Lotes completos detectados:', Array.from(personajesConLoteCompleto));
+console.log('Entradas marcadas como redundantes:', 
+  Array.from(bundlesRedundantes).map(e => obtenerNombreTemporal(e))
+);
 
 entries.forEach(entry => {
   if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
