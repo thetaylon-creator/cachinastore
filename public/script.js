@@ -436,15 +436,6 @@ function renderizarProductos(entries) {
 
   const seccionesMapa = new Map();
 
-  // Primero se identifican TODOS los ítems que ya vienen dentro
-  // de algún lote, para poder ocultarlos si además se venden sueltos.
-  const idsEnLotes = new Set();
-  entries.forEach(entry => {
-    if (entry.bundle) {
-      obtenerIdsDeEntry(entry).forEach(id => idsEnLotes.add(id));
-    }
-  });
-
   // FIX: evita productos/lotes duplicados. La API a veces devuelve
   // la misma oferta dos veces (ej. oferta normal + destacada) con
   // distinto offerId y a veces distinta imagen. Aquí se recuerda
@@ -537,16 +528,19 @@ clavesVistas.add(claveUnica);
     // pack de varios cosméticos juntos, con imagen combinada).
     const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
 
-    // Si este producto va suelto (no es un lote) y su ID ya está
-    // incluido dentro de algún lote de la tienda, se omite para
-    // no mostrarlo repetido.
-if (!esLote) {
-  const idsDeEsteItem = obtenerIdsDeEntry(entry);
-  if (idsDeEsteItem.length > 0 && idsDeEsteItem.some(id => idsEnLotes.has(id))) {
-    console.log('OCULTADO (ya en un lote):', nombre, idsDeEsteItem); // <-- temporal
-    return;
-  }
-}
+    // FIX: se elimina el filtro que ocultaba ítems sueltos (mochilas,
+    // picos, skins) cuando su ID ya estaba dentro de un lote. La API
+    // SÍ los vende por separado con su propio precio, y la tienda de
+    // referencia los muestra tanto en el lote como individualmente.
+    //
+    // if (!esLote) {
+    //   const idsDeEsteItem = obtenerIdsDeEntry(entry);
+    //   if (idsDeEsteItem.length > 0 && idsDeEsteItem.some(id => idsEnLotes.has(id))) {
+    //     console.log('OCULTADO (ya en un lote):', nombre, idsDeEsteItem);
+    //     return;
+    //   }
+    // }
+
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
     seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto, fondoReal });
