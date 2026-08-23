@@ -450,8 +450,27 @@ function renderizarProductos(entries) {
   // distinto offerId y a veces distinta imagen. Aquí se recuerda
   // cada producto ya agregado y se descarta cualquier repetido.
   const clavesVistas = new Set();
+    // FIX: lotes "equipamiento" (o cualquier lote chico) cuyos ítems YA
+  // vienen incluidos por completo dentro de un lote más grande (ej. el
+  // hacha ya está dentro de "Lote Ryu y Chun-Li") se consideran
+  // redundantes y se ocultan, para no repetir esos mismos objetos.
+  const entriesBundles = entries.filter(e => e.bundle);
+  entriesBundles.sort((a, b) => obtenerIdsDeEntry(b).length - obtenerIdsDeEntry(a).length);
+
+  const idsYaCubiertos = new Set();
+  const bundlesRedundantes = new Set();
+
+  entriesBundles.forEach(entry => {
+    const ids = obtenerIdsDeEntry(entry);
+    if (ids.length > 0 && ids.every(id => idsYaCubiertos.has(id))) {
+      bundlesRedundantes.add(entry);
+    } else {
+      ids.forEach(id => idsYaCubiertos.add(id));
+    }
+  });
 
 entries.forEach(entry => {
+  if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
     const seccionNombre = obtenerNombreSeccion(entry).trim();
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
