@@ -253,7 +253,7 @@ style.textContent = `
     .filtros-label{ display:flex; align-items:center; gap:6px; }
 .panel-filtros{
       position:relative; width:100%; max-width:100%;
-      max-height:320px; min-height:0;
+      max-height:480px; min-height:0;
       overflow-y:auto; overflow-x:hidden;
       background:rgba(24,21,40,0.85);
       border: 1px solid rgba(255,255,255,0.08);
