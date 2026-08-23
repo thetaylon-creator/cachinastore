@@ -325,7 +325,13 @@ header {
   margin-bottom: 5px;
 }
 
-.sidebar li.activo, .sidebar li:hover {
+/* Reemplaza la regla combinada de arriba por estas dos, separadas */
+.sidebar li:hover {
+  background: rgba(108, 92, 231, 0.08);
+  color: white;
+}
+
+.sidebar li.activo {
   background: rgba(108, 92, 231, 0.2);
   color: white;
 }
