@@ -503,6 +503,11 @@ entries.forEach(entry => {
     // Se guarda aparte para poder agruparlas con su artista aunque
     // el nombre de la canción no lo mencione.
     const artistaProducto = item.artist || '';
+      // FIX: detecta si el ítem es una skin de personaje ("outfit") para
+    // poder ordenar: lote completo → skins → el resto (mochilas, picos,
+    // wraps, emotes, etc.), igual que en la tienda de referencia.
+    const tipoItem = item?.type?.value || '';
+    const esSkin = tipoItem === 'outfit';
 
     let nombre = entry.bundle?.name || item.title || item.name || entry.devName || "Objeto de Fortnite";
     nombre = limpiarNombre(nombre);
@@ -543,7 +548,7 @@ clavesVistas.add(claveUnica);
 
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, artistaProducto, fondoReal });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, esSkin, artistaProducto, fondoReal });
   });
   // ==========================================
   // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
@@ -608,7 +613,14 @@ ordenSecciones.forEach(nombreSeccion => {
     // Los lotes/bundles siempre van primero dentro de su sección,
     // igual que en la tienda de referencia. Entre sí, mantienen el
     // orden en que llegaron de la API (sort estable).
-    productos.sort((a, b) => (b.esLote ? 1 : 0) - (a.esLote ? 1 : 0));
+    // FIX: orden de 3 niveles dentro de cada sección: 1) lotes
+    // completos primero, 2) skins de personaje después, 3) el resto
+    // (mochilas, picos, wraps, emotes, planeadores, etc.) al final.
+    productos.sort((a, b) => {
+      const rangoA = a.esLote ? 0 : (a.esSkin ? 1 : 2);
+      const rangoB = b.esLote ? 0 : (b.esSkin ? 1 : 2);
+      return rangoA - rangoB;
+    });
 
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
