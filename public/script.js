@@ -787,7 +787,7 @@ function obtenerProductosVBucks() {
 function obtenerProductosCrew() {
   return [
     { nombre: "Fortnite Crew - 1 Mes", pavos: 0, precioSoles: "16.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "Fortnite Crew - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "https://epiclim.com/img/fnturkepic.jpg", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+   { nombre: "Fortnite Crew - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "crew-epic.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase de Batalla [Regalo]", pavos: 0, precioSoles: "20.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasebatallanew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasemusicnew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
   ];
