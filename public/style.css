@@ -1459,6 +1459,7 @@ body .modal-pago.oculto:not(.mostrar) {
   box-shadow: 0 0 8px #c7ff5e;
   animation: pulso-punto-verde 1.5s ease-in-out infinite;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 @keyframes pulso-punto-verde {
