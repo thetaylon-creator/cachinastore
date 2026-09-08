@@ -1140,6 +1140,22 @@ function cerrarModalPago() {
 // archivo, causando doble ejecución.
 // ==========================================
 document.addEventListener('click', (e) => {
+    // Botón "Agregar Bots" — registra la solicitud del cliente
+  const btnAgregarBots = e.target.closest('#btn-agregar-bots');
+  if (btnAgregarBots) {
+    const idCliente = localStorage.getItem('usuarioLogueado');
+    if (!idCliente) return;
+
+    fetch(`${API_URL}/api/bots-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userCode: idCliente })
+    })
+      .then(() => alert('¡Listo! Tu solicitud fue registrada.'))
+      .catch(() => alert('No se pudo registrar, intenta de nuevo.'));
+
+    return;
+  }
 
   // Botón "FILTROS" — abre/cierra el panel desplegable
   // Botón "FILTROS" — abre/cierra el panel desplegable (SOLO en móvil)
