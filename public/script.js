@@ -1142,12 +1142,14 @@ function cerrarModalPago() {
 document.addEventListener('click', (e) => {
 
   // Botón "FILTROS" — abre/cierra el panel desplegable
+  // Botón "FILTROS" — abre/cierra el panel desplegable (SOLO en móvil)
   const btnToggleFiltros = e.target.closest('#btn-toggle-filtros');
   if (btnToggleFiltros) {
-    document.getElementById('panel-filtros')?.classList.toggle('oculto');
+    if (window.innerWidth <= 900) {
+      document.getElementById('panel-filtros')?.classList.toggle('oculto');
+    }
     return;
   }
-
   // Filtros de categoría
   const itemFiltro = e.target.closest('.item-filtro');
   if (itemFiltro) {
