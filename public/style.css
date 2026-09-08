@@ -1630,3 +1630,49 @@ body .modal-pago.oculto:not(.mostrar) {
 .btn-ver-mas-pistas:hover {
   background: rgba(108, 92, 231, 0.3);
 }
+
+/* Botón AGREGAR BOTS - morado oscuro neón */
+.btn-agregar-bots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #150e2e;
+  color: #a78bfa;
+  border: 1px solid var(--accent-purple);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow:
+    0 0 6px rgba(108, 92, 231, 0.7),
+    0 0 14px rgba(108, 92, 231, 0.4),
+    inset 0 0 6px rgba(108, 92, 231, 0.25);
+  text-shadow: 0 0 6px rgba(167, 139, 250, 0.8);
+  transition: all 0.25s ease;
+}
+
+.btn-agregar-bots:hover {
+  background: var(--accent-purple);
+  color: #fff;
+  text-shadow: none;
+  box-shadow:
+    0 0 10px rgba(108, 92, 231, 0.9),
+    0 0 22px rgba(108, 92, 231, 0.6),
+    0 0 36px rgba(108, 92, 231, 0.4);
+  transform: scale(1.04);
+}
+
+@media (max-width: 900px) {
+  .btn-agregar-bots {
+    padding: 7px 10px;
+    font-size: 0.68rem;
+  }
+  .btn-agregar-bots span.texto-btn-bots {
+    display: none; /* en móvil solo se ve el ícono, para no saturar el header */
+  }
+}
