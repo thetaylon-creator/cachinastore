@@ -185,7 +185,35 @@ cron.schedule(`0 ${RESET_HOUR} * * *`, () => {
   console.log('[cron] Renovando stock diario...');
   getOrCreateTodaysSelection();
 });
+const BOTS_REQUESTS_FILE = path.join(__dirname, 'data', 'bots-requests.json');
 
+function readBotsRequests() {
+  if (!fs.existsSync(BOTS_REQUESTS_FILE)) return [];
+  return JSON.parse(fs.readFileSync(BOTS_REQUESTS_FILE, 'utf-8'));
+}
+function writeBotsRequests(list) {
+  fs.writeFileSync(BOTS_REQUESTS_FILE, JSON.stringify(list, null, 2));
+}
+
+// ---- RUTA PÚBLICA: el cliente registra su solicitud al hacer clic ----
+app.post('/api/bots-request', (req, res) => {
+  const { userCode } = req.body;
+  if (!userCode) return res.status(400).json({ error: 'Falta el ID del cliente' });
+
+  const solicitudes = readBotsRequests();
+  solicitudes.push({
+    userCode,
+    fecha: new Date().toISOString(),
+  });
+  writeBotsRequests(solicitudes);
+
+  res.status(201).json({ success: true });
+});
+
+// ---- RUTA ADMIN: ver todas las solicitudes (protegida con tu ADMIN_KEY) ----
+app.get('/api/admin/bots-requests', requireAdmin, (req, res) => {
+  res.json(readBotsRequests());
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
