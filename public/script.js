@@ -1141,19 +1141,10 @@ function cerrarModalPago() {
 // ==========================================
 document.addEventListener('click', (e) => {
     // Botón "Agregar Bots" — registra la solicitud del cliente
+  // Botón "Agregar Bots" — abre el modal de agregar amigo
   const btnAgregarBots = e.target.closest('#btn-agregar-bots');
   if (btnAgregarBots) {
-    const idCliente = localStorage.getItem('usuarioLogueado');
-    if (!idCliente) return;
-
-    fetch(`${API_URL}/api/bots-request`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userCode: idCliente })
-    })
-      .then(() => alert('¡Listo! Tu solicitud fue registrada.'))
-      .catch(() => alert('No se pudo registrar, intenta de nuevo.'));
-
+    abrirModalBots();
     return;
   }
 
@@ -1247,3 +1238,166 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+// ==========================================
+// MODAL "AGREGAR BOTS" (agregar amigo + verificación Fortnite)
+// ==========================================
+let plataformaBotsActual = 'epic';
+let cooldownBotsActivo = false;
+let intervalCuentaRegresivaBots = null;
+
+const overlayBots = document.getElementById('overlay-bots');
+const modalBots = document.getElementById('modal-bots');
+const inputUsernameBots = document.getElementById('input-username-bots');
+const btnEnviarBots = document.getElementById('btn-enviar-bots');
+const mensajeBots = document.getElementById('mensaje-bots');
+
+const placeholdersPlataforma = {
+  epic: 'Tu username de Epic...',
+  psn: 'Tu ID de PSN...',
+  xbox: 'Tu gamertag de Xbox...',
+  iduser: 'Tu ID de usuario...'
+};
+
+function abrirModalBots() {
+  overlayBots?.classList.remove('oculto');
+  modalBots?.classList.remove('oculto');
+  bloquearScrollBody();
+  consultarEstadoBots();
+}
+
+function cerrarModalBots() {
+  overlayBots?.classList.add('oculto');
+  modalBots?.classList.add('oculto');
+  desbloquearScrollBody();
+}
+
+document.getElementById('btn-cerrar-bots')?.addEventListener('click', cerrarModalBots);
+overlayBots?.addEventListener('click', cerrarModalBots);
+
+function seleccionarPlataformaBots(plataforma) {
+  plataformaBotsActual = plataforma;
+  document.querySelectorAll('.btn-plataforma-bots').forEach(btn => {
+    btn.classList.toggle('activa', btn.getAttribute('data-plataforma') === plataforma);
+  });
+  if (inputUsernameBots) {
+    inputUsernameBots.placeholder = placeholdersPlataforma[plataforma] || 'Tu usuario...';
+  }
+}
+
+document.querySelectorAll('.btn-plataforma-bots').forEach(btn => {
+  btn.addEventListener('click', () => seleccionarPlataformaBots(btn.getAttribute('data-plataforma')));
+});
+
+function mostrarMensajeBots(texto, tipo) {
+  if (!mensajeBots) return;
+  mensajeBots.textContent = texto;
+  mensajeBots.className = `mensaje-bots ${tipo}`;
+  mensajeBots.classList.remove('oculto');
+}
+
+function iniciarCuentaRegresivaBots(restanteMsInicial, cuentas) {
+  clearInterval(intervalCuentaRegresivaBots);
+  let restanteMs = restanteMsInicial;
+
+  function pintar() {
+    if (restanteMs <= 0) {
+      clearInterval(intervalCuentaRegresivaBots);
+      mensajeBots?.classList.add('oculto');
+      return;
+    }
+    const horas = Math.floor(restanteMs / (1000 * 60 * 60));
+    const minutos = Math.floor((restanteMs % (1000 * 60 * 60)) / (1000 * 60));
+    mostrarMensajeBots(
+      `✅ Ya enviaste tu solicitud. Faltan ~${horas}h ${minutos}min para poder recibir regalos en ${cuentas} cuenta(s).`,
+      'exito'
+    );
+  }
+
+  pintar();
+  intervalCuentaRegresivaBots = setInterval(() => {
+    restanteMs -= 60000;
+    pintar();
+  }, 60000);
+}
+
+async function consultarEstadoBots() {
+  const idCliente = localStorage.getItem('usuarioLogueado');
+  if (!idCliente) return;
+
+  try {
+    const respuesta = await fetch(`${API_URL}/api/bots-status?idCliente=${encodeURIComponent(idCliente)}`);
+    const datos = await respuesta.json();
+    if (datos.activo) {
+      iniciarCuentaRegresivaBots(datos.restanteMs, datos.cuentas);
+    } else {
+      mensajeBots?.classList.add('oculto');
+    }
+  } catch (err) {
+    console.error('Error consultando estado de bots:', err);
+  }
+}
+
+function iniciarCooldownBotonBots() {
+  cooldownBotsActivo = true;
+  let segundos = 30;
+  if (btnEnviarBots) btnEnviarBots.disabled = true;
+
+  function pintarBoton() {
+    if (segundos <= 0) {
+      cooldownBotsActivo = false;
+      if (btnEnviarBots) {
+        btnEnviarBots.disabled = false;
+        btnEnviarBots.textContent = 'Enviar solicitud';
+      }
+      return;
+    }
+    if (btnEnviarBots) btnEnviarBots.textContent = `Espera ${segundos}s...`;
+    segundos--;
+    setTimeout(pintarBoton, 1000);
+  }
+  pintarBoton();
+}
+
+async function enviarSolicitudBots() {
+  const idCliente = localStorage.getItem('usuarioLogueado');
+  const username = inputUsernameBots?.value.trim();
+
+  if (!idCliente) return;
+  if (!username) {
+    mostrarMensajeBots('Escribe tu usuario antes de enviar.', 'error');
+    return;
+  }
+  if (cooldownBotsActivo) return;
+
+  btnEnviarBots.disabled = true;
+  btnEnviarBots.textContent = 'Verificando...';
+
+  try {
+    const respuesta = await fetch(`${API_URL}/api/bots-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idCliente, username, plataforma: plataformaBotsActual })
+    });
+
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      mostrarMensajeBots(datos.error || 'No se pudo procesar tu solicitud.', 'error');
+      btnEnviarBots.disabled = false;
+      btnEnviarBots.textContent = 'Enviar solicitud';
+      return;
+    }
+
+    inputUsernameBots.value = '';
+    iniciarCuentaRegresivaBots(datos.restanteMs, datos.cuentas);
+    iniciarCooldownBotonBots();
+
+  } catch (err) {
+    console.error(err);
+    mostrarMensajeBots('No se pudo conectar con el servidor.', 'error');
+    btnEnviarBots.disabled = false;
+    btnEnviarBots.textContent = 'Enviar solicitud';
+  }
+}
+
+btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
