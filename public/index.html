@@ -239,30 +239,29 @@
 
 <!-- MODAL AGREGAR BOTS -->
 <div id="overlay-bots" class="overlay-carrito oculto"></div>
-<div id="modal-bots" class="modal-pago oculto" style="max-width:420px;">
-  <div class="pago-header">
-    <h2>Agregar amigo</h2>
-    <button id="btn-cerrar-bots" class="btn-cerrar-modal">&times;</button>
-  </div>
-  <p style="color:#a09cb0; font-size:0.85rem; margin-bottom:18px; line-height:1.4;">
+<div id="modal-bots" class="modal-bots-card oculto">
+  <button id="btn-cerrar-bots" class="btn-cerrar-bots-x">&times;</button>
+
+  <img src="logo.png" alt="CachinaStore" class="logo-modal-bots">
+
+  <h2 class="titulo-modal-bots">Agregar amigo</h2>
+  <p class="subtitulo-modal-bots">
     Selecciona la plataforma donde juegas y escribe tu usuario para recibir la solicitud de amistad.
   </p>
 
-  <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+  <div class="fila-plataformas-bots">
     <button type="button" class="btn-plataforma-bots activa" data-plataforma="epic">EPIC</button>
     <button type="button" class="btn-plataforma-bots" data-plataforma="psn">PSN</button>
     <button type="button" class="btn-plataforma-bots" data-plataforma="xbox">XBOX</button>
   </div>
-  <div style="margin-bottom:14px;">
-    <button type="button" class="btn-plataforma-bots" data-plataforma="iduser" style="width:100%;">ID USER</button>
-  </div>
+  <button type="button" class="btn-plataforma-bots btn-iduser-bots" data-plataforma="iduser">ID USER</button>
 
   <input type="text" id="input-username-bots" class="input-username-bots" placeholder="Tu username de Epic...">
 
-  <button id="btn-enviar-bots" class="btn-principal" style="margin-top:14px;">Enviar solicitud</button>
+  <button id="btn-enviar-bots" class="btn-enviar-solicitud-bots">Enviar solicitud</button>
 
   <div id="mensaje-bots" class="mensaje-bots oculto"></div>
-</div>  
+</div>
 <!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
 <script src="script.js"></script>
 </body>
