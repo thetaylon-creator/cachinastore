@@ -237,6 +237,32 @@
   <img id="img-qr-ampliada" src="" alt="QR Ampliado">
 </div>
 
+<!-- MODAL AGREGAR BOTS -->
+<div id="overlay-bots" class="overlay-carrito oculto"></div>
+<div id="modal-bots" class="modal-pago oculto" style="max-width:420px;">
+  <div class="pago-header">
+    <h2>Agregar amigo</h2>
+    <button id="btn-cerrar-bots" class="btn-cerrar-modal">&times;</button>
+  </div>
+  <p style="color:#a09cb0; font-size:0.85rem; margin-bottom:18px; line-height:1.4;">
+    Selecciona la plataforma donde juegas y escribe tu usuario para recibir la solicitud de amistad.
+  </p>
+
+  <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+    <button type="button" class="btn-plataforma-bots activa" data-plataforma="epic">EPIC</button>
+    <button type="button" class="btn-plataforma-bots" data-plataforma="psn">PSN</button>
+    <button type="button" class="btn-plataforma-bots" data-plataforma="xbox">XBOX</button>
+  </div>
+  <div style="margin-bottom:14px;">
+    <button type="button" class="btn-plataforma-bots" data-plataforma="iduser" style="width:100%;">ID USER</button>
+  </div>
+
+  <input type="text" id="input-username-bots" class="input-username-bots" placeholder="Tu username de Epic...">
+
+  <button id="btn-enviar-bots" class="btn-principal" style="margin-top:14px;">Enviar solicitud</button>
+
+  <div id="mensaje-bots" class="mensaje-bots oculto"></div>
+</div>  
 <!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
 <script src="script.js"></script>
 </body>
