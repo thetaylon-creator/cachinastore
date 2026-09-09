@@ -1261,12 +1261,14 @@ const placeholdersPlataforma = {
 function abrirModalBots() {
   overlayBots?.classList.remove('oculto');
   modalBots?.classList.remove('oculto');
+  modalBots?.classList.add('mostrar');
   bloquearScrollBody();
   consultarEstadoBots();
 }
 
 function cerrarModalBots() {
   overlayBots?.classList.add('oculto');
+  modalBots?.classList.remove('mostrar');
   modalBots?.classList.add('oculto');
   desbloquearScrollBody();
 }
