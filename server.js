@@ -185,7 +185,9 @@ cron.schedule(`0 ${RESET_HOUR} * * *`, () => {
   console.log('[cron] Renovando stock diario...');
   getOrCreateTodaysSelection();
 });
+const FORTNITE_API_KEY = process.env.FORTNITE_API_KEY || '';
 const BOTS_REQUESTS_FILE = path.join(__dirname, 'data', 'bots-requests.json');
+const VENTANA_BOTS_MS = 48 * 60 * 60 * 1000; // 48 horas
 
 function readBotsRequests() {
   if (!fs.existsSync(BOTS_REQUESTS_FILE)) return [];
@@ -195,19 +197,77 @@ function writeBotsRequests(list) {
   fs.writeFileSync(BOTS_REQUESTS_FILE, JSON.stringify(list, null, 2));
 }
 
-// ---- RUTA PÚBLICA: el cliente registra su solicitud al hacer clic ----
-app.post('/api/bots-request', (req, res) => {
-  const { userCode } = req.body;
-  if (!userCode) return res.status(400).json({ error: 'Falta el ID del cliente' });
+// ---- Verifica si el usuario existe realmente en Fortnite (EPIC/PSN/XBOX) ----
+async function verificarUsuarioFortnite(username, plataforma) {
+  if (!FORTNITE_API_KEY) {
+    console.warn('[bots] FORTNITE_API_KEY no configurada: se omite verificación');
+    return true;
+  }
+
+  const mapaPlataforma = { epic: 'epic', psn: 'psn', xbox: 'xbl' };
+  const accountType = mapaPlataforma[plataforma] || 'epic';
+
+  try {
+    const url = `https://fortnite-api.com/v2/stats/br/v2?name=${encodeURIComponent(username)}&accountType=${accountType}`;
+    const respuesta = await fetch(url, {
+      headers: { Authorization: FORTNITE_API_KEY }
+    });
+    return respuesta.status === 200;
+  } catch (error) {
+    console.error('[bots] Error verificando usuario en Fortnite API:', error);
+    return true;
+  }
+}
+
+// ---- Calcula cuántas cuentas registró un cliente y cuánto falta de las 48h ----
+function calcularEstadoBots(idCliente) {
+  const ahora = Date.now();
+  const todas = readBotsRequests();
+  const recientes = todas
+    .filter(s => s.idCliente === idCliente && (ahora - new Date(s.fecha).getTime()) < VENTANA_BOTS_MS)
+    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+  if (recientes.length === 0) {
+    return { activo: false, cuentas: 0, restanteMs: 0 };
+  }
+
+  const primera = new Date(recientes[0].fecha).getTime();
+  const restanteMs = Math.max((primera + VENTANA_BOTS_MS) - ahora, 0);
+
+  return { activo: restanteMs > 0, cuentas: recientes.length, restanteMs };
+}
+
+// ---- RUTA PÚBLICA: el cliente registra su solicitud (con verificación) ----
+app.post('/api/bots-request', async (req, res) => {
+  const { idCliente, username, plataforma } = req.body;
+  if (!idCliente || !username || !plataforma) {
+    return res.status(400).json({ error: 'Faltan datos' });
+  }
+
+  if (plataforma !== 'iduser') {
+    const existe = await verificarUsuarioFortnite(username, plataforma);
+    if (!existe) {
+      const nombresPlataforma = { epic: 'EPIC', psn: 'PSN', xbox: 'XBOX' };
+      const nombrePlataforma = nombresPlataforma[plataforma] || plataforma.toUpperCase();
+      return res.status(404).json({
+        error: `Usuario '${username}' no encontrado en ${nombrePlataforma}. Verifica que escribiste bien tu username y seleccionaste la plataforma correcta.`
+      });
+    }
+  }
 
   const solicitudes = readBotsRequests();
-  solicitudes.push({
-    userCode,
-    fecha: new Date().toISOString(),
-  });
+  solicitudes.push({ idCliente, username, plataforma, fecha: new Date().toISOString() });
   writeBotsRequests(solicitudes);
 
-  res.status(201).json({ success: true });
+  const estado = calcularEstadoBots(idCliente);
+  res.status(201).json({ success: true, ...estado });
+});
+
+// ---- RUTA PÚBLICA: consulta el estado actual (para cuando abres el modal) ----
+app.get('/api/bots-status', (req, res) => {
+  const { idCliente } = req.query;
+  if (!idCliente) return res.status(400).json({ error: 'Falta idCliente' });
+  res.json(calcularEstadoBots(idCliente));
 });
 
 // ---- RUTA ADMIN: ver todas las solicitudes (protegida con tu ADMIN_KEY) ----
