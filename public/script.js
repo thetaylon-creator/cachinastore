@@ -1220,6 +1220,7 @@ document.addEventListener('click', (e) => {
   ) {
     panelFiltros.classList.add('oculto');
   }
+  });
 
 // 15. ZOOM DEL CÓDIGO QR
 document.addEventListener('click', (e) => {
