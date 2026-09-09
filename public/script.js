@@ -1210,12 +1210,16 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Si el clic fue fuera del panel de filtros, ciérralo
+  // Si el clic fue fuera del panel de filtros, ciérralo (SOLO en móvil)
   const panelFiltros = document.getElementById('panel-filtros');
-  if (panelFiltros && !panelFiltros.classList.contains('oculto') && !e.target.closest('.sidebar')) {
+  if (
+    window.innerWidth <= 900 &&
+    panelFiltros &&
+    !panelFiltros.classList.contains('oculto') &&
+    !e.target.closest('.sidebar')
+  ) {
     panelFiltros.classList.add('oculto');
   }
-});
 
 // 15. ZOOM DEL CÓDIGO QR
 document.addEventListener('click', (e) => {
