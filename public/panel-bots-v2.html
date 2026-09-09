@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Bots - CachinaStore</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body {
+    background: #0f0c1b;
+    color: #fff;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+  .contenedor {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    color: #a78bfa;
+  }
+  .login-box {
+    background: #181528;
+    border: 1px solid #2a2640;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 380px;
+    margin: 80px auto;
+    text-align: center;
+  }
+  .login-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 8px;
+    border: 1px solid #2a2640;
+    background: #0f0c1b;
+    color: #fff;
+    outline: none;
+  }
+  .login-box button, .btn-refrescar {
+    background: #6c5ce7;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+  }
+  .login-box button:hover, .btn-refrescar:hover {
+    background: #574b90;
+  }
+  .error-msg {
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    margin-top: 10px;
+  }
+  .barra-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-refrescar { width: auto; padding: 10px 18px; font-size: 0.85rem; }
+  .contador {
+    color: #a09cb0;
+    font-size: 0.9rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #181528;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #2a2640;
+  }
+  th {
+    background: #131021;
+    color: #a09cb0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(108, 92, 231, 0.06); }
+  .vacio {
+    text-align: center;
+    padding: 40px;
+    color: #71717a;
+  }
+  .oculto { display: none !important; }
+  .badge-plataforma {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .badge-epic { background: rgba(108, 92, 231, 0.2); color: #a78bfa; }
+  .badge-psn { background: rgba(0, 112, 209, 0.2); color: #5aa9ff; }
+  .badge-xbox { background: rgba(16, 124, 16, 0.2); color: #4ade80; }
+  .badge-iduser { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+</style>
+</head>
+<body>
+
+  <div id="pantalla-login" class="login-box">
+    <h1 style="margin-bottom: 8px;">🔒 Panel de Bots</h1>
+    <p style="color:#a09cb0; font-size:0.85rem;">Ingresa tu clave de administrador</p>
+    <input type="password" id="input-admin-key" placeholder="Clave admin">
+    <button id="btn-entrar-admin">Entrar</button>
+    <p id="error-login" class="error-msg oculto">Clave incorrecta</p>
+  </div>
+
+  <div id="pantalla-panel" class="contenedor oculto">
+    <div class="barra-superior">
+      <h1>Solicitudes de "Agregar Bots"</h1>
+      <button class="btn-refrescar" id="btn-refrescar">↻ Refrescar</button>
+    </div>
+    <p class="contador" id="contador-solicitudes"></p>
+    <br>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>ID del cliente</th>
+          <th>Usuario Fortnite</th>
+          <th>Plataforma</th>
+          <th>Fecha y hora</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+
+<script>
+  const API_URL = ''; // mismo dominio
+  let claveGuardada = '';
+
+  const nombresPlataforma = { epic: 'EPIC', psn: 'PSN', xbox: 'XBOX', iduser: 'ID USER' };
+  const clasesPlataforma = { epic: 'badge-epic', psn: 'badge-psn', xbox: 'badge-xbox', iduser: 'badge-iduser' };
+
+  document.getElementById('btn-entrar-admin').addEventListener('click', intentarEntrar);
+  document.getElementById('input-admin-key').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') intentarEntrar();
+  });
+
+  async function intentarEntrar() {
+    const clave = document.getElementById('input-admin-key').value.trim();
+    if (!clave) return;
+
+    const ok = await cargarSolicitudes(clave);
+    if (ok) {
+      claveGuardada = clave;
+      document.getElementById('pantalla-login').classList.add('oculto');
+      document.getElementById('pantalla-panel').classList.remove('oculto');
+    } else {
+      document.getElementById('error-login').classList.remove('oculto');
+    }
+  }
+
+  document.getElementById('btn-refrescar').addEventListener('click', () => {
+    cargarSolicitudes(claveGuardada);
+  });
+
+  async function cargarSolicitudes(clave) {
+    try {
+      const respuesta = await fetch(`${API_URL}/api/admin/bots-requests`, {
+        headers: { 'x-admin-key': clave }
+      });
+      if (!respuesta.ok) return false;
+
+      const datos = await respuesta.json();
+      pintarTabla(datos);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
+
+  function pintarTabla(solicitudes) {
+    const tbody = document.getElementById('tabla-body');
+    const contador = document.getElementById('contador-solicitudes');
+    tbody.innerHTML = '';
+
+    contador.textContent = `${solicitudes.length} solicitud(es) registradas`;
+
+    if (solicitudes.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="vacio">Aún no hay solicitudes</td></tr>`;
+      return;
+    }
+
+    const ordenadas = [...solicitudes].reverse();
+
+    ordenadas.forEach((sol, index) => {
+      const fecha = new Date(sol.fecha).toLocaleString('es-PE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+      const idCliente = sol.idCliente || sol.userCode || '—';
+      const username = sol.username || '—';
+      const plataforma = sol.plataforma || '';
+      const nombrePlataforma = nombresPlataforma[plataforma] || (plataforma ? plataforma.toUpperCase() : '—');
+      const claseBadge = clasesPlataforma[plataforma] || '';
+
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${solicitudes.length - index}</td>
+        <td><strong>${idCliente}</strong></td>
+        <td>${username}</td>
+        <td>${plataforma ? `<span class="badge-plataforma ${claseBadge}">${nombrePlataforma}</span>` : '—'}</td>
+        <td>${fecha}</td>
+      `;
+      tbody.appendChild(fila);
+    });
+  }
+</script>
+</body>
+</html>
