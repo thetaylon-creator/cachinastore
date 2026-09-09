@@ -1676,14 +1676,114 @@ body .modal-pago.oculto:not(.mostrar) {
     display: none; /* en móvil solo se ve el ícono, para no saturar el header */
   }
 }
+
+.modal-bots-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 460px;
+  max-width: 90vw;
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-sidebar);
+  color: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  z-index: 1001;
+  padding: 44px 36px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body .modal-bots-card.mostrar {
+  transform: translate(-50%, -50%) scale(1) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: flex !important;
+}
+
+body .modal-bots-card.oculto:not(.mostrar) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translate(-50%, -50%) scale(0.9) !important;
+  pointer-events: none !important;
+  display: flex !important;
+}
+
+.btn-cerrar-bots-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-cerrar-bots-x:hover {
+  border-color: var(--accent-purple);
+  background: rgba(108, 92, 231, 0.15);
+}
+
+.logo-modal-bots {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  margin-bottom: 18px;
+  box-shadow: 0 0 25px rgba(108, 92, 231, 0.5);
+}
+
+.titulo-modal-bots {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-purple);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.subtitulo-modal-bots {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  text-align: center;
+  margin-bottom: 30px;
+  max-width: 340px;
+}
+
+.fila-plataformas-bots {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
 .btn-plataforma-bots {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   cursor: pointer;
   flex: 1;
   transition: all 0.2s ease;
@@ -1697,18 +1797,49 @@ body .modal-pago.oculto:not(.mostrar) {
   border-color: var(--accent-purple);
   color: #fff;
 }
+
+.btn-iduser-bots {
+  width: 100%;
+  margin-bottom: 22px;
+}
+
 .input-username-bots {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-dark);
   color: #fff;
   outline: none;
   font-size: 0.95rem;
+  margin-bottom: 18px;
 }
+
+.btn-enviar-solicitud-bots {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+  transition: all 0.2s ease;
+}
+.btn-enviar-solicitud-bots:hover {
+  background: linear-gradient(135deg, #b968ff, #8b4bf0);
+  box-shadow: 0 6px 25px rgba(168, 85, 247, 0.55);
+}
+.btn-enviar-solicitud-bots:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .mensaje-bots {
-  margin-top: 14px;
+  width: 100%;
+  margin-top: 20px;
   padding: 12px 14px;
   border-radius: 10px;
   font-size: 0.82rem;
