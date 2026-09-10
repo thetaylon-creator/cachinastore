@@ -1778,6 +1778,10 @@ body .modal-bots-card.oculto:not(.mostrar) {
   cursor: pointer;
   flex: 1;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 .btn-plataforma-bots.activa {
   background: var(--accent-purple);
@@ -1846,4 +1850,26 @@ body .modal-bots-card.oculto:not(.mostrar) {
   background: rgba(34, 197, 94, 0.1);
   border: 1px solid rgba(34, 197, 94, 0.4);
   color: #4ade80;
+}
+
+.icono-plataforma {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.icono-epic { background: #000; color: #fff; }
+.icono-psn { background: #0070d1; color: #fff; }
+.icono-xbox { background: #107c10; color: #fff; }
+.icono-iduser {
+  background: transparent;
+  color: var(--text-muted);
+  width: auto;
+  height: auto;
+}
+.btn-plataforma-bots.activa .icono-iduser {
+  color: #fff;
 }
