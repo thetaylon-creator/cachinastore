@@ -1523,6 +1523,7 @@ body .modal-pago.oculto:not(.mostrar) {
   font-size: 0.78rem;
   color: var(--text-muted);
   letter-spacing: 0.02em;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .subbar-moneda-texto strong {
