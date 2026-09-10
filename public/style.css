@@ -1856,22 +1856,15 @@ body .modal-bots-card.oculto:not(.mostrar) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
   flex-shrink: 0;
-  font-size: 0.72rem;
-  font-weight: 900;
-}
-.icono-epic { background: #000; color: #fff; }
-.icono-psn { background: #0070d1; color: #fff; }
-.icono-xbox { background: #107c10; color: #fff; }
-.icono-iduser {
-  background: transparent;
-  color: var(--text-muted);
-  width: auto;
-  height: auto;
-}
-.btn-plataforma-bots.activa .icono-iduser {
   color: #fff;
+}
+.icono-iduser {
+  color: #fff;
+}
+.img-icono-plataforma {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  border-radius: 3px;
 }
