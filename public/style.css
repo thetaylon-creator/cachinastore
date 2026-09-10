@@ -1860,6 +1860,8 @@ body .modal-bots-card.oculto:not(.mostrar) {
   height: 18px;
   border-radius: 4px;
   flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 900;
 }
 .icono-epic { background: #000; color: #fff; }
 .icono-psn { background: #0070d1; color: #fff; }
