@@ -68,6 +68,10 @@ body.bloquear-scroll {
   object-fit: cover;
 }
 
+.logo-header span {
+  font-family: inherit;
+}
+
 #pantalla-bienvenida h1 {
   font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 800;
