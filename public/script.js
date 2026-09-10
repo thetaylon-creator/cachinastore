@@ -170,13 +170,33 @@ async function obtenerTiendaFortnite() {
     contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
   }
 }
-// Refresca la tienda automáticamente cada 5 minutos,
-// para que se actualice sola cuando resetea (00:00 UTC).
-setInterval(() => {
-  if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
-    obtenerTiendaFortnite();
+// Refresca la tienda automáticamente solo a las 7:00 PM (hora del
+// dispositivo del cliente), que es cuando Fortnite cambia la tienda.
+function programarRefrescoTiendaA7PM() {
+  const ahora = new Date();
+  const proximaVez = new Date(ahora);
+  proximaVez.setHours(19, 0, 5, 0); // 7:00:05 PM, con 5s de margen
+
+  if (ahora >= proximaVez) {
+    proximaVez.setDate(proximaVez.getDate() + 1);
   }
-}, 5 * 60 * 1000); // cada 5 minutos
+
+  const msHastaLas7pm = proximaVez - ahora;
+
+  setTimeout(() => {
+    if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
+      obtenerTiendaFortnite();
+    }
+    // Después de la primera vez, se repite cada 24 horas exactas.
+    setInterval(() => {
+      if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
+        obtenerTiendaFortnite();
+      }
+    }, 24 * 60 * 60 * 1000);
+  }, msHastaLas7pm);
+}
+
+programarRefrescoTiendaA7PM();
 // 4. OBTENER SECCIÓN OFICIAL DE FORTNITE
 // FIX: el campo correcto para el nombre real de cada fila de la
 // tienda es entry.layout.name (ej: "Fiesta de la victoria", "Marvel",
