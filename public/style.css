@@ -1636,9 +1636,9 @@ body .modal-pago.oculto:not(.mostrar) {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #150e2e;
-  color: #a78bfa;
-  border: 1px solid var(--accent-purple);
+  background: var(--accent-purple);
+  color: #fff;
+  border: none;
   padding: 8px 14px;
   border-radius: 8px;
   font-family: 'Orbitron', 'Segoe UI', sans-serif;
@@ -1648,23 +1648,14 @@ body .modal-pago.oculto:not(.mostrar) {
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow:
-    0 0 6px rgba(108, 92, 231, 0.7),
-    0 0 14px rgba(108, 92, 231, 0.4),
-    inset 0 0 6px rgba(108, 92, 231, 0.25);
-  text-shadow: 0 0 6px rgba(167, 139, 250, 0.8);
-  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(108, 92, 231, 0.4);
+  transition: all 0.2s ease;
 }
 
 .btn-agregar-bots:hover {
-  background: var(--accent-purple);
-  color: #fff;
-  text-shadow: none;
-  box-shadow:
-    0 0 10px rgba(108, 92, 231, 0.9),
-    0 0 22px rgba(108, 92, 231, 0.6),
-    0 0 36px rgba(108, 92, 231, 0.4);
+  background: var(--accent-hover);
   transform: scale(1.04);
+  box-shadow: 0 6px 18px rgba(108, 92, 231, 0.55);
 }
 
 @media (max-width: 900px) {
