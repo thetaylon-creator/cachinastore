@@ -68,6 +68,12 @@ body.bloquear-scroll {
   object-fit: cover;
 }
 
+#pantalla-bienvenida h1 {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 #pantalla-bienvenida {
   display: flex;
   flex-direction: column;
