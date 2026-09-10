@@ -397,10 +397,12 @@ header {
   outline: none;
   color: #fff;
   font-size: 1.05rem;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .buscador-tienda input::placeholder {
   color: var(--text-muted);
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .moneda-chip {
@@ -1491,6 +1493,10 @@ body .modal-pago.oculto:not(.mostrar) {
 }
 
 .texto-actualizado {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+}
+
+.hero-subtitulo {
   font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
