@@ -1490,6 +1490,10 @@ body .modal-pago.oculto:not(.mostrar) {
   display: inline-block;
 }
 
+.texto-actualizado {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+}
+
 /* ==========================================
    HEADER STICKY + SUBBAR MONEDA + TÍTULO GRANDE
    ========================================== */
@@ -1539,6 +1543,7 @@ body .modal-pago.oculto:not(.mostrar) {
 .hero-titulo-acento {
   color: var(--accent-purple);
   position: relative;
+  font-family: inherit;
 }
 
 .hero-titulo-acento::after {
@@ -1609,6 +1614,7 @@ body .modal-pago.oculto:not(.mostrar) {
   padding: 8px 14px;
   border-radius: 8px;
   margin-top: 12px;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .separador-full {
