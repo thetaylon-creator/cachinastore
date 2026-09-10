@@ -53,7 +53,7 @@ body.bloquear-scroll {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 900;
   font-size: 1.15rem;
   letter-spacing: 1.2px;
@@ -173,6 +173,7 @@ body.bloquear-scroll {
   margin-bottom: 6px;
   text-align: center;
   font-size: 1.3rem;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .auth-subtitulo {
@@ -209,7 +210,7 @@ body.bloquear-scroll {
   border: none;
   border-radius: 6px;
   color: white;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 700;
   letter-spacing: 0.3px;
   cursor: pointer;
@@ -264,7 +265,7 @@ header {
 .nav-links span {
   margin: 0 15px;
   color: var(--text-muted);
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-size: 0.85rem;
   cursor: pointer;
 }
@@ -284,6 +285,7 @@ header {
   border: 1px solid var(--border-color);
   padding: 4px 10px;
   border-radius: 6px;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .contenedor-tienda {
@@ -429,7 +431,7 @@ header {
 
 .seccion-titulo {
   display: inline-block;
-  font-family: 'Anton', 'Baloo 2', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
   font-size: 1.7rem;
   font-weight: 800;
   color: #fff;
@@ -571,7 +573,7 @@ header {
 
 .tarjeta-nombre {
   color: #fff;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-size: 1.05rem; 
   font-weight: 700;
   margin: 0 0 4px;
@@ -767,6 +769,7 @@ header {
 .carrito-titulo h2 {
   font-size: 1.4rem;
   font-weight: bold;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .btn-cerrar-modal {
@@ -916,6 +919,7 @@ header {
 .total-box strong {
   font-size: 1.4rem;
   font-weight: 900;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .btn-realizar-pago {
@@ -1015,6 +1019,7 @@ body .modal-pago.oculto:not(.mostrar) {
 .pago-header h2 {
   font-size: 1.5rem;
   font-weight: 800;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .pago-resumen {
@@ -1031,6 +1036,7 @@ body .modal-pago.oculto:not(.mostrar) {
 .pago-resumen strong {
   font-size: 2rem;
   font-weight: 900;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
 }
 
 .pago-metodos {
@@ -1228,7 +1234,7 @@ body .modal-pago.oculto:not(.mostrar) {
   color: #111;
   padding: 12px 20px;
   border-radius: 8px;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
@@ -1436,7 +1442,7 @@ body .modal-pago.oculto:not(.mostrar) {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -1509,7 +1515,7 @@ body .modal-pago.oculto:not(.mostrar) {
 }
 
 .hero-titulo-grande {
-  font-family: 'Anton', 'Baloo 2', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
   font-size: 96px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -1619,7 +1625,7 @@ body .modal-pago.oculto:not(.mostrar) {
   background: rgba(108, 92, 231, 0.15);
   border: 1px solid var(--accent-purple);
   color: #fff;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
   border-radius: 8px;
@@ -1641,7 +1647,7 @@ body .modal-pago.oculto:not(.mostrar) {
   border: none;
   padding: 8px 14px;
   border-radius: 8px;
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.78rem;
   letter-spacing: 0.3px;
@@ -1743,7 +1749,7 @@ body .modal-bots-card.oculto:not(.mostrar) {
 }
 
 .titulo-modal-bots {
-  font-family: 'Anton', 'Segoe UI', sans-serif;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--accent-purple);
