@@ -1553,6 +1553,11 @@ body .modal-pago.oculto:not(.mostrar) {
   font-family: inherit;
 }
 
+/* Fix para el texto "FILTROS" inyectado por script.js */
+.filtros-label {
+  font-family: inherit;
+}
+
 .hero-titulo-acento::after {
   content: '';
   position: absolute;
