@@ -59,7 +59,12 @@
       </nav>
       <div class="header-acciones">
         <button class="btn-agregar-bots" id="btn-agregar-bots" title="Agregar bots">
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2a1 1 0 0 1 1 1v1.07A7 7 0 0 1 19 11v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.1A7 7 0 0 1 12 21a7 7 0 0 1-6.9-4H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1v-1a7 7 0 0 1 6-6.93V3a1 1 0 0 1 1-1zM8.5 12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm7 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 7h10a2 2 0 0 1 2 2v1l1 1v3l-1 1v3a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3l-1-1v-3l1-1V9a2 2 0 0 1 2-2zm3 9h4"/>
+    <circle cx="8.5" cy="11.5" r=".5" fill="currentColor"/>
+    <circle cx="15.5" cy="11.5" r=".5" fill="currentColor"/>
+    <path d="M9 7 8 3m7 4 1-4"/>
+  </svg>
   <span class="texto-btn-bots">Agregar Bots</span>
 </button>
         <button class="btn-carrito" id="btn-carrito" title="Carrito de compras">
@@ -250,33 +255,30 @@
     Selecciona la plataforma donde juegas y escribe tu usuario para recibir la solicitud de amistad.
   </p>
 
-  <div class="fila-plataformas-bots">
+<div class="fila-plataformas-bots">
   <button type="button" class="btn-plataforma-bots activa" data-plataforma="epic">
-    <span class="icono-plataforma icono-epic">
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M4 4h16v3H8v4h10v3H8v4h12v3H4z"/></svg>
-    </span>
+    <span class="icono-plataforma icono-epic">E</span>
     EPIC
   </button>
   <button type="button" class="btn-plataforma-bots" data-plataforma="psn">
     <span class="icono-plataforma icono-psn">
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 2v20l4-1.3V6.4c0-.8.4-1.3 1-1.1.8.3 1.2 1 1.2 2v8c0 1-.6 1.6-1.5 1.9L6 19v2.3l8.3-2.9c1.8-.6 3.2-1.7 3.2-3.9V9.2c0-2.1-.8-3-3-3.8L8 2z"/></svg>
+      <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M8.984 2.596v17.547l3.915 1.261V6.688c0-.69.304-1.151.794-.991.636.18.76.814.76 1.505v5.875c2.441 1.193 4.362-.002 4.362-3.152 0-3.237-1.126-4.675-4.438-5.827-1.307-.448-3.728-1.186-5.39-1.502zm4.656 16.241 6.296-2.275c.715-.258.826-.625.246-.818-.586-.192-1.637-.139-2.357.123l-4.205 1.5V14.98l.24-.085s1.201-.42 2.913-.615c1.696-.18 3.785.03 5.437.661 1.848.601 2.04 1.472 1.576 2.072-.465.6-1.622 1.036-1.622 1.036l-8.544 3.107V18.86zM1.807 18.6c-1.9-.545-2.214-1.668-1.352-2.32.801-.586 2.16-1.052 2.16-1.052l5.615-2.013v2.313L4.205 17c-.705.271-.825.632-.239.826.586.195 1.637.15 2.343-.12L8.247 17v2.074c-.12.03-.256.044-.39.073-1.939.331-3.996.196-6.038-.479z"/></svg>
     </span>
     PSN
   </button>
   <button type="button" class="btn-plataforma-bots" data-plataforma="xbox">
     <span class="icono-plataforma icono-xbox">
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2C7 2 3 6 3 11c0 1.7.5 3.3 1.3 4.6C6 13 8.8 10 12 10s6 3 7.7 5.6C20.5 14.3 21 12.7 21 11c0-5-4-9-9-9zm0 12c-3 0-5.5 2.6-6.9 5.1C6.6 20.6 9.1 22 12 22s5.4-1.4 6.9-2.9C17.5 16.6 15 14 12 14z"/></svg>
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M4.102 21.033A11.947 11.947 0 0012 24a11.96 11.96 0 007.902-2.967c1.877-1.912-4.316-8.709-7.902-11.417-3.582 2.708-9.779 9.505-7.898 11.417zm11.16-14.406c2.5 2.961 7.484 10.313 6.076 12.912A11.942 11.942 0 0024 12.004a11.95 11.95 0 00-3.57-8.536s-.027-.022-.082-.042a.824.824 0 00-.281-.045c-.592 0-1.985.434-4.805 3.246zM3.654 3.426c-.057.02-.082.041-.086.042A11.956 11.956 0 000 12.004c0 2.854.998 5.473 2.661 7.533-1.401-2.605 3.579-9.951 6.08-12.91-2.82-2.813-4.216-3.245-4.806-3.245a.725.725 0 00-.281.046v-.002zM12 3.551S9.055 1.828 6.755 1.746c-.903-.033-1.454.295-1.521.339C7.379.646 9.659 0 11.984 0H12c2.334 0 4.605.646 6.766 2.085-.068-.046-.615-.372-1.52-.339C14.946 1.828 12 3.545 12 3.545v.006z"/></svg>
     </span>
     XBOX
   </button>
 </div>
 <button type="button" class="btn-plataforma-bots btn-iduser-bots" data-plataforma="iduser">
   <span class="icono-plataforma icono-iduser">
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
   </span>
   ID USER
 </button>
-
   <input type="text" id="input-username-bots" class="input-username-bots" placeholder="Tu username de Epic...">
 
   <button id="btn-enviar-bots" class="btn-enviar-solicitud-bots">Enviar solicitud</button>
