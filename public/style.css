@@ -53,7 +53,7 @@ body.bloquear-scroll {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-weight: 900;
   font-size: 1.15rem;
   letter-spacing: 1.2px;
@@ -209,7 +209,7 @@ body.bloquear-scroll {
   border: none;
   border-radius: 6px;
   color: white;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-weight: 700;
   letter-spacing: 0.3px;
   cursor: pointer;
@@ -264,7 +264,7 @@ header {
 .nav-links span {
   margin: 0 15px;
   color: var(--text-muted);
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-size: 0.85rem;
   cursor: pointer;
 }
@@ -429,7 +429,7 @@ header {
 
 .seccion-titulo {
   display: inline-block;
-  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Baloo 2', 'Segoe UI', sans-serif;
   font-size: 1.7rem;
   font-weight: 800;
   color: #fff;
@@ -571,7 +571,7 @@ header {
 
 .tarjeta-nombre {
   color: #fff;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-size: 1.05rem; 
   font-weight: 700;
   margin: 0 0 4px;
@@ -588,7 +588,7 @@ header {
   gap: 5px;
   color: rgba(255,255,255,.85);
   font-weight: 600;
-  font-size: 0.88rem
+  font-size: 0.88rem;
   margin: 0;
 }
 
@@ -1228,7 +1228,7 @@ body .modal-pago.oculto:not(.mostrar) {
   color: #111;
   padding: 12px 20px;
   border-radius: 8px;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
@@ -1436,7 +1436,7 @@ body .modal-pago.oculto:not(.mostrar) {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -1509,7 +1509,7 @@ body .modal-pago.oculto:not(.mostrar) {
 }
 
 .hero-titulo-grande {
-  font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Baloo 2', 'Segoe UI', sans-serif;
   font-size: 96px;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -1619,7 +1619,7 @@ body .modal-pago.oculto:not(.mostrar) {
   background: rgba(108, 92, 231, 0.15);
   border: 1px solid var(--accent-purple);
   color: #fff;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
   border-radius: 8px;
@@ -1641,7 +1641,7 @@ body .modal-pago.oculto:not(.mostrar) {
   border: none;
   padding: 8px 14px;
   border-radius: 8px;
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 0.78rem;
   letter-spacing: 0.3px;
@@ -1743,7 +1743,7 @@ body .modal-bots-card.oculto:not(.mostrar) {
 }
 
 .titulo-modal-bots {
-  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  font-family: 'Anton', 'Segoe UI', sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--accent-purple);
