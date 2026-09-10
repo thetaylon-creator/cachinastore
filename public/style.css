@@ -1693,6 +1693,10 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 }
 
+.texto-btn-bots {
+  font-family: inherit;
+}
+
 .modal-bots-card {
   position: fixed;
   top: 50%;
