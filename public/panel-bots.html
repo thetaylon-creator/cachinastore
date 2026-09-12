@@ -233,8 +233,24 @@
         <td>${username}</td>
         <td>${plataforma ? `<span class="badge-plataforma ${claseBadge}">${nombrePlataforma}</span>` : '—'}</td>
         <td>${fecha}</td>
+        <td><button class="btn-eliminar-solicitud" data-id="${sol.id}">🗑</button></td>
       `;
       tbody.appendChild(fila);
+    });
+
+    tbody.querySelectorAll('.btn-eliminar-solicitud').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar esta solicitud?')) return;
+        try {
+          const respuesta = await fetch(`${API_URL}/api/admin/bots-requests/${btn.dataset.id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-key': claveGuardada }
+          });
+          if (respuesta.ok) cargarSolicitudes(claveGuardada);
+        } catch (err) {
+          console.error(err);
+        }
+      });
     });
   }
 </script>
