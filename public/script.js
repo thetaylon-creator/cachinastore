@@ -641,6 +641,8 @@ ordenSecciones.forEach(nombreSeccion => {
       const rangoB = b.esLote ? 0 : (b.esSkin ? 1 : 2);
       return rangoA - rangoB;
     });
+    window._fondosSecciones = window._fondosSecciones || {};
+    window._fondosSecciones[nombreSeccion] = productos[0]?.imagen || null;
 
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
