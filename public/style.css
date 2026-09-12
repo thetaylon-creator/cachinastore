@@ -1628,10 +1628,30 @@ body .modal-pago.oculto:not(.mostrar) {
 }
 
 .hero-envoltorio {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 24px 12px 20px;
   box-sizing: border-box;
+  position: relative;
+  background-image: url('fondo-tienda.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.hero-envoltorio::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, rgba(10,8,18,0.85) 0%, rgba(10,8,18,0.55) 60%, rgba(10,8,18,0.3) 100%);
+  z-index: 0;
+}
+
+.hero-envoltorio > * {
+  position: relative;
+  z-index: 1;
 }
 
 .alerta-amarilla {
