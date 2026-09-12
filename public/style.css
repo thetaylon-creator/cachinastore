@@ -1736,16 +1736,16 @@ body .modal-pago.oculto:not(.mostrar) {
    V-Bucks debajo de Agregar Bots. Con grid de 2 columnas, el
    tercer elemento (V-Bucks) cae solo en la fila 2, columna 1. */
 .fila-botones-accion {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin: 4px 0 16px;
 }
 
 .fila-botones-accion .btn-agregar-bots {
-  width: 100%;
+  width: auto;
   justify-content: center;
-  padding: 12px 10px;
+  padding: 10px 18px;
 }
 
 @media (max-width: 420px) {
