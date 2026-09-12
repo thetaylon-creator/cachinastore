@@ -407,7 +407,23 @@ function obtenerImagenReal(entry, item) {
   }
   return "https://placehold.co/200x200/181528/ffffff?text=Fortnite";
 }
-
+// ==========================================
+// FONDO ATMOSFÉRICO REAL DE LA API (no el render del producto)
+// Epic guarda estas imágenes en materialInstances[].images.Background:
+// son los fondos tipo "SectionBG" o "Billboard" que se ven en la
+// tienda oficial (paisajes, rayos de luz, escenas temáticas),
+// distintos del render del personaje/skin.
+// ==========================================
+function obtenerFondoAtmosferico(entry) {
+  const instancias = entry.newDisplayAsset?.materialInstances;
+  if (instancias && instancias.length > 0) {
+    const imagenes = instancias[0].images;
+    if (imagenes?.Background) return imagenes.Background;
+    if (imagenes?.OfferImage) return imagenes.OfferImage;
+    if (imagenes?.OfferImageWide) return imagenes.OfferImageWide;
+  }
+  return null;
+}
 // ==========================================
 // FONDO REAL DEL PRODUCTO (API de Fortnite)
 // El color oficial de cada item viene en entry.colors (color1,
@@ -510,6 +526,10 @@ console.log('Entradas marcadas como redundantes:',
 entries.forEach(entry => {
   if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
     const seccionNombre = obtenerNombreSeccion(entry).trim();
+      if (seccionNombre === 'Overwatch') {
+      console.log('=== ENTRY OVERWATCH ===', entry);
+      console.log('=== newDisplayAsset ===', entry.newDisplayAsset);
+    }
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
