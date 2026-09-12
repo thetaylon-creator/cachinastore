@@ -357,7 +357,7 @@ header {
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0;
+  padding: 40px;
   margin-bottom: 0;
 }
 
@@ -1355,11 +1355,11 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 
   .hero-banner {
-    padding: 20px;
+    padding: 16px 6px;
   }
 
   .hero-banner h1 {
-    font-size: 1.8rem;
+    font-size: 2.6rem;
   }
 
   .grid-productos {
@@ -1401,6 +1401,10 @@ body .modal-pago.oculto:not(.mostrar) {
 
   .subbar-moneda {
     padding: 6px 16px;
+  }
+
+  .hero-envoltorio {
+    padding: 16px 6px 14px;
   }
 }
 
@@ -1704,6 +1708,24 @@ body .modal-pago.oculto:not(.mostrar) {
 
 .texto-btn-bots {
   font-family: inherit;
+}
+
+.btn-agregar-bots-movil {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .btn-agregar-bots-movil {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin: 4px 0 16px;
+    padding: 13px;
+    font-size: 0.85rem;
+  }
+  .header-acciones .btn-agregar-bots {
+    display: none;
+  }
 }
 
 .modal-bots-card {
