@@ -1012,7 +1012,31 @@ let _handlerScrollSpy = null;
 // procesaba, el filtro resaltado no siempre coincidía con lo que
 // realmente se veía en pantalla (ej: marcaba "BLEACH" mientras se
 // veía "Un show más").
-//
+// ==========================================
+// FONDO DINÁMICO DEL CATÁLOGO
+// Cambia el fondo de toda la pantalla según la sección que el
+// usuario está viendo, usando la imagen real del producto que
+// ya vino de la API de Fortnite (sin pedir nada extra).
+// ==========================================
+let seccionFondoActual = null;
+
+function actualizarFondoDinamico(nombreSeccion) {
+  if (nombreSeccion === seccionFondoActual) return; // ya está puesto, no repetir
+
+  const fondo = document.getElementById('fondo-dinamico-tienda');
+  if (!fondo) return;
+
+  const imagen = window._fondosSecciones?.[nombreSeccion];
+
+  if (imagen) {
+    fondo.style.backgroundImage = `url('${imagen}')`;
+    fondo.classList.add('visible');
+  } else {
+    fondo.classList.remove('visible');
+  }
+
+  seccionFondoActual = nombreSeccion;
+}
 // Ahora se usa un cálculo directo en cada scroll: se recorren TODAS
 // las secciones en orden y se elige la ÚLTIMA cuyo borde superior ya
 // cruzó la línea de referencia (justo debajo del header). Esa es,
@@ -1050,7 +1074,10 @@ function iniciarScrollSpySecciones() {
       }
     }
     const nombreSeccion = seccionActiva.getAttribute('data-seccion-nombre');
-    if (nombreSeccion) activarFiltroEnMenu(nombreSeccion);
+    if (nombreSeccion) {
+      activarFiltroEnMenu(nombreSeccion);
+      actualizarFondoDinamico(nombreSeccion);
+    }
   }
   _handlerScrollSpy = calcularSeccionActiva;
   window.addEventListener('scroll', _handlerScrollSpy, { passive: true });
