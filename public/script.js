@@ -1162,9 +1162,21 @@ function cerrarModalPago() {
 document.addEventListener('click', (e) => {
     // Botón "Agregar Bots" — registra la solicitud del cliente
   // Botón "Agregar Bots" — abre el modal de agregar amigo
-  const btnAgregarBots = e.target.closest('#btn-agregar-bots');
+  const btnAgregarBots = e.target.closest('.trigger-agregar-bots');
   if (btnAgregarBots) {
     abrirModalBots();
+    return;
+  }
+
+  const btnClubCrewMovil = e.target.closest('#btn-club-crew-movil');
+  if (btnClubCrewMovil) {
+    irASeccion('Crew · DLC · Packs');
+    return;
+  }
+
+  const btnVbucksMovil = e.target.closest('#btn-vbucks-movil');
+  if (btnVbucksMovil) {
+    irASeccion('V-Bucks');
     return;
   }
 
