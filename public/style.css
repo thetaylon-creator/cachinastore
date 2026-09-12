@@ -1700,50 +1700,26 @@ body .modal-pago.oculto:not(.mostrar) {
   font-family: inherit;
 }
 
-/* Fila de botones del hero: Agregar Bots (solo móvil, en compu ya
-   está en el header) + Club/Crew + V-Bucks (visibles siempre).
-   flex-wrap hace que se acomoden solos sin encimarse en pantallas
-   angostas, en vez de forzarlos a caber en una sola línea. */
+/* Fila de botones del hero: Agregar Bots | Club/Crew arriba,
+   V-Bucks debajo de Agregar Bots. Con grid de 2 columnas, el
+   tercer elemento (V-Bucks) cae solo en la fila 2, columna 1. */
 .fila-botones-accion {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 4px 0 16px;
 }
 
 .fila-botones-accion .btn-agregar-bots {
-  flex: 1 1 170px;
+  width: 100%;
   justify-content: center;
-  padding: 11px 16px;
-}
-
-.btn-agregar-bots-movil {
-  display: none;
-}
-
-@media (max-width: 900px) {
-  .header-acciones .btn-agregar-bots {
-    padding: 7px 10px;
-    font-size: 0.68rem;
-  }
-  .header-acciones .btn-agregar-bots span.texto-btn-bots {
-    display: none; /* en móvil solo se ve el ícono, para no saturar el header */
-  }
-
-  .btn-agregar-bots-movil {
-    display: flex;
-  }
-
-  .fila-botones-accion .btn-agregar-bots {
-    flex: 1 1 130px;
-    padding: 10px 8px;
-    font-size: 0.72rem;
-  }
+  padding: 12px 10px;
 }
 
 @media (max-width: 420px) {
   .fila-botones-accion .btn-agregar-bots {
-    flex: 1 1 100%;
+    font-size: 0.7rem;
+    padding: 10px 6px;
   }
 }
 
