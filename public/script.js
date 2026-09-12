@@ -1177,6 +1177,20 @@ document.addEventListener('click', (e) => {
     }
     return;
   }
+    // Nav superior: Pavos / Vía regalo / Crew
+  const navItem = e.target.closest('.nav-item');
+  if (navItem) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('activo'));
+    navItem.classList.add('activo');
+
+    const destino = navItem.getAttribute('data-seccion-nav');
+    if (destino === 'inicio') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      irASeccion(destino);
+    }
+    return;
+  }
   // Filtros de categoría
   const itemFiltro = e.target.closest('.item-filtro');
   if (itemFiltro) {
