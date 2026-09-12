@@ -1,4 +1,5 @@
 require('dotenv').config();
+const pool = require('./db');
 const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
@@ -186,15 +187,43 @@ cron.schedule(`0 ${RESET_HOUR} * * *`, () => {
   getOrCreateTodaysSelection();
 });
 const FORTNITE_API_KEY = process.env.FORTNITE_API_KEY || '';
-const BOTS_REQUESTS_FILE = path.join(__dirname, 'data', 'bots-requests.json');
 const VENTANA_BOTS_MS = 48 * 60 * 60 * 1000; // 48 horas
 
-function readBotsRequests() {
-  if (!fs.existsSync(BOTS_REQUESTS_FILE)) return [];
-  return JSON.parse(fs.readFileSync(BOTS_REQUESTS_FILE, 'utf-8'));
+// Crea la tabla en Postgres si no existe (igual que hace auth.js con "users")
+async function ensureBotsTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS bots_requests (
+      id SERIAL PRIMARY KEY,
+      id_cliente VARCHAR(100) NOT NULL,
+      username VARCHAR(100) NOT NULL,
+      plataforma VARCHAR(20) NOT NULL,
+      fecha TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
 }
-function writeBotsRequests(list) {
-  fs.writeFileSync(BOTS_REQUESTS_FILE, JSON.stringify(list, null, 2));
+ensureBotsTable().catch(err => console.error('Error creando tabla bots_requests:', err));
+
+async function readBotsRequests() {
+  const { rows } = await pool.query(
+    `SELECT id, id_cliente AS "idCliente", username, plataforma, fecha
+     FROM bots_requests ORDER BY fecha ASC`
+  );
+  return rows;
+}
+
+async function agregarBotsRequest({ idCliente, username, plataforma }) {
+  await pool.query(
+    `INSERT INTO bots_requests (id_cliente, username, plataforma) VALUES ($1, $2, $3)`,
+    [idCliente, username, plataforma]
+  );
+}
+
+async function eliminarBotsRequest(id) {
+  const { rows } = await pool.query(
+    `DELETE FROM bots_requests WHERE id = $1 RETURNING id`,
+    [id]
+  );
+  return rows.length > 0;
 }
 
 // ---- Verifica si el usuario existe realmente en Fortnite (EPIC/PSN/XBOX) ----
@@ -220,9 +249,9 @@ async function verificarUsuarioFortnite(username, plataforma) {
 }
 
 // ---- Calcula cuántas cuentas registró un cliente y cuánto falta de las 48h ----
-function calcularEstadoBots(idCliente) {
+async function calcularEstadoBots(idCliente) {
   const ahora = Date.now();
-  const todas = readBotsRequests();
+  const todas = await readBotsRequests();
   const recientes = todas
     .filter(s => s.idCliente === idCliente && (ahora - new Date(s.fecha).getTime()) < VENTANA_BOTS_MS)
     .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
@@ -255,24 +284,33 @@ app.post('/api/bots-request', async (req, res) => {
     }
   }
 
-  const solicitudes = readBotsRequests();
-  solicitudes.push({ idCliente, username, plataforma, fecha: new Date().toISOString() });
-  writeBotsRequests(solicitudes);
-
-  const estado = calcularEstadoBots(idCliente);
-  res.status(201).json({ success: true, ...estado });
+  try {
+    await agregarBotsRequest({ idCliente, username, plataforma });
+    const estado = await calcularEstadoBots(idCliente);
+    res.status(201).json({ success: true, ...estado });
+  } catch (err) {
+    console.error('[bots] Error guardando solicitud:', err);
+    res.status(500).json({ error: 'No se pudo guardar la solicitud' });
+  }
 });
 
 // ---- RUTA PÚBLICA: consulta el estado actual (para cuando abres el modal) ----
-app.get('/api/bots-status', (req, res) => {
+app.get('/api/bots-status', async (req, res) => {
   const { idCliente } = req.query;
   if (!idCliente) return res.status(400).json({ error: 'Falta idCliente' });
-  res.json(calcularEstadoBots(idCliente));
+  res.json(await calcularEstadoBots(idCliente));
 });
 
 // ---- RUTA ADMIN: ver todas las solicitudes (protegida con tu ADMIN_KEY) ----
-app.get('/api/admin/bots-requests', requireAdmin, (req, res) => {
-  res.json(readBotsRequests());
+app.get('/api/admin/bots-requests', requireAdmin, async (req, res) => {
+  res.json(await readBotsRequests());
+});
+
+// ---- RUTA ADMIN: eliminar una solicitud manualmente ----
+app.delete('/api/admin/bots-requests/:id', requireAdmin, async (req, res) => {
+  const ok = await eliminarBotsRequest(req.params.id);
+  if (!ok) return res.status(404).json({ error: 'Solicitud no encontrada' });
+  res.json({ success: true });
 });
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
