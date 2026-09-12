@@ -515,18 +515,6 @@ header {
   padding: 0 4px;
   box-shadow: 0 0 5px rgba(255, 56, 56, 0.8);
 }
-.btn-eliminar-solicitud {
-  background: rgba(255, 71, 87, 0.12);
-  border: 1px solid rgba(255, 71, 87, 0.4);
-  color: #ff6b6b;
-  padding: 5px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-.btn-eliminar-solicitud:hover {
-  background: rgba(255, 71, 87, 0.25);
-}
 
 /* ==========================================
    TARJETAS Y ZOOM HOVER
