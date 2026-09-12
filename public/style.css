@@ -1359,7 +1359,13 @@ body .modal-pago.oculto:not(.mostrar) {
   }
 
   .hero-banner h1 {
-    font-size: 2.6rem;
+    font-size: 3rem;
+  }
+
+  .alerta-amarilla {
+    font-size: 0.68rem;
+    padding: 6px 10px;
+    gap: 5px;
   }
 
   .grid-productos {
