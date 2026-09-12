@@ -1381,6 +1381,11 @@ body .modal-pago.oculto:not(.mostrar) {
     font-size: 0.75rem;
   }
 
+  .badge-se-va-hoy {
+    font-size: 0.52rem;
+    padding: 3px 7px 3px 5px;
+  }
+
   .tarjeta-precio {
     font-size: 0.72rem;
   }
@@ -1477,6 +1482,7 @@ body .modal-pago.oculto:not(.mostrar) {
   margin-bottom: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   width: fit-content;
+  white-space: nowrap;
 }
 
 .punto-pulso {
