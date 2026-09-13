@@ -821,7 +821,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
   const badgeExpira = expira
     ? `<span class="badge-se-va-hoy"><span class="punto-pulso"></span>SE VA HOY</span>`
     : '';
-  const estiloFondo = ''; // Ya no se usa el color individual del ítem como fondo de la tarjeta
+  const estiloFondo = fondoReal ? `style="background: ${fondoReal};"` : '';
   tarjeta.innerHTML = `
     <div class="tarjeta-fondo" ${estiloFondo}>
       <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
