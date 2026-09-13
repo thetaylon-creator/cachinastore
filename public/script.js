@@ -611,7 +611,9 @@ function contarTiposDistintos(entry) {
   (entry.tracks || []).forEach(() => tipos.add('track'));
   return tipos.size;
 }
-
+if (seccionNombre === 'Overwatch') {
+  console.log(`[${nombre}] bundle:`, entry.bundle ? entry.bundle.name : 'null', '| brItems:', (entry.brItems || []).map(i => i.type?.value), '| tipos distintos:', contarTiposDistintos(entry));
+}
 const esLote = /^lote\b/i.test(nombre) || (!!entry.bundle && contarTiposDistintos(entry) >= 2);
 
     // FIX: se elimina el filtro que ocultaba ítems sueltos (mochilas,
