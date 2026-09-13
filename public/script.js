@@ -714,7 +714,7 @@ ordenSecciones.forEach(nombreSeccion => {
     const titulo = document.createElement('h3');
     titulo.className = 'seccion-titulo';
     titulo.textContent = nombreSeccion;
-    titulo.style.background = obtenerColorSerie(nombreSeccion);
+    titulo.style.borderLeftColor = obtenerColorSerie(nombreSeccion).match(/#[0-9a-fA-F]{6}/)?.[0] || '#6c5ce7';
     bloqueSeccion.appendChild(titulo);
 
 if (productos.length === 1) {
