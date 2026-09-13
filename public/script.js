@@ -449,7 +449,7 @@ const fondosTematicosManual = {
   'BMW M4 GT3 EVO': 'https://cdn2.unrealengine.com/sk-Billboard_Stainless_BillboardBG-7ddc7518.png?resize=1&w=1526&h=1772&quality=high',
   'Overwatch': 'https://cdn2.unrealengine.com/sk-Billboard_Venison_SectionBG-ac632d75.png?resize=1&w=1720&h=1325&quality=high',
   'No hay problema': 'https://cdn2.unrealengine.com/sk-Default_BG_0003_Heavenly-Rays-3231768e.png?resize=1&w=1720&h=1325&quality=high',
-  'A tope de estilo': 'https://cdn2.unrealengine.com/sk-Default_BG_0008_Gray-Rays-1d00dd56.png?resize=1&w=1498&h=1772&quality=high',
+  'Estilo superior': 'https://cdn2.unrealengine.com/sk-Default_BG_0008_Gray-Rays-1d00dd56.png?resize=1&w=1498&h=1772&quality=high',
 };
 
 function obtenerFondoTematico(nombreSeccion) {
