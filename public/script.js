@@ -431,9 +431,25 @@ function obtenerFondoAtmosferico(entry) {
 // las colaboraciones que se quieran personalizar. Si una sección
 // no está en este mapa, se usa el render del producto como respaldo.
 // ==========================================
+// ==========================================
+// FONDOS TEMÁTICOS MANUALES POR SECCIÓN
+// La API no trae banner panorámico (materialInstances viene vacío
+// siempre), así que aquí se define a mano la imagen de fondo para
+// las colaboraciones que se quieran personalizar. Si una sección
+// no está en este mapa, se usa el render del producto como respaldo.
+// ==========================================
 const fondosTematicosManual = {
-  'Overwatch': 'https://cdn2.unrealengine.com/sk-Billboard_Venison_SectionBG-ac632d75.png?resize=1&w=1720&h=1325&quality=high',
+  'Hatsune Miku': 'https://cdn2.unrealengine.com/billboard-jadetowel-sectionbg-v2-1920x1080-fa09af01c9c8.jpg?resize=1&w=2270&h=1774&quality=high',
+  'Pistas de improvisación': 'https://cdn2.unrealengine.com/default-sparks-sectionbg-v1-1920x1080-9b27879ce008.jpg?resize=1&w=1720&h=1325&quality=high',
+  'Glitch': 'https://cdn2.unrealengine.com/sk-Bestsellers_SectionBG-e1b29339.png?resize=1&w=1719&h=1325&quality=high',
+  'FNCS': 'https://cdn2.unrealengine.com/sk-Billboard_AlderOptic_BG-729ef676.png?resize=1&w=1091&h=971&quality=high',
+  'Porsche 911 Turbo': 'https://cdn2.unrealengine.com/sk-Billboard_Bawu_SectionBG-4811098e.png?resize=1&w=1498&h=1772&quality=high',
   'Mega Man': 'https://cdn2.unrealengine.com/sk-Billboard_DuneBrief_BG-cb13e657.png?resize=1&w=1526&h=1772&quality=high',
+  'Typical Gamer': 'https://cdn2.unrealengine.com/sk-Billboard_QuarterClasp_SectionBG-c3d55063.png?resize=1&w=1091&h=971&quality=high',
+  'BMW M4 GT3 EVO': 'https://cdn2.unrealengine.com/sk-Billboard_Stainless_BillboardBG-7ddc7518.png?resize=1&w=1526&h=1772&quality=high',
+  'Overwatch': 'https://cdn2.unrealengine.com/sk-Billboard_Venison_SectionBG-ac632d75.png?resize=1&w=1720&h=1325&quality=high',
+  'No hay problema': 'https://cdn2.unrealengine.com/sk-Default_BG_0003_Heavenly-Rays-3231768e.png?resize=1&w=1720&h=1325&quality=high',
+  'A tope de estilo': 'https://cdn2.unrealengine.com/sk-Default_BG_0008_Gray-Rays-1d00dd56.png?resize=1&w=1498&h=1772&quality=high',
 };
 
 function obtenerFondoTematico(nombreSeccion) {
@@ -541,7 +557,6 @@ console.log('Entradas marcadas como redundantes:',
 entries.forEach(entry => {
   if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
     const seccionNombre = obtenerNombreSeccion(entry).trim();
-    }
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
@@ -674,8 +689,7 @@ ordenSecciones.forEach(nombreSeccion => {
       return rangoA - rangoB;
     });
     window._fondosSecciones = window._fondosSecciones || {};
-    window._fondosSecciones[nombreSeccion] =
-      obtenerFondoTematico(nombreSeccion) || productos[0]?.imagen || null;
+    window._fondosSecciones[nombreSeccion] = obtenerFondoTematico(nombreSeccion);
 
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
@@ -1054,7 +1068,7 @@ let _handlerScrollSpy = null;
 let seccionFondoActual = null;
 
 function actualizarFondoDinamico(nombreSeccion) {
-  if (nombreSeccion === seccionFondoActual) return; // ya está puesto, no repetir
+  if (nombreSeccion === seccionFondoActual) return;
 
   const fondo = document.getElementById('fondo-dinamico-tienda');
   if (!fondo) return;
