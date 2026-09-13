@@ -598,7 +598,21 @@ clavesVistas.add(claveUnica);
     // Un item es "lote" si la API trae objeto bundle, o si su
     // propio nombre empieza con "Lote" (ambos casos indican un
     // pack de varios cosméticos juntos, con imagen combinada).
-    const esLote = !!entry.bundle || /^lote\b/i.test(nombre);
+   // FIX: entry.bundle puede existir aunque sea solo 1 personaje con
+// su propia skin (Epic empaqueta así internamente). Para que cuente
+// como "lote real" (y ocupe 2 columnas), debe combinar 2 o más
+// items de tipos distintos (ej. outfit + backpack + pickaxe), o su
+// nombre debe empezar explícitamente con "Lote".
+function contarTiposDistintos(entry) {
+  const tipos = new Set();
+  (entry.brItems || []).forEach(i => tipos.add(i.type?.value));
+  (entry.cars || []).forEach(() => tipos.add('car'));
+  (entry.instruments || []).forEach(() => tipos.add('instrument'));
+  (entry.tracks || []).forEach(() => tipos.add('track'));
+  return tipos.size;
+}
+
+const esLote = /^lote\b/i.test(nombre) || (!!entry.bundle && contarTiposDistintos(entry) >= 2);
 
     // FIX: se elimina el filtro que ocultaba ítems sueltos (mochilas,
     // picos, skins) cuando su ID ya estaba dentro de un lote. La API
