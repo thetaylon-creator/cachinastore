@@ -439,17 +439,20 @@ header {
 }
 
 .seccion-titulo {
-  display: inline-block;
+  display: block;
   font-family: 'Orbitron', 'Baloo 2', 'Segoe UI', sans-serif;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #fff;
   letter-spacing: 0.3px;
-  padding: 10px 28px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+  padding: 0 0 0 14px;
+  margin: 0 0 16px;
+  border-left: 4px solid; /* el color se pone abajo, dinámico por sección */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 16px;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .grid-productos {
