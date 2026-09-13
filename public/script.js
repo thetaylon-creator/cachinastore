@@ -425,6 +425,21 @@ function obtenerFondoAtmosferico(entry) {
   return null;
 }
 // ==========================================
+// FONDOS TEMÁTICOS MANUALES POR SECCIÓN
+// La API no trae banner panorámico (materialInstances viene vacío
+// siempre), así que aquí se define a mano la imagen de fondo para
+// las colaboraciones que se quieran personalizar. Si una sección
+// no está en este mapa, se usa el render del producto como respaldo.
+// ==========================================
+const fondosTematicosManual = {
+  'Overwatch': 'https://cdn2.unrealengine.com/sk-Billboard_Venison_SectionBG-ac632d75.png?resize=1&w=1720&h=1325&quality=high',
+  'Mega Man': 'https://cdn2.unrealengine.com/sk-Billboard_DuneBrief_BG-cb13e657.png?resize=1&w=1526&h=1772&quality=high',
+};
+
+function obtenerFondoTematico(nombreSeccion) {
+  return fondosTematicosManual[nombreSeccion] || null;
+}
+// ==========================================
 // FONDO REAL DEL PRODUCTO (API de Fortnite)
 // El color oficial de cada item viene en entry.colors (color1,
 // color2, color3), como hex de 8 dígitos (los últimos 2 son
@@ -526,9 +541,6 @@ console.log('Entradas marcadas como redundantes:',
 entries.forEach(entry => {
   if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
     const seccionNombre = obtenerNombreSeccion(entry).trim();
-      if (seccionNombre === 'Overwatch') {
-      console.log('=== ENTRY OVERWATCH ===', entry);
-      console.log('=== newDisplayAsset ===', entry.newDisplayAsset);
     }
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
@@ -662,7 +674,8 @@ ordenSecciones.forEach(nombreSeccion => {
       return rangoA - rangoB;
     });
     window._fondosSecciones = window._fondosSecciones || {};
-    window._fondosSecciones[nombreSeccion] = productos[0]?.imagen || null;
+    window._fondosSecciones[nombreSeccion] =
+      obtenerFondoTematico(nombreSeccion) || productos[0]?.imagen || null;
 
     const bloqueSeccion = document.createElement('section');
     bloqueSeccion.className = 'seccion-tienda';
