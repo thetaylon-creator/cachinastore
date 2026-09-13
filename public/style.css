@@ -1972,3 +1972,20 @@ body .modal-bots-card.oculto:not(.mostrar) {
 #fondo-dinamico-tienda.visible {
   opacity: 1;
 }
+@media (max-width: 900px) {
+  .grid-productos {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .tarjeta-producto {
+    grid-column: span 1 !important;
+    width: auto !important;
+  }
+
+  /* Los lotes SÍ deben ocupar las 2 columnas, eso está bien */
+  .tarjeta-producto-lote {
+    grid-column: span 2 !important;
+  }
+}
