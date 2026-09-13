@@ -709,7 +709,12 @@ ordenSecciones.forEach(nombreSeccion => {
     bloqueSeccion.className = 'seccion-tienda';
     bloqueSeccion.id = slugificarSeccion(nombreSeccion);
     bloqueSeccion.setAttribute('data-seccion-nombre', nombreSeccion);
-    bloqueSeccion.style.cssText += obtenerFondoSeccion(nombreSeccion);
+    // Solo aplica el fondo oscuro genérico si esta sección NO tiene ya
+// un fondo temático/dinámico propio (para que no se vea como una
+// "caja" separada contra el fondo animado de la página).
+if (!window._fondosSecciones?.[nombreSeccion]) {
+  bloqueSeccion.style.cssText += obtenerFondoSeccion(nombreSeccion);
+}
 
     const titulo = document.createElement('h3');
     titulo.className = 'seccion-titulo';
