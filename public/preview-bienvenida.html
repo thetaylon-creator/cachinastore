@@ -65,12 +65,39 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
 .lx-like.activo{color:#f472b6;border-color:rgba(244,114,182,.5)}
 .lx-like.activo .material-symbols-rounded{font-variation-settings:'FILL' 1}
 
+.lx-rempty{min-height:300px;border:1.5px dashed rgba(167,139,250,.28);border-radius:20px;background:rgba(21,15,43,.5)}
+.lx-subir{margin-top:36px}
+.lx-modal{position:fixed;inset:0;z-index:100;background:rgba(5,3,12,.75);display:none;align-items:center;justify-content:center;padding:16px}
+.lx-modal.abierto{display:flex}
+.lx-modal-box{width:100%;max-width:440px;max-height:92dvh;overflow:auto;background:#150f2b;border:1px solid var(--border-color);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px;text-align:left}
+.lx-modal-box h3{font-size:20px}
+.lx-field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--text-muted)}
+.lx-field input[type=text],.lx-field textarea{background:#0d0819;border:1px solid var(--border-color);border-radius:10px;padding:11px 12px;color:#fff;font-family:inherit;font-size:15px;resize:vertical}
+.lx-field input[type=file]{color:var(--text-muted);font-size:13px}
+.lx-prev{width:100%;max-height:200px;object-fit:cover;border-radius:12px;display:none}
+.lx-estrellas{display:flex;gap:4px}
+.lx-estrellas button{background:none;border:0;cursor:pointer;color:#4b3f72;font-size:26px;line-height:1;padding:0}
+.lx-estrellas button.on{color:#fbbf24}
+.lx-modal-acc{display:flex;gap:10px;justify-content:flex-end}
+.lx-err{color:#f87171;font-size:13px;min-height:16px}
+
+.lx-carrusel{position:relative}
+.lx-flecha{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:52px;height:52px;border-radius:50%;border:1px solid rgba(167,139,250,.55);background:#1a1233;color:#fff;cursor:pointer;display:grid;place-items:center}
+.lx-flecha:hover{background:#2a1a52}
+.lx-flecha .material-symbols-rounded{font-size:30px}
+.lx-flecha:disabled{opacity:.3;cursor:default}
+.lx-izq{left:-26px}
+.lx-der{right:-26px}
 @media (max-width:820px){
   .lx-moneda{display:none}
   .lx-hero-in{grid-template-columns:1fr;padding:48px 16px}
   .lx-art{margin-top:24px}
   .lx-sub{font-size:22px}
   .lx-reviews-grid{grid-template-columns:1fr}
+  .lx-carrusel{padding-bottom:72px}
+  .lx-flecha{top:auto;bottom:0;transform:none}
+  .lx-izq{left:calc(50% - 60px)}
+  .lx-der{right:calc(50% - 60px)}
   .lx-reviews h2{font-size:24px}
 }
 </style>
@@ -106,9 +133,38 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
 
   <section class="lx-reviews">
     <h2><span class="lx-shield"><span class="material-symbols-rounded">reviews</span></span>Lo que dicen nuestros clientes</h2>
-    <div class="lx-reviews-grid" id="reviews-grid"></div>
+    <div class="lx-carrusel">
+      <button class="lx-flecha lx-izq" id="btn-resenas-izq" type="button" aria-label="Reseñas anteriores"><span class="material-symbols-rounded">chevron_left</span></button>
+      <div class="lx-reviews-grid" id="reviews-grid"></div>
+      <button class="lx-flecha lx-der" id="btn-resenas-der" type="button" aria-label="Reseñas siguientes"><span class="material-symbols-rounded">chevron_right</span></button>
+    </div>
+    <button class="lx-btn lx-btn-pri lx-subir" id="btn-subir-resena" type="button"><span class="material-symbols-rounded">add_photo_alternate</span>Subir mi reseña</button>
   </section>
 </section>
+
+<div class="lx-modal" id="modal-resena" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-resena">
+  <div class="lx-modal-box">
+    <h3 id="titulo-modal-resena">Cuéntanos tu experiencia</h3>
+    <label class="lx-field">Tu nombre o nick
+      <input type="text" id="res-nombre" maxlength="30">
+    </label>
+    <div class="lx-field">Calificación
+      <div class="lx-estrellas" id="res-estrellas"></div>
+    </div>
+    <label class="lx-field">Tu reseña
+      <textarea id="res-texto" rows="4" maxlength="300"></textarea>
+    </label>
+    <label class="lx-field">Foto de tu compra (obligatoria)
+      <input type="file" id="res-foto" accept="image/*">
+    </label>
+    <img class="lx-prev" id="res-prev" alt="">
+    <div class="lx-err" id="res-err"></div>
+    <div class="lx-modal-acc">
+      <button class="lx-btn" type="button" id="res-cancelar">Cancelar</button>
+      <button class="lx-btn lx-btn-pri" type="button" id="res-enviar">Publicar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -130,41 +186,240 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
 
 <script>
 (function () {
-  const resenas = [
-    { nombre: 'Cliente1', texto: 'Muy buena atención y llegó rápido. Recomendado.', tiempo: 'hace 3 días', likes: 1, img: '' },
-    { nombre: 'Cliente2', texto: 'Al principio dudé, pero cumplieron todo. Entrega en el mismo día.', tiempo: 'hace 3 días', likes: 0, img: '' },
-    { nombre: 'Cliente3', texto: 'Mi primera compra en la tienda. Excelente servicio.', tiempo: 'hace 1 semana', likes: 0, img: '' }
-  ];
-
   const grid = document.getElementById('reviews-grid');
-  if (!grid) return;
+  const modal = document.getElementById('modal-resena');
+  const btnIzq = document.getElementById('btn-resenas-izq');
+  const btnDer = document.getElementById('btn-resenas-der');
+  if (!grid || !modal) return;
 
-  resenas.forEach(r => {
+  const PAGINA = 6;
+  let pagina = 0;
+  let hayMas = false;
+  let cargando = false;
+
+  // ---------- utilidades ----------
+  function hace(fecha) {
+    const min = Math.floor((Date.now() - new Date(fecha).getTime()) / 60000);
+    if (min < 1) return 'hace un momento';
+    if (min < 60) return 'hace ' + min + ' min';
+    const h = Math.floor(min / 60);
+    if (h < 24) return 'hace ' + h + (h === 1 ? ' hora' : ' horas');
+    const d = Math.floor(h / 24);
+    if (d < 7) return 'hace ' + d + (d === 1 ? ' día' : ' días');
+    const w = Math.floor(d / 7);
+    if (d < 30) return 'hace ' + w + (w === 1 ? ' semana' : ' semanas');
+    const m = Math.floor(d / 30);
+    return 'hace ' + m + (m === 1 ? ' mes' : ' meses');
+  }
+
+  function leerLikes() {
+    try { return JSON.parse(localStorage.getItem('resenas_likes') || '[]'); } catch (e) { return []; }
+  }
+  function guardarLikes(arr) {
+    try { localStorage.setItem('resenas_likes', JSON.stringify(arr)); } catch (e) {}
+  }
+
+  // ---------- tarjetas ----------
+  function crearVacio() {
+    const v = document.createElement('div');
+    v.className = 'lx-rempty';
+    return v;
+  }
+
+  function crearTarjeta(r) {
     const card = document.createElement('article');
     card.className = 'lx-rcard';
-    card.innerHTML = `
-      <div class="lx-stars">★★★★★</div>
-      <p class="lx-quote">"${r.texto}"</p>
-      ${r.img ? `<img class="lx-rimg" src="${r.img}" alt="Captura de ${r.nombre}" loading="lazy">` : ''}
-      <div class="lx-rfoot">
-        <div class="lx-avatar">${r.nombre[0].toUpperCase()}</div>
-        <div class="lx-rinfo">
-          <b>${r.nombre}</b>
-          <span class="lx-ver"><span class="material-symbols-rounded">verified</span>Compra verificada</span>
-          <span class="lx-time">${r.tiempo}</span>
-        </div>
-        <button class="lx-like" type="button">
-          <span class="material-symbols-rounded">favorite</span><span class="n">${r.likes}</span>
-        </button>
-      </div>`;
-    const btn = card.querySelector('.lx-like');
-    const n = btn.querySelector('.n');
-    const base = r.likes;
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('activo');
-      n.textContent = base + (btn.classList.contains('activo') ? 1 : 0);
+
+    const est = document.createElement('div');
+    est.className = 'lx-stars';
+    est.textContent = '★'.repeat(r.nota) + '☆'.repeat(5 - r.nota);
+
+    const q = document.createElement('p');
+    q.className = 'lx-quote';
+    q.textContent = '"' + r.texto + '"';
+
+    const img = document.createElement('img');
+    img.className = 'lx-rimg';
+    img.src = r.foto;
+    img.alt = 'Captura de ' + r.nombre;
+    img.loading = 'lazy';
+
+    const foot = document.createElement('div');
+    foot.className = 'lx-rfoot';
+    foot.innerHTML = `
+      <div class="lx-avatar"></div>
+      <div class="lx-rinfo">
+        <b></b>
+        <span class="lx-ver"><span class="material-symbols-rounded">verified</span>Compra verificada</span>
+        <span class="lx-time"></span>
+      </div>
+      <button class="lx-like" type="button">
+        <span class="material-symbols-rounded">favorite</span><span class="n"></span>
+      </button>`;
+    foot.querySelector('.lx-avatar').textContent = r.nombre[0].toUpperCase();
+    foot.querySelector('b').textContent = r.nombre;
+    foot.querySelector('.lx-time').textContent = hace(r.fecha);
+
+    const btn = foot.querySelector('.lx-like');
+    const n = foot.querySelector('.n');
+    n.textContent = r.likes;
+    if (leerLikes().includes(r.id)) btn.classList.add('activo');
+
+    btn.addEventListener('click', async () => {
+      const likes = leerLikes();
+      const yaLeGusta = likes.includes(r.id);
+      const accion = yaLeGusta ? 'unlike' : 'like';
+      btn.disabled = true;
+      try {
+        const resp = await fetch('/api/resenas/' + r.id + '/like', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accion })
+        });
+        if (!resp.ok) throw new Error();
+        const d = await resp.json();
+        n.textContent = d.likes;
+        btn.classList.toggle('activo', !yaLeGusta);
+        guardarLikes(yaLeGusta ? likes.filter(x => x !== r.id) : likes.concat(r.id));
+      } catch (e) { /* sin conexión: no cambia nada */ }
+      btn.disabled = false;
     });
-    grid.appendChild(card);
+
+    card.append(est, q, img, foot);
+    return card;
+  }
+
+  // ---------- carga desde el servidor (6 por página) ----------
+  function actualizarFlechas() {
+    btnIzq.disabled = cargando || pagina === 0;
+    btnDer.disabled = cargando || !hayMas;
+    const unaSola = pagina === 0 && !hayMas;
+    btnIzq.style.visibility = btnDer.style.visibility = unaSola ? 'hidden' : 'visible';
+  }
+
+  async function cargar(p) {
+    if (cargando) return;
+    cargando = true;
+    actualizarFlechas();
+    try {
+      const resp = await fetch('/api/resenas?limit=' + PAGINA + '&offset=' + (p * PAGINA));
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const d = await resp.json();
+
+      if (!d.resenas.length && p > 0) { cargando = false; return cargar(p - 1); }
+
+      pagina = p;
+      hayMas = d.hayMas;
+      grid.innerHTML = '';
+      d.resenas.forEach(r => grid.appendChild(crearTarjeta(r)));
+
+      // Cuadros vacíos (sin texto) hasta completar los 6 de la primera página
+      if (p === 0) for (let k = d.resenas.length; k < PAGINA; k++) grid.appendChild(crearVacio());
+    } catch (e) {
+      if (!grid.children.length) {
+        for (let k = 0; k < PAGINA; k++) grid.appendChild(crearVacio());
+      }
+    }
+    cargando = false;
+    actualizarFlechas();
+  }
+
+  btnIzq.addEventListener('click', () => cargar(pagina - 1));
+  btnDer.addEventListener('click', () => cargar(pagina + 1));
+  cargar(0);
+
+  // ---------- formulario ----------
+  let nota = 5;
+  const cont = document.getElementById('res-estrellas');
+  function pintarEstrellas() {
+    cont.innerHTML = '';
+    for (let n = 1; n <= 5; n++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = '★';
+      b.setAttribute('aria-label', n + ' estrellas');
+      if (n <= nota) b.classList.add('on');
+      b.addEventListener('click', () => { nota = n; pintarEstrellas(); });
+      cont.appendChild(b);
+    }
+  }
+  pintarEstrellas();
+
+  const inNombre = document.getElementById('res-nombre');
+  const inTexto = document.getElementById('res-texto');
+  const inFoto = document.getElementById('res-foto');
+  const prev = document.getElementById('res-prev');
+  const err = document.getElementById('res-err');
+  const btnEnviar = document.getElementById('res-enviar');
+  let fotoData = '';
+
+  function abrir() { modal.classList.add('abierto'); }
+  function cerrar() {
+    modal.classList.remove('abierto');
+    inNombre.value = ''; inTexto.value = ''; inFoto.value = '';
+    prev.style.display = 'none'; prev.src = '';
+    fotoData = ''; err.textContent = ''; nota = 5; pintarEstrellas();
+  }
+  document.getElementById('btn-subir-resena').addEventListener('click', abrir);
+  document.getElementById('res-cancelar').addEventListener('click', cerrar);
+  modal.addEventListener('click', e => { if (e.target === modal) cerrar(); });
+
+  // Reduce la foto (máx. 900 px, JPEG) para que pese poco al guardarla
+  function comprimir(archivo) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(archivo);
+      const im = new Image();
+      im.onload = () => {
+        const escala = Math.min(1, 900 / Math.max(im.width, im.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(im.width * escala);
+        c.height = Math.round(im.height * escala);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.75));
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagen')); };
+      im.src = url;
+    });
+  }
+
+  inFoto.addEventListener('change', async () => {
+    const f = inFoto.files[0];
+    err.textContent = '';
+    if (!f) return;
+    if (!f.type.startsWith('image/')) { err.textContent = 'El archivo debe ser una imagen.'; inFoto.value = ''; return; }
+    try {
+      fotoData = await comprimir(f);
+      prev.src = fotoData;
+      prev.style.display = 'block';
+    } catch (e) {
+      err.textContent = 'No se pudo leer esa imagen.';
+      inFoto.value = '';
+    }
+  });
+
+  btnEnviar.addEventListener('click', async () => {
+    const nombre = inNombre.value.trim();
+    const texto = inTexto.value.trim();
+    if (!nombre || !texto) { err.textContent = 'Escribe tu nombre y tu reseña.'; return; }
+    if (!fotoData) { err.textContent = 'Sube una foto para publicar tu reseña.'; return; }
+
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = 'Publicando...';
+    try {
+      const resp = await fetch('/api/resenas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, nota, texto, foto: fotoData })
+      });
+      const d = await resp.json().catch(() => ({}));
+      if (!resp.ok) { err.textContent = d.error || 'No se pudo publicar. Intenta de nuevo.'; }
+      else { cerrar(); cargar(0); }
+    } catch (e) {
+      err.textContent = 'No se pudo conectar con el servidor.';
+    }
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = 'Publicar';
   });
 })();
 </script>
