@@ -307,11 +307,64 @@ app.get('/api/admin/bots-requests', requireAdmin, async (req, res) => {
 });
 
 // ---- RUTA ADMIN: eliminar una solicitud manualmente ----
+// ---- RUTA ADMIN: eliminar una solicitud manualmente ----
 app.delete('/api/admin/bots-requests/:id', requireAdmin, async (req, res) => {
   const ok = await eliminarBotsRequest(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Solicitud no encontrada' });
   res.json({ success: true });
 });
+
+// ============ CACHÉ DE LA TIENDA DE FORTNITE (en Postgres) ============
+let tiendaCache = null;
+
+async function ensureShopTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS shop_cache (
+      id INT PRIMARY KEY,
+      data JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  const { rows } = await pool.query('SELECT data FROM shop_cache WHERE id = 1');
+  if (rows.length) {
+    tiendaCache = rows[0].data;
+    console.log('[tienda] Caché recuperado desde la base de datos');
+  }
+}
+
+async function actualizarTienda() {
+  try {
+    const r = await fetch('https://fortnite-api.com/v2/shop?language=es-419');
+    if (!r.ok) throw new Error('API ' + r.status);
+    const json = await r.json();
+
+    // Solo reemplaza el caché si la respuesta trae productos de verdad
+    if (!json?.data?.entries?.length) throw new Error('Respuesta sin productos');
+
+    tiendaCache = json;
+    await pool.query(
+      `INSERT INTO shop_cache (id, data, updated_at) VALUES (1, $1, now())
+       ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = now()`,
+      [JSON.stringify(json)]
+    );
+    console.log('[tienda] Actualizada');
+  } catch (e) {
+    console.error('[tienda] No se pudo actualizar (se mantiene la última buena):', e.message);
+  }
+}
+
+ensureShopTable()
+  .catch(e => console.error('[tienda] Error con la tabla shop_cache:', e.message))
+  .finally(() => {
+    actualizarTienda();
+    setInterval(actualizarTienda, 5 * 60 * 1000);
+  });
+
+app.get('/api/shop', (req, res) => {
+  if (!tiendaCache) return res.status(503).json({ error: 'Tienda no disponible aún' });
+  res.json(tiendaCache);
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
