@@ -146,57 +146,59 @@ function mostrarIdClienteHeader(idCliente) {
 // API los devuelve como "Rasca y Pica", que es como se conocen en
 // Los Simpson en Latinoamérica/México.
 // ==========================================
-async function obtenerTiendaFortnite() {
+let hashTiendaActual = null;
+
+async function obtenerTiendaFortnite(silencioso = false) {
   const contenedor = document.getElementById('contenedor-productos');
   if (!contenedor) return;
 
-  contenedor.innerHTML = '<p style="color: #a29bfe; grid-column: 1/-1; text-align: center;">Cargando la tienda en vivo...</p>';
+  if (!silencioso) {
+    contenedor.innerHTML = '<p style="color: #a29bfe; grid-column: 1/-1; text-align: center;">Cargando la tienda en vivo...</p>';
+  }
 
   try {
     const respuesta = await fetch(`https://fortnite-api.com/v2/shop?language=es-419&_=${Date.now()}`, { cache: 'no-store' });
     const datos = await respuesta.json();
 
     if (datos && datos.data && datos.data.entries) {
+      // Si es una revisión automática y la tienda no cambió, no hace nada
+      if (silencioso && datos.data.hash === hashTiendaActual) return;
+
+      hashTiendaActual = datos.data.hash;
       productosGlobales = datos.data.entries;
 
-      
-
+      const scrollPrevio = window.scrollY; // para no mandar al usuario arriba
       renderizarProductos(productosGlobales);
       generarMenuFiltros(window._ordenSeccionesActual || []);
       inicializarBuscador();
-      requestAnimationFrame(actualizarAlturaCabecera);
-    }  } catch (error) {
-    console.error("Error al conectar con la API:", error);
-    contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
-  }
-}
-// Refresca la tienda automáticamente solo a las 7:00 PM (hora del
-// dispositivo del cliente), que es cuando Fortnite cambia la tienda.
-function programarRefrescoTiendaA7PM() {
-  const ahora = new Date();
-  const proximaVez = new Date(ahora);
-  proximaVez.setHours(19, 0, 5, 0); // 7:00:05 PM, con 5s de margen
-
-  if (ahora >= proximaVez) {
-    proximaVez.setDate(proximaVez.getDate() + 1);
-  }
-
-  const msHastaLas7pm = proximaVez - ahora;
-
-  setTimeout(() => {
-    if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
-      obtenerTiendaFortnite();
+      requestAnimationFrame(() => {
+        actualizarAlturaCabecera();
+        if (silencioso) window.scrollTo(0, scrollPrevio);
+      });
     }
-    // Después de la primera vez, se repite cada 24 horas exactas.
-    setInterval(() => {
-      if (!document.getElementById('pantalla-tienda')?.classList.contains('oculto')) {
-        obtenerTiendaFortnite();
-      }
-    }, 24 * 60 * 60 * 1000);
-  }, msHastaLas7pm);
+  } catch (error) {
+    console.error("Error al conectar con la API:", error);
+    if (!silencioso) {
+      contenedor.innerHTML = '<p style="color: #ff4757; grid-column: 1/-1; text-align: center;">Error al cargar los productos.</p>';
+    }
+  }
 }
 
-programarRefrescoTiendaA7PM();
+// Revisa cambios en la tienda cada 5 min (solo si la pestaña está visible y en la pantalla de tienda)
+const INTERVALO_REVISION_MS = 5 * 60 * 1000;
+
+function tiendaVisible() {
+  return !document.getElementById('pantalla-tienda')?.classList.contains('oculto');
+}
+
+setInterval(() => {
+  if (!document.hidden && tiendaVisible()) obtenerTiendaFortnite(true);
+}, INTERVALO_REVISION_MS);
+
+// También al volver a la pestaña (por ejemplo desde WhatsApp)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && tiendaVisible()) obtenerTiendaFortnite(true);
+});
 // 4. OBTENER SECCIÓN OFICIAL DE FORTNITE
 // FIX: el campo correcto para el nombre real de cada fila de la
 // tienda es entry.layout.name (ej: "Fiesta de la victoria", "Marvel",
@@ -775,7 +777,7 @@ function inicializarBuscador() {
   const input = document.getElementById('input-buscar');
   if (!input) return;
 
-  input.addEventListener('input', () => {
+  input.oninput = () => {
     const termino = input.value.trim().toLowerCase();
     const tarjetas = document.querySelectorAll('.tarjeta-producto');
     const secciones = document.querySelectorAll('.seccion-tienda');
@@ -791,7 +793,7 @@ function inicializarBuscador() {
         .some(t => t.style.display !== 'none');
       seccion.style.display = algunaVisible ? '' : 'none';
     });
-  });
+  };
 }
 
 // ==========================================
