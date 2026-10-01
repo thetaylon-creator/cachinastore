@@ -37,6 +37,8 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
   filter:drop-shadow(0 0 28px rgba(167,139,250,.5))}
 .lx-sub{font-size:26px;font-weight:700;margin:26px 0 30px;color:#cfc6ee}
 .lx-sub b{color:#f0b429}
+#palabra-rotativa{display:inline-block;transition:opacity .4s ease,transform .4s ease}
+#palabra-rotativa.saliendo{opacity:0;transform:translateY(8px)}
 .lx-cta{display:flex;gap:14px;flex-wrap:wrap}
 .lx-art{justify-self:center;width:min(100%,475px);aspect-ratio:1;border-radius:50%;margin-top:-80px;
   background:rgba(255,255,255,.14) url('fondo-bienvenida.jpg') center/cover no-repeat;
@@ -70,7 +72,7 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
     <div class="lx-hero-in">
       <div>
         <h1 class="lx-title">CACHINA STORE</h1>
-        <p class="lx-sub">Adquiere <b>packs</b></p>
+        <p class="lx-sub">Adquiere <b id="palabra-rotativa">skins</b></p>
         <div class="lx-cta">
           <button class="lx-btn lx-btn-pri">🎮 Tienda Fortnite</button>        
         </div>
@@ -84,5 +86,27 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
     <p>Años de experiencia, pagos protegidos y soporte real cuando lo necesitas.</p>
   </section>
 </section>
+    </section>
+</section>
+
+<script>
+(function () {
+  const palabras = ['skins', 'pavos', 'bailes', 'picos', 'mochilas', 'planeadores', 'envoltorios', 'pase de batalla', 'club Fortnite', 'packs'];
+  const el = document.getElementById('palabra-rotativa');
+  if (!el) return;
+
+  let i = 0;
+  setInterval(() => {
+    el.classList.add('saliendo');
+    setTimeout(() => {
+      i = (i + 1) % palabras.length;
+      el.textContent = palabras[i];
+      el.classList.remove('saliendo');
+    }, 400);
+  }, 5000);
+})();
+</script>
+</body>
+</html>
 </body>
 </html>
