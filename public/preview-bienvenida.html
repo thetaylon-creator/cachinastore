@@ -87,8 +87,11 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
     <h2><span class="lx-shield">⛨</span>¿Somos confiables?</h2>
     <p>Años de experiencia, pagos protegidos y soporte real cuando lo necesitas.</p>
   </section>
-</section>
-    </section>
+
+  <section class="lx-reviews">
+    <h2><span class="lx-shield"><span class="material-symbols-rounded">reviews</span></span>Lo que dicen nuestros clientes</h2>
+    <div class="lx-reviews-grid" id="reviews-grid"></div>
+  </section>
 </section>
 
 <script>
@@ -108,7 +111,51 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
   }, 5000);
 })();
 </script>
-</body>
-</html>
+  <section class="lx-reviews">
+    <h2><span class="lx-shield"><span class="material-symbols-rounded">reviews</span></span>Lo que dicen nuestros clientes</h2>
+    <div class="lx-reviews-grid" id="reviews-grid"></div>
+  </section>
+</section>
+
+<script>
+(function () {
+  const resenas = [
+    { nombre: 'Cliente1', texto: 'Muy buena atención y llegó rápido. Recomendado.', tiempo: 'hace 3 días', likes: 1, img: '' },
+    { nombre: 'Cliente2', texto: 'Al principio dudé, pero cumplieron todo. Entrega en el mismo día.', tiempo: 'hace 3 días', likes: 0, img: '' },
+    { nombre: 'Cliente3', texto: 'Mi primera compra en la tienda. Excelente servicio.', tiempo: 'hace 1 semana', likes: 0, img: '' }
+  ];
+
+  const grid = document.getElementById('reviews-grid');
+  if (!grid) return;
+
+  resenas.forEach(r => {
+    const card = document.createElement('article');
+    card.className = 'lx-rcard';
+    card.innerHTML = `
+      <div class="lx-stars">★★★★★</div>
+      <p class="lx-quote">"${r.texto}"</p>
+      ${r.img ? `<img class="lx-rimg" src="${r.img}" alt="Captura de ${r.nombre}" loading="lazy">` : ''}
+      <div class="lx-rfoot">
+        <div class="lx-avatar">${r.nombre[0].toUpperCase()}</div>
+        <div class="lx-rinfo">
+          <b>${r.nombre}</b>
+          <span class="lx-ver"><span class="material-symbols-rounded">verified</span>Compra verificada</span>
+          <span class="lx-time">${r.tiempo}</span>
+        </div>
+        <button class="lx-like" type="button">
+          <span class="material-symbols-rounded">favorite</span><span class="n">${r.likes}</span>
+        </button>
+      </div>`;
+    const btn = card.querySelector('.lx-like');
+    const n = btn.querySelector('.n');
+    let base = r.likes;
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('activo');
+      n.textContent = base + (btn.classList.contains('activo') ? 1 : 0);
+    });
+    grid.appendChild(card);
+  });
+})();
+</script>
 </body>
 </html>
