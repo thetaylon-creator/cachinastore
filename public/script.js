@@ -157,7 +157,8 @@ async function obtenerTiendaFortnite(silencioso = false) {
   }
 
   try {
-    const respuesta = await fetch(`https://fortnite-api.com/v2/shop?language=es-419&_=${Date.now()}`, { cache: 'no-store' });
+    const respuesta = await fetch(`${API_URL}/api/shop`, { cache: 'no-store' });
+    if (!respuesta.ok) throw new Error(`API respondió ${respuesta.status}`);
     const datos = await respuesta.json();
 
     if (datos && datos.data && datos.data.entries) {
