@@ -375,64 +375,18 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 
 <script>
 (function () {
-  // ---- PALABRAS (cambian rápido) ----
   const palabras = ['skins', 'pavos', 'bailes', 'picos', 'mochilas', 'planeadores', 'envoltorios', 'pase de batalla', 'club Fortnite', 'packs'];
   const el = document.getElementById('palabra-rotativa');
-  if (el) {
-    let p = 0;
-    setInterval(() => {
-      el.classList.add('saliendo');
-      setTimeout(() => {
-        p = (p + 1) % palabras.length;
-        el.textContent = palabras[p];
-        el.classList.remove('saliendo');
-      }, 300);
-    }, 2500); // 2.5 segundos
-  }
-
-  // ---- IMÁGENES DE PRODUCTOS (cada 10 s) ----
-  let productos = [
-    'img/limx.png',
-    'img/planeador.png'
-    // agrega más rutas aquí
-  ];
-
-  const img = document.getElementById('hero-img');
-  const art = document.getElementById('hero-art');
-  const hero = document.querySelector('.lx-hero');
-  if (!img || !art) return;
-
-  let i = 0, pausado = false, timer = null;
-
-  function mostrar(n) {
-    img.classList.add('saliendo');
+  if (!el) return;
+  let p = 0;
+  setInterval(() => {
+    el.classList.add('saliendo');
     setTimeout(() => {
-      img.onload = () => img.classList.remove('saliendo');
-      img.src = productos[n];
-      img.style.display = '';
-      art.classList.add('con-prod');
-    }, 400);
-  }
-
-  function iniciar() {
-    productos.forEach(src => { const im = new Image(); im.src = src; });
-    mostrar(0); // muestra el primero de inmediato
-    timer = setInterval(() => {
-      if (pausado || document.hidden) return;
-      i = (i + 1) % productos.length;
-      mostrar(i);
-    }, 10000); // 10 segundos
-  }
-
-  hero.addEventListener('mouseenter', () => pausado = true);
-  hero.addEventListener('mouseleave', () => pausado = false);
-
-  // Si tienes backend: /api/destacados devuelve ["url1.png","url2.png"]
-  fetch('/api/destacados')
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(d => { if (Array.isArray(d) && d.length) productos = d; })
-    .catch(() => {})
-    .finally(iniciar);
+      p = (p + 1) % palabras.length;
+      el.textContent = palabras[p];
+      el.classList.remove('saliendo');
+    }, 300);
+  }, 2500);
 })();
 </script>
 
