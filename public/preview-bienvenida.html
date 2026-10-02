@@ -191,8 +191,6 @@ body.lg-bloqueado{overflow:hidden}
 
 /* Título y palabra con fade */
 #hero-titulo{transition:opacity .4s ease,transform .4s ease}
-#hero-titulo.saliendo{opacity:0;transform:translateY(8px)}
-#hero-titulo.largo{font-size:clamp(44px,7vw,72px)}  /* nombres largos */
 
 /* Colores animables */
 @property --bg-dark{syntax:'<color>';inherits:true;initial-value:#100a26}
@@ -377,55 +375,51 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 
 <script>
 (function () {
-  let slides = [
-    { titulo: 'CACHINA STORE', palabra: 'skins',  img: '' },
-    { titulo: 'LIMX',          palabra: 'gestos', img: 'img/limx.png' },
-    { titulo: 'TOMATO TOWN',   palabra: 'planeadores', img: 'img/planeador.png' }
-    // agrega más aquí
+  // ---- PALABRAS (cambian rápido) ----
+  const palabras = ['skins', 'pavos', 'bailes', 'picos', 'mochilas', 'planeadores', 'envoltorios', 'pase de batalla', 'club Fortnite', 'packs'];
+  const el = document.getElementById('palabra-rotativa');
+  if (el) {
+    let p = 0;
+    setInterval(() => {
+      el.classList.add('saliendo');
+      setTimeout(() => {
+        p = (p + 1) % palabras.length;
+        el.textContent = palabras[p];
+        el.classList.remove('saliendo');
+      }, 300);
+    }, 2500); // 2.5 segundos
+  }
+
+  // ---- IMÁGENES DE PRODUCTOS (cada 10 s) ----
+  let productos = [
+    'img/limx.png',
+    'img/planeador.png'
+    // agrega más rutas aquí
   ];
 
-  const t = document.getElementById('hero-titulo');
-  const w = document.getElementById('palabra-rotativa');
   const img = document.getElementById('hero-img');
   const art = document.getElementById('hero-art');
   const hero = document.querySelector('.lx-hero');
-  if (!t || !w || !img || !art) return;
+  if (!img || !art) return;
 
   let i = 0, pausado = false, timer = null;
 
-  function precargar() {
-    slides.forEach(s => { if (s.img) { const im = new Image(); im.src = s.img; } });
-  }
-
   function mostrar(n) {
-    const s = slides[n];
-    [t, w, img].forEach(e => e.classList.add('saliendo'));
+    img.classList.add('saliendo');
     setTimeout(() => {
-      t.textContent = s.titulo;
-      w.textContent = s.palabra;
-      t.classList.toggle('largo', s.titulo.length > 9);
-
-      if (s.img) {
-        img.onload = () => img.classList.remove('saliendo');
-        img.src = s.img;
-        img.alt = s.titulo;
-        img.style.display = '';
-        art.classList.add('con-prod');
-      } else {
-        img.style.display = 'none';
-        art.classList.remove('con-prod');
-      }
-      t.classList.remove('saliendo');
-      w.classList.remove('saliendo');
+      img.onload = () => img.classList.remove('saliendo');
+      img.src = productos[n];
+      img.style.display = '';
+      art.classList.add('con-prod');
     }, 400);
   }
 
   function iniciar() {
-    precargar();
-    clearInterval(timer);
+    productos.forEach(src => { const im = new Image(); im.src = src; });
+    mostrar(0); // muestra el primero de inmediato
     timer = setInterval(() => {
       if (pausado || document.hidden) return;
-      i = (i + 1) % slides.length;
+      i = (i + 1) % productos.length;
       mostrar(i);
     }, 10000); // 10 segundos
   }
@@ -433,10 +427,10 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   hero.addEventListener('mouseenter', () => pausado = true);
   hero.addEventListener('mouseleave', () => pausado = false);
 
-  // Si tienes backend: /api/destacados devuelve [{titulo, palabra, img}]
+  // Si tienes backend: /api/destacados devuelve ["url1.png","url2.png"]
   fetch('/api/destacados')
     .then(r => r.ok ? r.json() : Promise.reject())
-    .then(d => { if (Array.isArray(d) && d.length) slides = [slides[0], ...d]; })
+    .then(d => { if (Array.isArray(d) && d.length) productos = d; })
     .catch(() => {})
     .finally(iniciar);
 })();
