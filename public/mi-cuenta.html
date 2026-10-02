@@ -109,9 +109,9 @@ button{font-family:inherit;cursor:pointer}
 
 <nav class="lx-nav">
   <div class="lx-nav-in">
-    <a href="index.html"><img src="logo.png" alt="CachinaStore" class="lx-logo"></a>
+    <a href="preview-bienvenida.html"><img src="logo.png" alt="CachinaStore" class="lx-logo"></a>
     <div class="lx-links">
-      <a href="index.html">Inicio</a>
+      <a href="preview-bienvenida.html">Inicio</a>
       <a href="#">Juegos</a>
       <a href="#">Gift Card</a>
       <a href="#">Servicios Adicionales</a>
@@ -133,7 +133,7 @@ button{font-family:inherit;cursor:pointer}
     <div class="ct-nav">
       <button class="ct-it on" type="button"><span class="material-symbols-rounded">person</span>Perfil</button>
       <a class="ct-it" href="#"><span class="material-symbols-rounded">receipt_long</span>Mis pedidos</a>
-      <a class="ct-it" href="index.html#reseñas"><span class="material-symbols-rounded">reviews</span>Mi reseña</a>
+      <a class="ct-it" href="preview-bienvenida.html#reseñas"><span class="material-symbols-rounded">reviews</span>Mi reseña</a>
       <a class="ct-it" href="https://wa.me/51969639154" target="_blank" rel="noopener"><span class="material-symbols-rounded">help</span>Ayuda</a>
       <button class="ct-it ct-salir" id="btn-salir" type="button"><span class="material-symbols-rounded">logout</span>Cerrar sesión</button>
     </div>
@@ -143,7 +143,7 @@ button{font-family:inherit;cursor:pointer}
   <main class="ct-cont">
     <div class="ct-head">
       <h1><span class="material-symbols-rounded">person</span>Mi cuenta</h1>
-      <a class="ct-back" href="index.html"><span class="material-symbols-rounded">arrow_back</span>Volver a la tienda</a>
+      <a class="ct-back" href="preview-bienvenida.html"><span class="material-symbols-rounded">arrow_back</span>Volver a la tienda</a>
     </div>
 
     <section class="ct-card ct-foto">
@@ -225,7 +225,7 @@ button{font-family:inherit;cursor:pointer}
     // En vista previa (iframe) o abierto como archivo local: datos de ejemplo
     let enPrevia = false;
     try { enPrevia = window.self !== window.top || location.protocol === 'file:'; } catch (e) { enPrevia = true; }
-    if (!enPrevia) { location.replace('index.html'); return; }
+    if (!enPrevia) { location.replace('preview-bienvenida.html'); return; }
     sesion = { nombre: 'Daniel Santos', email: 'dannssj3@gmail.com', exp: 9999999999, token: '' };
   }
 
@@ -319,7 +319,7 @@ button{font-family:inherit;cursor:pointer}
   });
 
   // Cerrar sesión
-  $('btn-salir').addEventListener('click', () => { borrar(LS); location.href = 'index.html'; });
+  $('btn-salir').addEventListener('click', () => { borrar(LS); location.href = 'preview-bienvenida.html'; });
 })();
 </script>
 </body>
