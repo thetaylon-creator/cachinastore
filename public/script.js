@@ -167,6 +167,7 @@ async function obtenerTiendaFortnite(silencioso = false) {
 
       hashTiendaActual = datos.data.hash;
       productosGlobales = datos.data.entries;
+      window.actualizarHero?.(productosGlobales);
 
       const scrollPrevio = window.scrollY; // para no mandar al usuario arriba
       renderizarProductos(productosGlobales);
@@ -1547,3 +1548,69 @@ async function enviarSolicitudBots() {
 }
 
 btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
+// ==========================================
+// HERO: IMÁGENES DE PRODUCTOS DE LA TIENDA (cambian cada 10 s)
+// Usa los mismos datos de /api/shop, así que siempre muestra
+// lo que está en la tienda hoy. Los lotes van primero.
+// ==========================================
+(function () {
+  const img = document.getElementById('hero-img');
+  const art = document.getElementById('hero-art');
+  const hero = document.querySelector('.lx-hero');
+  if (!img || !art || !hero) return;
+
+  const MAX_IMAGENES = 8;
+  const INTERVALO_MS = 10000;
+  let lista = [], indice = 0, pausado = false, timer = null;
+
+  function extraerUrls(entries) {
+    const candidatos = [];
+    const vistas = new Set();
+    entries.forEach(entry => {
+      const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
+      if (!url || vistas.has(url)) return;
+      vistas.add(url);
+      const esLote = !!entry.bundle || (entry.brItems || []).length > 1;
+      candidatos.push({ url, prioridad: esLote ? 0 : 1 });
+    });
+    candidatos.sort((a, b) => a.prioridad - b.prioridad);
+    return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
+  }
+
+  function mostrar(n) {
+    img.classList.add('saliendo');
+    setTimeout(() => {
+      img.onload = () => img.classList.remove('saliendo');
+      img.onerror = () => img.classList.remove('saliendo');
+      img.src = lista[n];
+      img.style.display = '';
+      art.classList.add('con-prod');
+    }, 400);
+  }
+
+  function iniciar(urls) {
+    if (!urls.length) return;
+    lista = urls;
+    indice = 0;
+    lista.forEach(src => { const im = new Image(); im.src = src; }); // precarga
+    clearInterval(timer);
+    mostrar(0);
+    timer = setInterval(() => {
+      if (pausado || document.hidden || lista.length < 2) return;
+      indice = (indice + 1) % lista.length;
+      mostrar(indice);
+    }, INTERVALO_MS);
+  }
+
+  hero.addEventListener('mouseenter', () => pausado = true);
+  hero.addEventListener('mouseleave', () => pausado = false);
+
+  // Para refrescar el hero cuando cambie la tienda
+  window.actualizarHero = (entries) => iniciar(extraerUrls(entries));
+
+  // La portada se ve ANTES del login, así que pide la tienda por su cuenta
+  fetch(`${API_URL}/api/shop`, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => { if (d?.data?.entries) window.actualizarHero(d.data.entries); })
+    .catch(() => {}); // si falla, se queda la foto de portada
+})();
