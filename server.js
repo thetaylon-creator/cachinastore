@@ -477,7 +477,7 @@ app.post('/api/auth/google', async (req, res) => {
     );
 
     const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
-    res.json({ token: firmar({ sub: p.sub, nombre, exp }), nombre, exp });
+    res.json({ token: firmar({ sub: p.sub, nombre, exp }), nombre, email: p.email, exp });
   } catch (err) {
     console.error('[google] Error verificando token:', err.message);
     res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google.' });
