@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vista previa - CachinaStore</title>
+<script>try{if(localStorage.getItem("cachina_tema")==="claro")document.documentElement.classList.add("claro")}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -175,6 +176,43 @@ body.lg-bloqueado{overflow:hidden}
   .lx-der{right:calc(50% - 60px)}
   .lx-reviews h2{font-size:24px}
 }
+
+/* Colores animables */
+@property --bg-dark{syntax:'<color>';inherits:true;initial-value:#0b0716}
+@property --h1{syntax:'<color>';inherits:true;initial-value:#2a1a52}
+@property --h2{syntax:'<color>';inherits:true;initial-value:#5b21b6}
+:root{--h1:#2a1a52;--h2:#5b21b6;--txt:#fff;transition:--bg-dark .5s ease,--h1 .5s ease,--h2 .5s ease}
+body{color:var(--txt)}
+
+/* Hero con degradado suave abajo */
+.lx-hero{background:linear-gradient(180deg,var(--h1) 0%,var(--h2) 55%,var(--bg-dark) 100%);color:#fff}
+.lx-hero-in{z-index:1}
+.lx-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(180deg,transparent,var(--bg-dark));pointer-events:none}
+
+/* Cabecera: Inicio y sol */
+.lx-link{font-size:14px;font-weight:600;color:#c4b5fd;text-decoration:none;margin-left:-8px}
+.lx-link:hover{color:#ddd6fe}
+.lx-ico{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:none;color:#c4b5fd;cursor:pointer;margin-right:-14px}
+.lx-ico:hover{background:rgba(167,139,250,.14);color:#fff}
+
+/* Paneles que se quedan oscuros */
+.lx-modal-box,.lg-box,.lx-menu,.lx-comu-box{color:#fff}
+
+/* Modo claro (morado crema) */
+html.claro{--bg-dark:#d8cbee;--bg-card:#efe8fa;--border-color:rgba(76,29,149,.22);--text-muted:#6b5f8f;--txt:#1b1238;--h1:#4c2a9a;--h2:#7c4ddb}
+.claro .lx-nav{background:#cdbde9}
+.claro .lx-moneda{color:#1b1238}
+.claro .lx-link,.claro .lx-ico{color:#4c1d95}
+.claro .lx-ico:hover{background:rgba(124,58,237,.14);color:#2e1065}
+.claro .lx-rcard{background:#efe8fa}
+.claro .lx-quote{color:#3b2a6b}
+.claro .lx-avatar{background:#d3c4ee}
+.claro .lx-like{background:#e3d7f5;color:#4a3a7a}
+.claro .lx-rempty{background:rgba(239,232,250,.6)}
+.claro .lx-shield{color:#6d28d9}
+
+/* Transición suave solo mientras se cambia de tema */
+html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:background-color .5s ease,color .5s ease,border-color .5s ease,box-shadow .5s ease!important}
 </style>
 </head>
 <body>
@@ -182,9 +220,11 @@ body.lg-bloqueado{overflow:hidden}
   <nav class="lx-nav">
     <div class="lx-nav-in">
       <img src="logo.png" alt="CachinaStore" class="lx-logo">
+      <a class="lx-link" href="preview-bienvenida.html">Inicio</a>
       <div class="lx-sp"></div>
       <div class="lx-moneda"><small>Moneda:</small><span class="lx-flag"></span><b>PEN</b></div>
-      <a class="lx-cart" href="#" aria-label="Carrito"><span class="material-symbols-rounded">shopping_cart</span></a>
+      <button class="lx-ico" id="btn-tema" type="button" aria-label="Cambiar tema"><span class="material-symbols-rounded" id="ico-tema">light_mode</span></button>
+      <a class="lx-cart lx-ico" href="#" aria-label="Carrito"><span class="material-symbols-rounded">shopping_cart</span></a>
       <button class="lx-btn lx-btn-pri" id="btn-entrar">⇥ Iniciar Sesión</button>
 
       <div class="lx-cuenta" id="lx-cuenta" hidden>
@@ -199,8 +239,8 @@ body.lg-bloqueado{overflow:hidden}
             <span id="lx-menu-email"></span>
           </div>
           <a class="lx-menu-it" href="mi-cuenta.html" role="menuitem"><span class="material-symbols-rounded">manage_accounts</span>Mi cuenta</a>
-          <a class="lx-menu-it" href="#" role="menuitem"><span class="material-symbols-rounded">receipt_long</span>Mis pedidos</a>
-          <a class="lx-menu-it" href="https://wa.me/51969639154" target="_blank" rel="noopener" role="menuitem"><span class="material-symbols-rounded">help</span>Ayuda</a>
+          <a class="lx-menu-it" href="mi-cuenta.html#pedidos" role="menuitem"><span class="material-symbols-rounded">receipt_long</span>Mis pedidos</a>
+          <a class="lx-menu-it" href="mi-cuenta.html#ayuda" role="menuitem"><span class="material-symbols-rounded">help</span>Ayuda</a>
           <button class="lx-menu-it lx-menu-salir" id="lx-salir" type="button" role="menuitem"><span class="material-symbols-rounded">logout</span>Cerrar sesión</button>
         </div>
       </div>
@@ -734,6 +774,24 @@ body.lg-bloqueado{overflow:hidden}
   document.addEventListener('keydown', e => { if (e.key === 'Escape') menuAbierto(false); });
   document.getElementById('lx-salir').addEventListener('click', () => { menuAbierto(false); salir(); });
   cuentaEl.querySelectorAll('a[href="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); menuAbierto(false); }));
+})();
+</script>
+<script>
+(function () {
+  var raiz = document.documentElement, btn = document.getElementById('btn-tema'), ico = document.getElementById('ico-tema');
+  function pintar() {
+    var c = raiz.classList.contains('claro');
+    ico.textContent = c ? 'dark_mode' : 'light_mode';
+    btn.setAttribute('aria-label', c ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro');
+  }
+  btn.addEventListener('click', function () {
+    raiz.classList.add('cambiando');
+    var c = raiz.classList.toggle('claro');
+    try { localStorage.setItem('cachina_tema', c ? 'claro' : 'oscuro'); } catch (e) {}
+    pintar();
+    setTimeout(function () { raiz.classList.remove('cambiando'); }, 600);
+  });
+  pintar();
 })();
 </script>
 </body>
