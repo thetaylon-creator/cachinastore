@@ -1550,8 +1550,7 @@ async function enviarSolicitudBots() {
 btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
 // ==========================================
 // HERO: IMÁGENES DE PRODUCTOS DE LA TIENDA (cambian cada 10 s)
-// Usa los mismos datos de /api/shop, así que siempre muestra
-// lo que está en la tienda hoy. Los lotes van primero.
+// Solo reinicia el carrusel si la lista de imágenes cambió.
 // ==========================================
 (function () {
   const img = document.getElementById('hero-img');
@@ -1561,7 +1560,7 @@ btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
 
   const MAX_IMAGENES = 8;
   const INTERVALO_MS = 10000;
-  let lista = [], indice = 0, pausado = false, timer = null;
+  let lista = [], indice = 0, pausado = false, timer = null, firma = '';
 
   function extraerUrls(entries) {
     const candidatos = [];
@@ -1590,9 +1589,13 @@ btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
 
   function iniciar(urls) {
     if (!urls.length) return;
+    const nuevaFirma = urls.join('|');
+    if (nuevaFirma === firma) return;   // misma lista: no reiniciar
+    firma = nuevaFirma;
+
     lista = urls;
     indice = 0;
-    lista.forEach(src => { const im = new Image(); im.src = src; }); // precarga
+    lista.forEach(src => { const im = new Image(); im.src = src; });
     clearInterval(timer);
     mostrar(0);
     timer = setInterval(() => {
@@ -1605,12 +1608,11 @@ btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
   hero.addEventListener('mouseenter', () => pausado = true);
   hero.addEventListener('mouseleave', () => pausado = false);
 
-  // Para refrescar el hero cuando cambie la tienda
   window.actualizarHero = (entries) => iniciar(extraerUrls(entries));
 
-  // La portada se ve ANTES del login, así que pide la tienda por su cuenta
+  // La portada se ve antes del login, así que pide la tienda por su cuenta
   fetch(`${API_URL}/api/shop`, { cache: 'no-store' })
-    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
     .then(d => { if (d?.data?.entries) window.actualizarHero(d.data.entries); })
-    .catch(() => {}); // si falla, se queda la foto de portada
+    .catch(e => console.log('Hero: no se pudo cargar /api/shop', e));
 })();
