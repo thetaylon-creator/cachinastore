@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vista previa - CachinaStore</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--bg-dark:#0b0716;--bg-card:#1a1233;--border-color:rgba(255,255,255,.1);--text-muted:#a99fc9}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -134,6 +135,9 @@ body.lg-bloqueado{overflow:hidden}
 .lg-volver:hover{color:#fff}
 .lg-paso{display:none}
 .lg-paso.on{display:block}
+.lg-google-slot{display:flex;justify-content:center;align-items:center;min-height:44px;overflow:hidden;color:var(--text-muted);font-size:13px}
+.lg-aviso{display:none;color:#fbbf24;font-size:13px;margin:-8px 0 16px}
+.lg-aviso.on{display:block}
 @media (max-width:820px){
   .lx-moneda{display:none}
   .lx-hero-in{grid-template-columns:1fr;padding:48px 16px}
@@ -205,9 +209,7 @@ body.lg-bloqueado{overflow:hidden}
 <div class="lx-modal" id="modal-resena" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-resena">
   <div class="lx-modal-box">
     <h3 id="titulo-modal-resena">Cuéntanos tu experiencia</h3>
-    <label class="lx-field">Tu nombre o nick
-      <input type="text" id="res-nombre" maxlength="30">
-    </label>
+    <p class="lg-sub" id="res-como" style="margin:0"></p>
     <div class="lx-field">Calificación
       <div class="lx-estrellas" id="res-estrellas"></div>
     </div>
@@ -238,6 +240,7 @@ body.lg-bloqueado{overflow:hidden}
       <div class="lg-paso on" id="lg-p1">
         <h3 id="lg-titulo">Inicia sesión</h3>
         <p class="lg-sub">Te enviamos un código de acceso a tu correo. Sin contraseñas.</p>
+        <p class="lg-aviso" id="lg-aviso"></p>
         <label class="lg-label" for="lg-correo">Correo electrónico</label>
         <div class="lg-input">
           <span class="material-symbols-rounded">mail</span>
@@ -246,10 +249,7 @@ body.lg-bloqueado{overflow:hidden}
         <div class="lg-err" id="lg-err1"></div>
         <button class="lx-btn lx-btn-pri lg-btn" id="lg-continuar" type="button">Continuar <span class="material-symbols-rounded" style="font-size:20px">arrow_forward</span></button>
         <div class="lg-sep">o</div>
-        <button class="lx-btn lg-google" id="lg-google" type="button">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
-          Continuar con Google
-        </button>
+        <div class="lg-google-slot" id="lg-google-slot"></div>
         <div class="lg-seg"><span class="material-symbols-rounded">lock</span>Acceso seguro con código por correo. Sin contraseñas.</div>
       </div>
 
@@ -447,7 +447,6 @@ body.lg-bloqueado{overflow:hidden}
   }
   pintarEstrellas();
 
-  const inNombre = document.getElementById('res-nombre');
   const inTexto = document.getElementById('res-texto');
   const inFoto = document.getElementById('res-foto');
   const prev = document.getElementById('res-prev');
@@ -455,14 +454,22 @@ body.lg-bloqueado{overflow:hidden}
   const btnEnviar = document.getElementById('res-enviar');
   let fotoData = '';
 
-  function abrir() { modal.classList.add('abierto'); }
+  function abrir() {
+    const a = window.CachinaAuth;
+    document.getElementById('res-como').textContent = a && a.nombre() ? 'Publicas como ' + a.nombre() + ' (tu cuenta de Google).' : '';
+    modal.classList.add('abierto');
+  }
   function cerrar() {
     modal.classList.remove('abierto');
-    inNombre.value = ''; inTexto.value = ''; inFoto.value = '';
+    inTexto.value = ''; inFoto.value = '';
     prev.style.display = 'none'; prev.src = '';
     fotoData = ''; err.textContent = ''; nota = 5; pintarEstrellas();
   }
-  document.getElementById('btn-subir-resena').addEventListener('click', abrir);
+  document.getElementById('btn-subir-resena').addEventListener('click', () => {
+    const a = window.CachinaAuth;
+    if (a && a.logueado()) abrir();
+    else if (a) a.pedirLogin(abrir);
+  });
   document.getElementById('res-cancelar').addEventListener('click', cerrar);
   modal.addEventListener('click', e => { if (e.target === modal) cerrar(); });
 
@@ -501,9 +508,8 @@ body.lg-bloqueado{overflow:hidden}
   });
 
   btnEnviar.addEventListener('click', async () => {
-    const nombre = inNombre.value.trim();
     const texto = inTexto.value.trim();
-    if (!nombre || !texto) { err.textContent = 'Escribe tu nombre y tu reseña.'; return; }
+    if (!texto) { err.textContent = 'Escribe tu reseña.'; return; }
     if (!fotoData) { err.textContent = 'Sube una foto para publicar tu reseña.'; return; }
 
     btnEnviar.disabled = true;
@@ -511,11 +517,12 @@ body.lg-bloqueado{overflow:hidden}
     try {
       const resp = await fetch('/api/resenas', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, nota, texto, foto: fotoData })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + window.CachinaAuth.token() },
+        body: JSON.stringify({ nota, texto, foto: fotoData })
       });
       const d = await resp.json().catch(() => ({}));
-      if (!resp.ok) { err.textContent = d.error || 'No se pudo publicar. Intenta de nuevo.'; }
+      if (resp.status === 401) { window.CachinaAuth.salir(); err.textContent = 'Tu sesión venció. Cierra esta ventana e inicia sesión de nuevo.'; }
+      else if (!resp.ok) { err.textContent = d.error || 'No se pudo publicar. Intenta de nuevo.'; }
       else { cerrar(); cargar(0); }
     } catch (e) {
       err.textContent = 'No se pudo conectar con el servidor.';
@@ -533,6 +540,78 @@ body.lg-bloqueado{overflow:hidden}
   const d1 = document.getElementById('lg-d1'), d2 = document.getElementById('lg-d2');
   const correo = document.getElementById('lg-correo'), codigo = document.getElementById('lg-codigo');
   const err1 = document.getElementById('lg-err1'), err2 = document.getElementById('lg-err2');
+  const aviso = document.getElementById('lg-aviso');
+  const btnEntrar = document.getElementById('btn-entrar');
+
+  // ---------- sesión con Google ----------
+  const LS = 'cachina_sesion';
+  let sesion = null;
+  let alLoguear = null;
+  try { sesion = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
+  if (sesion && sesion.exp * 1000 < Date.now()) sesion = null;
+
+  function pintarBoton() {
+    btnEntrar.textContent = sesion ? 'Salir · ' + sesion.nombre : '⇥ Iniciar Sesión';
+  }
+  function guardar(s) { sesion = s; try { localStorage.setItem(LS, JSON.stringify(s)); } catch (e) {} pintarBoton(); }
+  function salir() { sesion = null; try { localStorage.removeItem(LS); } catch (e) {} pintarBoton(); }
+  pintarBoton();
+
+  window.CachinaAuth = {
+    logueado: () => !!sesion,
+    token: () => sesion ? sesion.token : '',
+    nombre: () => sesion ? sesion.nombre : '',
+    salir,
+    pedirLogin: (cb) => {
+      alLoguear = cb;
+      aviso.textContent = 'Inicia sesión con Google para subir tu reseña.';
+      aviso.classList.add('on');
+      abrir();
+    }
+  };
+
+  async function onCredencial(resp) {
+    try {
+      const r = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: resp.credential })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'No se pudo iniciar sesión con Google.');
+      guardar({ token: d.token, nombre: d.nombre, exp: d.exp });
+      const f = alLoguear;
+      cerrar();
+      if (f) f();
+    } catch (e) {
+      err1.textContent = e.message || 'No se pudo iniciar sesión con Google.';
+    }
+  }
+
+  function esperarGoogle() {
+    return new Promise((ok, fail) => {
+      let n = 0;
+      const t = setInterval(() => {
+        if (window.google && google.accounts && google.accounts.id) { clearInterval(t); ok(); }
+        else if (++n > 60) { clearInterval(t); fail(new Error('gsi')); }
+      }, 100);
+    });
+  }
+
+  (async function iniciarGoogle() {
+    const slot = document.getElementById('lg-google-slot');
+    try {
+      const r = await fetch('/api/google-config');
+      const d = await r.json();
+      if (!d.clientId) throw new Error('sin clientId');
+      await esperarGoogle();
+      google.accounts.id.initialize({ client_id: d.clientId, callback: onCredencial });
+      google.accounts.id.renderButton(slot, { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'rectangular', width: 340, locale: 'es' });
+    } catch (e) {
+      slot.textContent = 'El inicio con Google aún no está disponible.';
+    }
+  })();
+
 
   function paso(n) {
     p1.classList.toggle('on', n === 1); p2.classList.toggle('on', n === 2);
@@ -541,10 +620,12 @@ body.lg-bloqueado{overflow:hidden}
   function abrir() { ov.classList.add('abierto'); document.body.classList.add('lg-bloqueado'); setTimeout(() => correo.focus(), 50); }
   function cerrar() {
     ov.classList.remove('abierto'); document.body.classList.remove('lg-bloqueado');
-    correo.value = ''; codigo.value = ''; err1.textContent = ''; err2.textContent = ''; paso(1);
+    correo.value = ''; codigo.value = ''; err1.textContent = ''; err2.textContent = ''; alLoguear = null; aviso.classList.remove('on'); paso(1);
   }
 
-  document.getElementById('btn-entrar').addEventListener('click', abrir);
+  document.getElementById('btn-entrar').addEventListener('click', () => {
+    if (sesion) salir(); else abrir();
+  });
   document.getElementById('lg-cerrar').addEventListener('click', cerrar);
   ov.addEventListener('click', e => { if (e.target === ov) cerrar(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && ov.classList.contains('abierto')) cerrar(); });
@@ -563,9 +644,6 @@ body.lg-bloqueado{overflow:hidden}
   // Solo vista previa: aún no hay servidor que envíe o valide códigos
   document.getElementById('lg-verificar').addEventListener('click', () => {
     err2.textContent = 'Vista previa: el inicio de sesión aún no está conectado.';
-  });
-  document.getElementById('lg-google').addEventListener('click', () => {
-    err1.textContent = 'Vista previa: Google aún no está conectado.';
   });
 })();
 </script>
