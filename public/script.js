@@ -1563,18 +1563,31 @@ btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
   let lista = [], indice = 0, pausado = false, timer = null, firma = '';
 
   function extraerUrls(entries) {
-    const candidatos = [];
-    const vistas = new Set();
-    entries.forEach(entry => {
-      const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
-      if (!url || vistas.has(url)) return;
-      vistas.add(url);
-      const esLote = !!entry.bundle || (entry.brItems || []).length > 1;
-      candidatos.push({ url, prioridad: esLote ? 0 : 1 });
-    });
-    candidatos.sort((a, b) => a.prioridad - b.prioridad);
-    return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
-  }
+  const candidatos = [];
+  const vistas = new Set();
+
+  entries.forEach(entry => {
+    // Fuera autos, instrumentos y pistas
+    if ((entry.cars || []).length) return;
+    if ((entry.instruments || []).length) return;
+    if ((entry.tracks || []).length) return;
+
+    // Solo ofertas que incluyan una skin de personaje
+    const items = entry.brItems || [];
+    const tieneSkin = items.some(i => i.type?.value === 'outfit');
+    if (!tieneSkin) return;
+
+    const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
+    if (!url || vistas.has(url)) return;
+    vistas.add(url);
+
+    // Prioridad: lotes (skin + pico, gesto, mochila...) primero, luego skins sueltas
+    candidatos.push({ url, prioridad: items.length > 1 ? 0 : 1 });
+  });
+
+  candidatos.sort((a, b) => a.prioridad - b.prioridad);
+  return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
+}
 
   function mostrar(n) {
     img.classList.add('saliendo');
