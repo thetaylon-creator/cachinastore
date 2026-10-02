@@ -841,19 +841,34 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   const INTERVALO_MS = 10000;
   let lista = [], indice = 0, pausado = false, timer = null;
 
-  function extraerUrls(entries) {
-    const candidatos = [];
-    const vistas = new Set();
-    entries.forEach(entry => {
-      const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
-      if (!url || vistas.has(url)) return;
-      vistas.add(url);
-      const esLote = !!entry.bundle || (entry.brItems || []).length > 1;
-      candidatos.push({ url, prioridad: esLote ? 0 : 1 });
-    });
-    candidatos.sort((a, b) => a.prioridad - b.prioridad);
-    return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
-  }
+function extraerUrls(entries) {
+  const candidatos = [];
+  const vistas = new Set();
+
+  entries.forEach(entry => {
+    // Fuera autos, instrumentos y pistas
+    if ((entry.cars || []).length) return;
+    if ((entry.instruments || []).length) return;
+    if ((entry.tracks || []).length) return;
+
+    // Solo ofertas que incluyan una skin de personaje
+    const items = entry.brItems || [];
+    if (!items.some(i => i.type?.value === 'outfit')) return;
+
+    // Extra: descarta cualquier oferta que traiga otros tipos de vehículo
+    const tipos = items.map(i => i.type?.value);
+    if (tipos.some(t => t === 'vehicle' || t === 'car' || t === 'wheel')) return;
+
+    const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
+    if (!url || vistas.has(url)) return;
+    vistas.add(url);
+
+    candidatos.push({ url, prioridad: items.length > 1 ? 0 : 1 });
+  });
+
+  candidatos.sort((a, b) => a.prioridad - b.prioridad);
+  return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
+}
 
   function mostrar(n) {
     img.classList.add('saliendo');
