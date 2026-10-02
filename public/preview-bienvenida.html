@@ -25,6 +25,10 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
 .lx-btn-pri:hover{background:#6d28d9}
 .material-symbols-rounded{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-smoothing:antialiased;font-feature-settings:'liga'}
 .lx-nav .lx-btn{height:44px;font-size:14px;padding:0 18px}
+.lx-cart{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;color:#cfc6ee;text-decoration:none;margin-right:-16px}
+.lx-cart:hover{background:rgba(167,139,250,.14);color:#fff}
+.lx-nav .lx-cuenta-btn{height:38px;padding:0 14px;font-size:14px;gap:8px}
+.lx-av{width:24px;height:24px;font-size:12px}
 
 .lx-hero{position:relative;min-height:560px;overflow:hidden;background:linear-gradient(180deg,#2a1a52 0%,#5b21b6 55%,var(--bg-dark) 100%)}
 .lx-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 100% 60%,rgba(124,58,237,.55),transparent 55%)}
@@ -180,6 +184,7 @@ body.lg-bloqueado{overflow:hidden}
       <img src="logo.png" alt="CachinaStore" class="lx-logo">
       <div class="lx-sp"></div>
       <div class="lx-moneda"><small>Moneda:</small><span class="lx-flag"></span><b>PEN</b></div>
+      <a class="lx-cart" href="#" aria-label="Carrito"><span class="material-symbols-rounded">shopping_cart</span></a>
       <button class="lx-btn lx-btn-pri" id="btn-entrar">⇥ Iniciar Sesión</button>
 
       <div class="lx-cuenta" id="lx-cuenta" hidden>
