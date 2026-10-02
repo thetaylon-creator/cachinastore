@@ -810,5 +810,87 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   pintar();
 })();
 </script>
+<script>
+(function () {
+  var raiz = document.documentElement, btn = document.getElementById('btn-tema'), ico = document.getElementById('ico-tema');
+  function pintar() {
+    var c = raiz.classList.contains('claro');
+    ico.textContent = c ? 'dark_mode' : 'light_mode';
+    btn.setAttribute('aria-label', c ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro');
+  }
+  btn.addEventListener('click', function () {
+    raiz.classList.add('cambiando');
+    var c = raiz.classList.toggle('claro');
+    try { localStorage.setItem('cachina_tema', c ? 'claro' : 'oscuro'); } catch (e) {}
+    pintar();
+    setTimeout(function () { raiz.classList.remove('cambiando'); }, 600);
+  });
+  pintar();
+})();
+</script>
+
+<script>
+(function () {
+  const API_URL = '';
+  const img = document.getElementById('hero-img');
+  const art = document.getElementById('hero-art');
+  const hero = document.querySelector('.lx-hero');
+  if (!img || !art || !hero) return;
+
+  const MAX_IMAGENES = 8;
+  const INTERVALO_MS = 10000;
+  let lista = [], indice = 0, pausado = false, timer = null;
+
+  function extraerUrls(entries) {
+    const candidatos = [];
+    const vistas = new Set();
+    entries.forEach(entry => {
+      const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
+      if (!url || vistas.has(url)) return;
+      vistas.add(url);
+      const esLote = !!entry.bundle || (entry.brItems || []).length > 1;
+      candidatos.push({ url, prioridad: esLote ? 0 : 1 });
+    });
+    candidatos.sort((a, b) => a.prioridad - b.prioridad);
+    return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
+  }
+
+  function mostrar(n) {
+    img.classList.add('saliendo');
+    setTimeout(() => {
+      img.onload = () => img.classList.remove('saliendo');
+      img.onerror = () => img.classList.remove('saliendo');
+      img.src = lista[n];
+      img.style.display = '';
+      art.classList.add('con-prod');
+    }, 400);
+  }
+
+  function iniciar(urls) {
+    if (!urls.length) return;
+    lista = urls;
+    indice = 0;
+    lista.forEach(src => { const im = new Image(); im.src = src; });
+    clearInterval(timer);
+    mostrar(0);
+    timer = setInterval(() => {
+      if (pausado || document.hidden || lista.length < 2) return;
+      indice = (indice + 1) % lista.length;
+      mostrar(indice);
+    }, INTERVALO_MS);
+  }
+
+  hero.addEventListener('mouseenter', () => pausado = true);
+  hero.addEventListener('mouseleave', () => pausado = false);
+
+  fetch(`${API_URL}/api/shop`, { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => {
+      console.log('Hero: tienda cargada', d?.data?.entries?.length, 'entradas');
+      if (d?.data?.entries) iniciar(extraerUrls(d.data.entries));
+    })
+    .catch(e => console.log('Hero: no se pudo cargar /api/shop', e));
+})();
+</script>
 </body>
 </html>
