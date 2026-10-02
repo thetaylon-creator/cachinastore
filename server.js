@@ -16,8 +16,9 @@ const DAILY_SHOP_SIZE = 8;
 const PRODUCTS_FILE = path.join(__dirname, 'data', 'products.json');
 const STATE_FILE = path.join(__dirname, 'data', 'shop-state.json');
 
+app.set('trust proxy', 1); // para detectar la IP real detrás de Render
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '3mb' })); // 3 MB para poder recibir la foto de las reseñas
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas de login/registro con ID + PIN
@@ -307,7 +308,6 @@ app.get('/api/admin/bots-requests', requireAdmin, async (req, res) => {
 });
 
 // ---- RUTA ADMIN: eliminar una solicitud manualmente ----
-// ---- RUTA ADMIN: eliminar una solicitud manualmente ----
 app.delete('/api/admin/bots-requests/:id', requireAdmin, async (req, res) => {
   const ok = await eliminarBotsRequest(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Solicitud no encontrada' });
@@ -363,6 +363,201 @@ ensureShopTable()
 app.get('/api/shop', (req, res) => {
   if (!tiendaCache) return res.status(503).json({ error: 'Tienda no disponible aún' });
   res.json(tiendaCache);
+});
+
+// ============ LOGIN CON GOOGLE + RESEÑAS (Postgres) ============
+// Pega este bloque en server.js, ANTES de app.listen(...)
+// REEMPLAZA el bloque de reseñas anterior (no dejes los dos).
+//
+// Requisitos:
+//   1) npm install google-auth-library
+//   2) Variables de entorno en Render:
+//        GOOGLE_CLIENT_ID = (el ID de cliente de Google Cloud)
+//        SESSION_SECRET   = (texto largo y aleatorio, solo tuyo)
+//   3) Arriba en server.js:
+//        app.set('trust proxy', 1);
+//        app.use(express.json({ limit: '3mb' }));
+
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const SESSION_SECRET = process.env.SESSION_SECRET || '';
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
+const SESION_DIAS = 30;
+
+if (!GOOGLE_CLIENT_ID || !SESSION_SECRET) {
+  console.warn('[google] Faltan GOOGLE_CLIENT_ID o SESSION_SECRET: el login con Google no funcionará.');
+}
+
+// ---------- Sesión propia firmada (sin librerías extra) ----------
+function firmar(payload) {
+  const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(body).digest('base64url');
+  return body + '.' + sig;
+}
+
+function verificarSesion(token) {
+  if (!token || !SESSION_SECRET) return null;
+  const [body, sig] = token.split('.');
+  if (!body || !sig) return null;
+  const esperado = crypto.createHmac('sha256', SESSION_SECRET).update(body).digest('base64url');
+  const a = Buffer.from(sig);
+  const b = Buffer.from(esperado);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    const p = JSON.parse(Buffer.from(body, 'base64url').toString());
+    if (!p.exp || p.exp * 1000 < Date.now()) return null;
+    return p;
+  } catch (e) {
+    return null;
+  }
+}
+
+function requireGoogle(req, res, next) {
+  const h = req.headers.authorization || '';
+  const sesion = verificarSesion(h.startsWith('Bearer ') ? h.slice(7) : '');
+  if (!sesion) return res.status(401).json({ error: 'Inicia sesión con Google para continuar.' });
+  req.usuario = sesion;
+  next();
+}
+
+// ---------- Tablas ----------
+async function ensureGoogleYResenasTables() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS google_users (
+      sub VARCHAR(64) PRIMARY KEY,
+      email VARCHAR(200) NOT NULL,
+      nombre VARCHAR(100) NOT NULL,
+      creado TIMESTAMPTZ NOT NULL DEFAULT now(),
+      ultimo_acceso TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS resenas (
+      id SERIAL PRIMARY KEY,
+      nombre VARCHAR(30) NOT NULL,
+      nota SMALLINT NOT NULL CHECK (nota BETWEEN 1 AND 5),
+      texto VARCHAR(300) NOT NULL,
+      foto TEXT NOT NULL,
+      likes INT NOT NULL DEFAULT 0,
+      fecha TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+  await pool.query(`ALTER TABLE resenas ADD COLUMN IF NOT EXISTS google_sub VARCHAR(64);`);
+}
+ensureGoogleYResenasTables().catch(err => console.error('Error creando tablas google/resenas:', err));
+
+// ---------- Rutas de Google ----------
+app.get('/api/google-config', (req, res) => {
+  res.json({ clientId: GOOGLE_CLIENT_ID });
+});
+
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    if (!googleClient || !SESSION_SECRET) {
+      return res.status(503).json({ error: 'El inicio con Google no está configurado.' });
+    }
+    const credential = String(req.body.credential || '');
+    if (!credential) return res.status(400).json({ error: 'Falta la credencial.' });
+
+    // Google firma este token; aquí se verifica que sea real y para tu sitio
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const p = ticket.getPayload();
+    if (!p || !p.sub || !p.email_verified) {
+      return res.status(401).json({ error: 'Tu cuenta de Google no está verificada.' });
+    }
+
+    const nombre = String(p.name || p.given_name || 'Cliente').trim().slice(0, 30) || 'Cliente';
+
+    await pool.query(
+      `INSERT INTO google_users (sub, email, nombre) VALUES ($1, $2, $3)
+       ON CONFLICT (sub) DO UPDATE SET email = $2, nombre = $3, ultimo_acceso = now()`,
+      [p.sub, p.email, nombre]
+    );
+
+    const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
+    res.json({ token: firmar({ sub: p.sub, nombre, exp }), nombre, exp });
+  } catch (err) {
+    console.error('[google] Error verificando token:', err.message);
+    res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google.' });
+  }
+});
+
+// ---------- Reseñas ----------
+const ultimaResenaPorUsuario = new Map();
+
+// Lista pública paginada: ?limit=6&offset=0 (no expone datos de la cuenta)
+app.get('/api/resenas', async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 12);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const { rows } = await pool.query(
+      `SELECT id, nombre, nota, texto, foto, likes, fecha
+       FROM resenas ORDER BY fecha DESC LIMIT $1 OFFSET $2`,
+      [limit + 1, offset]
+    );
+    res.json({ resenas: rows.slice(0, limit), hayMas: rows.length > limit });
+  } catch (err) {
+    console.error('[resenas] Error listando:', err);
+    res.status(500).json({ error: 'No se pudieron cargar las reseñas' });
+  }
+});
+
+// Crear reseña: SOLO con sesión de Google. El nombre sale de la cuenta, no del formulario.
+app.post('/api/resenas', requireGoogle, async (req, res) => {
+  try {
+    const texto = String(req.body.texto || '').trim().slice(0, 300);
+    const nota = parseInt(req.body.nota, 10);
+    const foto = String(req.body.foto || '');
+
+    if (!texto) return res.status(400).json({ error: 'Escribe tu reseña.' });
+    if (!(nota >= 1 && nota <= 5)) return res.status(400).json({ error: 'Calificación inválida.' });
+    if (!foto.startsWith('data:image/jpeg;base64,')) {
+      return res.status(400).json({ error: 'Debes subir una foto.' });
+    }
+    if (foto.length > 1500000) return res.status(413).json({ error: 'La foto es demasiado pesada.' });
+
+    const ultima = ultimaResenaPorUsuario.get(req.usuario.sub) || 0;
+    if (Date.now() - ultima < 60000) {
+      return res.status(429).json({ error: 'Espera un minuto antes de enviar otra reseña.' });
+    }
+    ultimaResenaPorUsuario.set(req.usuario.sub, Date.now());
+
+    const { rows } = await pool.query(
+      `INSERT INTO resenas (nombre, nota, texto, foto, google_sub) VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nombre, nota, texto, foto, likes, fecha`,
+      [req.usuario.nombre, nota, texto, foto, req.usuario.sub]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error('[resenas] Error guardando:', err);
+    res.status(500).json({ error: 'No se pudo guardar la reseña' });
+  }
+});
+
+// Like / quitar like
+app.post('/api/resenas/:id/like', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const delta = req.body.accion === 'unlike' ? -1 : 1;
+    const { rows } = await pool.query(
+      `UPDATE resenas SET likes = GREATEST(likes + $1, 0) WHERE id = $2 RETURNING likes`,
+      [delta, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Reseña no encontrada' });
+    res.json({ likes: rows[0].likes });
+  } catch (err) {
+    console.error('[resenas] Error en like:', err);
+    res.status(500).json({ error: 'No se pudo actualizar' });
+  }
+});
+
+// ADMIN: borrar una reseña (con tu ADMIN_KEY)
+app.delete('/api/admin/resenas/:id', requireAdmin, async (req, res) => {
+  const { rows } = await pool.query('DELETE FROM resenas WHERE id = $1 RETURNING id', [parseInt(req.params.id, 10)]);
+  if (!rows.length) return res.status(404).json({ error: 'Reseña no encontrada' });
+  res.json({ success: true });
 });
 
 app.listen(PORT, () => {
