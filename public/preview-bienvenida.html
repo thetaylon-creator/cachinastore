@@ -175,7 +175,24 @@ body.lg-bloqueado{overflow:hidden}
   .lx-izq{left:calc(50% - 60px)}
   .lx-der{right:calc(50% - 60px)}
   .lx-reviews h2{font-size:24px}
+  
 }
+/* Producto encima del círculo (puede salirse un poco, como en tu ejemplo) */
+.lx-art{position:relative}
+.lx-art.con-prod{background-image:none}   /* quita la foto de fondo cuando hay producto */
+.lx-prod{
+  position:absolute;left:50%;bottom:-8%;
+  height:118%;max-width:none;object-fit:contain;
+  transform:translateX(-50%);
+  filter:drop-shadow(0 20px 30px rgba(0,0,0,.45));
+  transition:opacity .4s ease,transform .4s ease;
+}
+.lx-prod.saliendo{opacity:0;transform:translateX(-50%) translateX(40px)}
+
+/* Título y palabra con fade */
+#hero-titulo{transition:opacity .4s ease,transform .4s ease}
+#hero-titulo.saliendo{opacity:0;transform:translateY(8px)}
+#hero-titulo.largo{font-size:clamp(44px,7vw,72px)}  /* nombres largos */
 
 /* Colores animables */
 @property --bg-dark{syntax:'<color>';inherits:true;initial-value:#100a26}
@@ -250,13 +267,13 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   <header class="lx-hero">
     <div class="lx-hero-in">
       <div>
-        <h1 class="lx-title">CACHINA STORE</h1>
+        <h1 class="lx-title" id="hero-titulo">CACHINA STORE</h1>
         <p class="lx-sub">Adquiere <b id="palabra-rotativa">skins</b></p>
         <div class="lx-cta">
           <button class="lx-btn lx-btn-pri"><span class="material-symbols-rounded">sports_esports</span>Tienda Fortnite</button>
         </div>
       </div>
-      <div class="lx-art" role="img" aria-label="CachinaStore"></div>
+      <div class="lx-art" role="img" aria-label="CachinaStore"></div>       
     </div>
   </header>
 
@@ -358,19 +375,68 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 
 <script>
 (function () {
-  const palabras = ['skins', 'pavos', 'bailes', 'picos', 'mochilas', 'planeadores', 'envoltorios', 'pase de batalla', 'club Fortnite', 'packs'];
-  const el = document.getElementById('palabra-rotativa');
-  if (!el) return;
+  let slides = [
+    { titulo: 'CACHINA STORE', palabra: 'skins',  img: '' },
+    { titulo: 'LIMX',          palabra: 'gestos', img: 'img/limx.png' },
+    { titulo: 'TOMATO TOWN',   palabra: 'planeadores', img: 'img/planeador.png' }
+    // agrega más aquí
+  ];
 
-  let i = 0;
-  setInterval(() => {
-    el.classList.add('saliendo');
+  const t = document.getElementById('hero-titulo');
+  const w = document.getElementById('palabra-rotativa');
+  const img = document.getElementById('hero-img');
+  const art = document.getElementById('hero-art');
+  const hero = document.querySelector('.lx-hero');
+  if (!t || !w || !img || !art) return;
+
+  let i = 0, pausado = false, timer = null;
+
+  function precargar() {
+    slides.forEach(s => { if (s.img) { const im = new Image(); im.src = s.img; } });
+  }
+
+  function mostrar(n) {
+    const s = slides[n];
+    [t, w, img].forEach(e => e.classList.add('saliendo'));
     setTimeout(() => {
-      i = (i + 1) % palabras.length;
-      el.textContent = palabras[i];
-      el.classList.remove('saliendo');
+      t.textContent = s.titulo;
+      w.textContent = s.palabra;
+      t.classList.toggle('largo', s.titulo.length > 9);
+
+      if (s.img) {
+        img.onload = () => img.classList.remove('saliendo');
+        img.src = s.img;
+        img.alt = s.titulo;
+        img.style.display = '';
+        art.classList.add('con-prod');
+      } else {
+        img.style.display = 'none';
+        art.classList.remove('con-prod');
+      }
+      t.classList.remove('saliendo');
+      w.classList.remove('saliendo');
     }, 400);
-  }, 5000);
+  }
+
+  function iniciar() {
+    precargar();
+    clearInterval(timer);
+    timer = setInterval(() => {
+      if (pausado || document.hidden) return;
+      i = (i + 1) % slides.length;
+      mostrar(i);
+    }, 10000); // 10 segundos
+  }
+
+  hero.addEventListener('mouseenter', () => pausado = true);
+  hero.addEventListener('mouseleave', () => pausado = false);
+
+  // Si tienes backend: /api/destacados devuelve [{titulo, palabra, img}]
+  fetch('/api/destacados')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => { if (Array.isArray(d) && d.length) slides = [slides[0], ...d]; })
+    .catch(() => {})
+    .finally(iniciar);
 })();
 </script>
 
