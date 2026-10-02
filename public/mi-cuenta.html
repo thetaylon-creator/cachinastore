@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi cuenta - CachinaStore</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">
+<style>
+:root{--bg-dark:#0b0716;--bg-card:#1a1233;--card:#150f2b;--border-color:rgba(255,255,255,.1);--text-muted:#a99fc9;--pri:#7c3aed;--gold:#f0b429}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.material-symbols-rounded{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:22px;line-height:1;display:inline-block;letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-smoothing:antialiased;font-feature-settings:'liga'}
+
+/* Nav */
+.lx-nav{position:sticky;top:0;z-index:50;height:58px;background:#0d0819;border-bottom:1px solid var(--border-color)}
+.lx-nav-in{max-width:1070px;margin:0 auto;height:100%;display:flex;align-items:center;gap:26px;padding:0 16px}
+.lx-logo{width:40px;height:40px;border-radius:10px;background:#fff;object-fit:cover}
+.lx-links{display:flex;gap:26px;font-size:14px;font-weight:500;color:#cfc6ee;margin-left:6px}
+.lx-links a:hover{color:#fff}
+.lx-sp{flex:1}
+.lx-moneda{display:flex;align-items:center;gap:7px;border:1px solid var(--border-color);border-radius:10px;padding:7px 11px;font-size:13px}
+.lx-moneda small{font-size:11px;color:var(--text-muted)}
+.lx-flag{width:18px;height:13px;border-radius:2px;background:linear-gradient(90deg,#d91023 33%,#fff 33% 66%,#d91023 66%)}
+.lx-ico{display:grid;place-items:center;width:36px;height:36px;border:0;background:none;color:#cfc6ee;border-radius:10px}
+.lx-ico:hover{background:rgba(167,139,250,.14);color:#fff}
+
+/* Layout */
+.ct-main{flex:1;max-width:1070px;width:100%;margin:0 auto;padding:0 16px 70px;display:grid;grid-template-columns:234px 1fr;gap:28px}
+.ct-side{background:#120c26;border-right:1px solid var(--border-color);padding:24px 16px 20px;display:flex;flex-direction:column;min-height:575px;margin-left:-16px;padding-left:32px}
+.ct-side-top{text-align:center;padding-bottom:20px;border-bottom:1px solid var(--border-color);margin-bottom:18px}
+.ct-side-top b{display:block;margin-top:12px;font-size:15px}
+.ct-side-top span{font-size:12px;color:var(--text-muted)}
+.ct-nav{display:flex;flex-direction:column;gap:4px}
+.ct-it{display:flex;align-items:center;gap:12px;padding:11px 12px;border:0;border-left:3px solid transparent;border-radius:0 10px 10px 0;background:none;color:#cfc6ee;font-size:14px;font-weight:500;text-align:left;width:100%}
+.ct-it .material-symbols-rounded{font-size:20px}
+.ct-it:hover{background:rgba(167,139,250,.1);color:#fff}
+.ct-it.on{background:#1f1445;color:#8b5cf6;border-left-color:var(--pri);font-weight:700}
+.ct-salir{margin-top:22px}
+.ct-ver{margin-top:auto;border-top:1px solid var(--border-color);padding-top:14px;font-size:11px;font-weight:700;color:#a78bfa}
+.ct-ver::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:6px}
+
+/* Avatar */
+.ct-av{display:grid;place-items:center;border-radius:50%;background:#be185d;border:3px solid var(--gold);color:#fff;font-weight:600;overflow:hidden;flex-shrink:0}
+.ct-av img{width:100%;height:100%;object-fit:cover}
+.ct-av.s{width:66px;height:66px;font-size:30px}
+.ct-av.l{width:94px;height:94px;font-size:44px}
+
+/* Contenido */
+.ct-cont{padding-top:22px}
+.ct-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.ct-head h1{display:flex;align-items:center;gap:12px;font-size:21px}
+.ct-head h1 .material-symbols-rounded{color:#8b5cf6;font-size:28px}
+.ct-back{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(139,92,246,.55);border-radius:8px;padding:8px 14px;font-size:13px;color:#8b5cf6}
+.ct-back:hover{background:rgba(139,92,246,.12)}
+.ct-back .material-symbols-rounded{font-size:16px}
+.ct-card{background:var(--card);border:1px solid var(--border-color);border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.ct-foto{display:flex;align-items:center;gap:20px;padding:18px 20px}
+.ct-lab{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cfc6ee}
+.ct-foto p{font-size:12px;color:var(--text-muted);margin:10px 0 12px}
+.ct-acc{display:flex;gap:10px;flex-wrap:wrap}
+.ct-btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;border:1px solid transparent;background:none;color:#cfc6ee}
+.ct-btn .material-symbols-rounded{font-size:16px}
+.ct-btn.bord{border-color:rgba(139,92,246,.55);color:#8b5cf6;background:#1a1236}
+.ct-btn:hover{color:#fff}
+.ct-fila{display:flex;justify-content:space-between;align-items:flex-end;margin:20px 0 18px}
+.ct-cod{display:inline-flex;align-items:center;gap:10px;margin-top:8px;border:1px solid var(--border-color);border-radius:999px;padding:9px 12px;background:var(--card);font-family:'Courier New',monospace;font-weight:700;font-size:13px;color:#fff}
+.ct-cod button{border:0;background:none;color:#cfc6ee;display:grid;place-items:center}
+.ct-cod .material-symbols-rounded{font-size:16px}
+.ct-total{text-align:right}
+.ct-total b{display:block;font-size:22px;color:#8b5cf6;margin-top:6px}
+.ct-dato{display:flex;align-items:center;gap:18px;padding:24px 22px;margin-bottom:14px;min-height:92px}
+.ct-dato>.material-symbols-rounded{font-size:26px;color:#8b5cf6}
+.ct-dato b{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:15px}
+.ct-dato b input{background:#0d0819;border:1px solid var(--pri);border-radius:8px;padding:6px 10px;color:#fff;font:inherit;width:240px;max-width:100%}
+.ct-edit{border:0;background:none;color:#a99fc9;display:grid;place-items:center}
+.ct-edit:hover{color:#fff}
+.ct-edit .material-symbols-rounded{font-size:17px}
+.ct-ok{color:#4ade80!important}
+
+/* Footer */
+.ct-foot{background:#3a2a6e;padding:38px 0 26px}
+.ct-foot-in{max-width:1070px;margin:0 auto;padding:0 16px}
+.ct-foot-top{display:flex;justify-content:space-between;align-items:flex-start}
+.ct-marca{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;margin-top:10px}
+.ct-redes{text-align:right}
+.ct-redes small{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#c4b5fd;margin-bottom:14px}
+.ct-redes div{display:flex;gap:10px;justify-content:flex-end}
+.ct-redes a{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;color:#fff}
+.ct-redes svg{width:20px;height:20px;fill:currentColor}
+.ct-foot-bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:44px;font-size:13px}
+.ct-foot-bot nav{display:flex;gap:10px;flex-wrap:wrap}
+.ct-foot-bot nav a+a::before{content:"·";margin-right:10px;color:#a99fc9}
+.ct-foot-bot span{color:#d8cff5;font-size:12px}
+
+@media (max-width:820px){
+  .lx-links,.lx-moneda{display:none}
+  .ct-main{grid-template-columns:1fr;gap:0}
+  .ct-side{min-height:0;margin:0 -16px;padding:20px 16px;border-right:0}
+  .ct-ver{display:none}
+  .ct-foot-top,.ct-foot-bot{flex-direction:column}
+  .ct-redes,.ct-redes div{text-align:left;justify-content:flex-start}
+  .ct-foto{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<nav class="lx-nav">
+  <div class="lx-nav-in">
+    <a href="index.html"><img src="logo.png" alt="CachinaStore" class="lx-logo"></a>
+    <div class="lx-links">
+      <a href="index.html">Inicio</a>
+      <a href="#">Juegos</a>
+      <a href="#">Gift Card</a>
+      <a href="#">Servicios Adicionales</a>
+    </div>
+    <div class="lx-sp"></div>
+    <div class="lx-moneda"><small>Moneda:</small><span class="lx-flag"></span><b>PEN</b><span class="material-symbols-rounded" style="font-size:16px">expand_more</span></div>
+    <button class="lx-ico" type="button" aria-label="Cambiar tema"><span class="material-symbols-rounded">light_mode</span></button>
+    <a class="lx-ico" href="#" aria-label="Carrito"><span class="material-symbols-rounded">shopping_cart</span></a>
+  </div>
+</nav>
+
+<div class="ct-main">
+  <aside class="ct-side">
+    <div class="ct-side-top">
+      <div class="ct-av s" id="av-side" style="margin:0 auto"></div>
+      <b id="side-nombre"></b>
+      <span id="side-email"></span>
+    </div>
+    <div class="ct-nav">
+      <button class="ct-it on" type="button"><span class="material-symbols-rounded">person</span>Perfil</button>
+      <a class="ct-it" href="#"><span class="material-symbols-rounded">receipt_long</span>Mis pedidos</a>
+      <a class="ct-it" href="index.html#reseñas"><span class="material-symbols-rounded">reviews</span>Mi reseña</a>
+      <a class="ct-it" href="https://wa.me/51969639154" target="_blank" rel="noopener"><span class="material-symbols-rounded">help</span>Ayuda</a>
+      <button class="ct-it ct-salir" id="btn-salir" type="button"><span class="material-symbols-rounded">logout</span>Cerrar sesión</button>
+    </div>
+    <div class="ct-ver">CACHINA v1.0</div>
+  </aside>
+
+  <main class="ct-cont">
+    <div class="ct-head">
+      <h1><span class="material-symbols-rounded">person</span>Mi cuenta</h1>
+      <a class="ct-back" href="index.html"><span class="material-symbols-rounded">arrow_back</span>Volver a la tienda</a>
+    </div>
+
+    <section class="ct-card ct-foto">
+      <div class="ct-av l" id="av-main"></div>
+      <div>
+        <div class="ct-lab">Foto de perfil</div>
+        <p>Se muestra en tu panel de cuenta. Usa el enlace https de una imagen.</p>
+        <div class="ct-acc">
+          <button class="ct-btn bord" id="btn-foto" type="button"><span class="material-symbols-rounded">photo_camera</span>Cambiar foto</button>
+          <button class="ct-btn" id="btn-quitar" type="button"><span class="material-symbols-rounded">delete</span>Quitar</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="ct-fila">
+      <div>
+        <div class="ct-lab">Código de cliente</div>
+        <div class="ct-cod"><span id="codigo"></span><button id="btn-copiar" type="button" aria-label="Copiar código"><span class="material-symbols-rounded">content_copy</span></button></div>
+      </div>
+      <div class="ct-total">
+        <div class="ct-lab">Total invertido</div>
+        <b>$0.00</b>
+      </div>
+    </div>
+
+    <section class="ct-card ct-dato">
+      <span class="material-symbols-rounded">person</span>
+      <div>
+        <div class="ct-lab">Nombre</div>
+        <b><span id="dato-nombre"></span><button class="ct-edit" id="btn-nombre" type="button" aria-label="Editar nombre"><span class="material-symbols-rounded">edit</span></button></b>
+      </div>
+    </section>
+
+    <section class="ct-card ct-dato">
+      <span class="material-symbols-rounded">mail</span>
+      <div>
+        <div class="ct-lab">Correo electrónico</div>
+        <b id="dato-email"></b>
+      </div>
+    </section>
+
+    <section class="ct-card ct-dato">
+      <span class="material-symbols-rounded">calendar_month</span>
+      <div>
+        <div class="ct-lab">Miembro desde</div>
+        <b id="dato-desde"></b>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="ct-foot">
+  <div class="ct-foot-in">
+    <div class="ct-foot-top">
+      <div class="ct-marca"><img src="logo.png" alt="" class="lx-logo">CachinaStore</div>
+      <div class="ct-redes">
+        <small>Nuestras redes</small>
+        <div>
+          <a href="https://wa.me/51969639154" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.24 8.24Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29Z"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12a12 12 0 1 0-13.9 11.85v-8.38H7.1V12h3V9.36c0-3 1.8-4.67 4.54-4.67 1.31 0 2.69.23 2.69.23v2.96h-1.51c-1.49 0-1.96.93-1.96 1.88V12h3.33l-.53 3.47h-2.8v8.38A12 12 0 0 0 24 12Z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="ct-foot-bot">
+      <nav>
+        <a href="#">Contacto</a><a href="#">Preguntas frecuentes</a><a href="mi-cuenta.html">Mi cuenta</a><a href="#">Términos y condiciones</a><a href="#">Política de privacidad</a>
+      </nav>
+      <span>© 2026 CachinaStore · Todos los derechos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const LS = 'cachina_sesion';
+  let sesion = null;
+  try { sesion = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
+  if (!sesion || sesion.exp * 1000 < Date.now()) {
+    // En vista previa (iframe) o abierto como archivo local: datos de ejemplo
+    let enPrevia = false;
+    try { enPrevia = window.self !== window.top || location.protocol === 'file:'; } catch (e) { enPrevia = true; }
+    if (!enPrevia) { location.replace('index.html'); return; }
+    sesion = { nombre: 'Daniel Santos', email: 'dannssj3@gmail.com', exp: 9999999999, token: '' };
+  }
+
+  const $ = id => document.getElementById(id);
+  function leer(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function guardar(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function borrar(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  const K = (sesion.email || sesion.nombre || 'x').toLowerCase();
+  const KF = 'cachina_foto_' + K, KN = 'cachina_nombre_' + K, KD = 'cachina_desde_' + K;
+
+  // Código de cliente estable a partir del correo
+  function codigoCliente(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return 'CCH-' + h.toString(36).toUpperCase().padStart(6, '0').slice(0, 6);
+  }
+
+  // Fecha de registro: la primera vez que entra a esta página
+  if (!leer(KD)) guardar(KD, new Date().toISOString());
+
+  function nombre() { return leer(KN) || sesion.nombre || 'Cliente'; }
+
+  function pintarAvatar(el) {
+    const f = leer(KF);
+    el.textContent = '';
+    if (f) {
+      const im = document.createElement('img');
+      im.src = f; im.alt = '';
+      im.onerror = () => { borrar(KF); pintarTodo(); };
+      el.appendChild(im);
+    } else {
+      el.textContent = nombre()[0].toUpperCase();
+    }
+  }
+
+  function pintarTodo() {
+    pintarAvatar($('av-side'));
+    pintarAvatar($('av-main'));
+    $('side-nombre').textContent = nombre();
+    $('side-email').textContent = sesion.email || '';
+    $('dato-nombre').textContent = nombre();
+    $('dato-email').textContent = sesion.email || 'No disponible';
+    $('codigo').textContent = codigoCliente(K);
+    const d = new Date(leer(KD));
+    $('dato-desde').textContent = d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  pintarTodo();
+
+  // Foto
+  $('btn-foto').addEventListener('click', () => {
+    const url = prompt('Pega el enlace https de tu imagen:');
+    if (!url) return;
+    if (!/^https:\/\/\S+$/i.test(url.trim())) { alert('El enlace debe empezar con https://'); return; }
+    guardar(KF, url.trim());
+    pintarTodo();
+  });
+  $('btn-quitar').addEventListener('click', () => { borrar(KF); pintarTodo(); });
+
+  // Copiar código
+  $('btn-copiar').addEventListener('click', () => {
+    const ico = $('btn-copiar').firstElementChild;
+    const t = $('codigo').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).catch(() => {}).finally(() => {
+      ico.textContent = 'check'; ico.classList.add('ct-ok');
+      setTimeout(() => { ico.textContent = 'content_copy'; ico.classList.remove('ct-ok'); }, 1400);
+    });
+  });
+
+  // Editar nombre
+  $('btn-nombre').addEventListener('click', () => {
+    const span = $('dato-nombre');
+    const inp = document.createElement('input');
+    inp.value = nombre(); inp.maxLength = 40;
+    span.replaceWith(inp);
+    inp.focus(); inp.select();
+    let hecho = false;
+    function fin(ok) {
+      if (hecho) return; hecho = true;
+      const v = inp.value.trim();
+      if (ok && v) {
+        guardar(KN, v);
+        // mantiene el menú de la tienda sincronizado
+        sesion.nombre = v; guardar(LS, JSON.stringify(sesion));
+      }
+      inp.replaceWith(span);
+      pintarTodo();
+    }
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') fin(true); if (e.key === 'Escape') fin(false); });
+    inp.addEventListener('blur', () => fin(true));
+  });
+
+  // Cerrar sesión
+  $('btn-salir').addEventListener('click', () => { borrar(LS); location.href = 'index.html'; });
+})();
+</script>
+</body>
+</html>
