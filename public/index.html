@@ -1399,8 +1399,8 @@ if (tBtn && tCuenta) {
     const etiqueta = $('nombre-usuario-carrito');
     if (etiqueta) etiqueta.textContent = sesion ? '👤 ' + (sesion.email || sesion.nombre) : '👤 Sin iniciar sesión';
     if (inputId) {
-      inputId.disabled = !sesion;
-      inputId.placeholder = sesion ? 'Tu ID de Fortnite' : 'Inicia sesión para escribirlo';
+      inputId.disabled = false;
+      inputId.placeholder = sesion ? 'Toca para elegir tu ID' : 'Toca para iniciar sesión';
       if (document.activeElement !== inputId) inputId.value = leerIdFortnite();
     }
   }
@@ -1650,10 +1650,10 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
         avisoCarrito('Agrega al menos un producto al carrito.');
         return;
       }
-      if (!leerIdFortnite()) {
+        if (!leerIdFortnite()) {
         e.preventDefault(); e.stopPropagation();
-        avisoCarrito('Escribe tu ID de Fortnite: ahí enviaremos tu regalo.');
-        inputId?.focus();
+        avisoCarrito('Primero elige tu ID de Fortnite: ahí enviaremos tu regalo.');
+        abrirId();
         return;
       }
     }
