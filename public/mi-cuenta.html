@@ -112,6 +112,31 @@ button{font-family:inherit;cursor:pointer}
 .ay-pie{text-align:center;font-size:13px;color:#cfc6ee;margin-top:22px}
 .ay-pie a{color:#8b5cf6;font-weight:600}
 @media (max-width:820px){.ay-grid{grid-template-columns:1fr}}
+/* Lista de pedidos */
+.pd-card{margin-bottom:16px;overflow:hidden}
+.pd-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--border-color)}
+.pd-tk{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pd-tk b{font-family:'Courier New',monospace;font-size:20px;color:#8b5cf6}
+.pd-est{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:11px;font-weight:800;letter-spacing:.04em;border:1px solid}
+.pd-est.verificando{color:#fbbf24;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.pd-est.aprobado{color:#4ade80;border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.1)}
+.pd-est.entregado{color:#60a5fa;border-color:rgba(96,165,250,.5);background:rgba(96,165,250,.1)}
+.pd-est.rechazado{color:#f87171;border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1)}
+.pd-fecha{font-size:12px;color:var(--text-muted)}
+.pd-msg{padding:12px 20px 0;font-size:13px;color:var(--text-muted)}
+.pd-items{padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+.pd-item{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:12px;background:rgba(0,0,0,.18);border:1px solid var(--border-color)}
+.pd-item img{width:44px;height:44px;border-radius:8px;object-fit:contain;background:rgba(124,58,237,.25);flex-shrink:0}
+.pd-item-info{flex:1;min-width:0}
+.pd-item-info b{display:block;font-size:14px}
+.pd-item-info small{font-size:12px;color:var(--text-muted)}
+.pd-item-cant{font-weight:800;font-size:13px;color:#cfc6ee}
+.pd-item-precio{font-weight:800;color:#8b5cf6;white-space:nowrap}
+.pd-pie{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border-color);font-size:13px;color:#cfc6ee}
+.pd-pie strong{font-size:22px;color:#8b5cf6}
+.pd-pie span small{font-size:11px;letter-spacing:.06em;margin-right:8px;color:var(--text-muted)}
+.claro .pd-item{background:rgba(255,255,255,.55)}
+.claro .pd-item-cant,.claro .pd-pie{color:#4a3a7a}
 
 /* Modo claro */
 html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);--text-muted:#6b5f8f;--txt:#1b1238}
@@ -167,9 +192,9 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
 
 <nav class="lx-nav">
   <div class="lx-nav-in">
-    <a href="preview-bienvenida.html"><img src="logo.png" alt="CachinaStore" class="lx-logo"></a>
+    <a href="/"><img src="logo.png" alt="CachinaStore" class="lx-logo"></a>
     <div class="lx-links">
-      <a href="preview-bienvenida.html">Inicio</a>
+      <a href="/">Inicio</a>
     </div>
     <div class="lx-sp"></div>
     <div class="lx-moneda"><small>Moneda:</small><span class="lx-flag"></span><b>PEN</b><span class="material-symbols-rounded" style="font-size:16px">expand_more</span></div>
@@ -198,7 +223,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   <main class="ct-cont">
     <div class="ct-head">
       <h1><span class="material-symbols-rounded" id="ct-titulo-ico">person</span><span id="ct-titulo">Mi cuenta</span></h1>
-      <a class="ct-back" href="preview-bienvenida.html"><span class="material-symbols-rounded">arrow_back</span>Volver a la tienda</a>
+      <a class="ct-back" href="/"><span class="material-symbols-rounded">arrow_back</span>Volver a la tienda</a>
     </div>
 
     <div id="vista-perfil">
@@ -221,7 +246,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
       </div>
       <div class="ct-total">
         <div class="ct-lab">Total invertido</div>
-        <b>$0.00</b>
+        <b id="total-invertido">S/ 0.00</b>
       </div>
     </div>
 
@@ -251,11 +276,12 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     </div>
 
     <div id="vista-pedidos" hidden>
-      <section class="ct-card ct-vacio">
+      <div id="pedidos-lista"></div>
+      <section class="ct-card ct-vacio" id="pedidos-vacio" hidden>
         <span class="material-symbols-rounded">shopping_bag</span>
         <h2>Aún no tienes pedidos</h2>
         <p>Explora la tienda y haz tu primera compra.</p>
-        <a class="ct-btn-pri" href="preview-bienvenida.html"><span class="material-symbols-rounded">storefront</span>Ir a la tienda</a>
+        <a class="ct-btn-pri" href="/"><span class="material-symbols-rounded">storefront</span>Ir a la tienda</a>
       </section>
     </div>
 
@@ -264,7 +290,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
         <span class="material-symbols-rounded">reviews</span>
         <h2>Aún no puedes dejar una reseña</h2>
         <p>Podrás dejar tu reseña cuando completes tu primera compra.</p>
-        <a class="ct-btn-pri" href="preview-bienvenida.html"><span class="material-symbols-rounded">storefront</span>Ver la tienda</a>
+        <a class="ct-btn-pri" href="/"><span class="material-symbols-rounded">storefront</span>Ver la tienda</a>
       </section>
     </div>
 
@@ -346,7 +372,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     // En vista previa (iframe) o abierto como archivo local: datos de ejemplo
     let enPrevia = false;
     try { enPrevia = window.self !== window.top || location.protocol === 'file:'; } catch (e) { enPrevia = true; }
-    if (!enPrevia) { location.replace('preview-bienvenida.html'); return; }
+    if (!enPrevia) { location.replace('/'); return; }
     sesion = { nombre: 'Daniel Santos', email: 'dannssj3@gmail.com', exp: 9999999999, token: '' };
   }
 
@@ -438,7 +464,93 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') fin(true); if (e.key === 'Escape') fin(false); });
     inp.addEventListener('blur', () => fin(true));
   });
+ // ---------- Mis pedidos (desde el servidor) ----------
+  const ETIQUETAS = {
+    verificando: 'VERIFICANDO', aprobado: 'APROBADO', entregado: 'ENTREGADO', rechazado: 'RECHAZADO'
+  };
+  const MENSAJES = {
+    verificando: 'Estamos verificando tu pago. Te avisamos aquí cuando lo confirmemos.',
+    aprobado: 'Tu pago fue aprobado. Estamos preparando tu pedido.',
+    entregado: '¡Tu pedido fue entregado! Gracias por tu compra.',
+    rechazado: 'No pudimos validar tu pago. Escríbenos por WhatsApp y lo revisamos.'
+  };
 
+  function el(tag, cls, texto) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+  }
+
+  function tarjetaPedido(p) {
+    const card = el('section', 'ct-card pd-card');
+
+    const top = el('div', 'pd-top');
+    const tk = el('div', 'pd-tk');
+    tk.append(el('b', '', p.ticket));
+    tk.append(el('span', 'pd-est ' + p.estado, ETIQUETAS[p.estado] || p.estado.toUpperCase()));
+    const fecha = new Date(p.fecha).toLocaleString('es-PE', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    top.append(tk, el('span', 'pd-fecha', fecha));
+    card.append(top);
+
+    if (MENSAJES[p.estado]) card.append(el('p', 'pd-msg', MENSAJES[p.estado]));
+
+    const items = el('div', 'pd-items');
+    (p.items || []).forEach(i => {
+      const fila = el('div', 'pd-item');
+      if (i.imagen && /^https:\/\//i.test(i.imagen)) {
+        const im = document.createElement('img');
+        im.src = i.imagen; im.alt = '';
+        fila.append(im);
+      }
+      const info = el('div', 'pd-item-info');
+      info.append(el('b', '', i.nombre), el('small', '', 'Para: ' + p.idFortnite));
+      fila.append(info, el('span', 'pd-item-cant', '×' + i.cantidad),
+                  el('span', 'pd-item-precio', 'S/ ' + (i.precio * i.cantidad).toFixed(2)));
+      items.append(fila);
+    });
+    card.append(items);
+
+    const pie = el('div', 'pd-pie');
+    pie.append(el('span', '', 'Método: Yape/Plin/Sip'));
+    const tot = el('span');
+    tot.append(el('small', '', 'TOTAL'), el('strong', '', 'S/ ' + Number(p.total).toFixed(2)));
+    pie.append(tot);
+    card.append(pie);
+    return card;
+  }
+
+  let cargandoPedidos = false;
+  function cargarPedidos() {
+    if (cargandoPedidos) return;
+    const lista = $('pedidos-lista'), vacio = $('pedidos-vacio');
+    if (!sesion.token) { vacio.hidden = false; return; }
+    cargandoPedidos = true;
+    fetch('/api/mis-pedidos', { headers: { Authorization: 'Bearer ' + sesion.token } })
+      .then(r => {
+        if (r.status === 401) { borrar(LS); location.href = '/'; throw new Error('sesion'); }
+        if (!r.ok) throw new Error('http');
+        return r.json();
+      })
+      .then(d => {
+        const pedidos = d.pedidos || [];
+        lista.textContent = '';
+        pedidos.forEach(p => lista.append(tarjetaPedido(p)));
+        vacio.hidden = pedidos.length > 0;
+        const pagado = pedidos
+          .filter(p => p.estado === 'aprobado' || p.estado === 'entregado')
+          .reduce((s, p) => s + Number(p.total), 0);
+        $('total-invertido').textContent = 'S/ ' + pagado.toFixed(2);
+      })
+      .catch(e => {
+        if (e.message === 'sesion') return;
+        lista.textContent = '';
+        lista.append(el('p', 'pd-msg', 'No se pudieron cargar tus pedidos. Intenta de nuevo en unos segundos.'));
+      })
+      .finally(() => { cargandoPedidos = false; });
+  }
   // Cambio de vista: Perfil / Mis pedidos
   const vistas = {
     perfil:  { el: $('vista-perfil'),  titulo: 'Mi cuenta',   ico: 'person' },
@@ -448,6 +560,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   };
   function mostrar(v) {
     if (!vistas[v]) v = 'perfil';
+    if (v === 'pedidos') cargarPedidos();
     for (const k in vistas) vistas[k].el.hidden = (k !== v);
     $('ct-titulo').textContent = vistas[v].titulo;
     $('ct-titulo-ico').textContent = vistas[v].ico;
@@ -456,7 +569,8 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   }
   document.querySelectorAll('.ct-it[data-vista]').forEach(b => b.addEventListener('click', () => mostrar(b.dataset.vista)));
   mostrar(location.hash.slice(1));
-
+  cargarPedidos();
+ 
   // Tema claro / oscuro
   const raiz = document.documentElement;
   function icoTema() {
@@ -472,7 +586,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   icoTema();
 
   // Cerrar sesión
-  $('btn-salir').addEventListener('click', () => { borrar(LS); location.href = 'preview-bienvenida.html'; });
+  $('btn-salir').addEventListener('click', () => { borrar(LS); location.href = '/'; });
 })();
 </script>
 </body>
