@@ -1537,8 +1537,50 @@ $('t-cuenta-btn')?.addEventListener('click', (e) => { e.stopPropagation(); tMenu
 document.addEventListener('click', (e) => { if (tCuentaEl && !tCuentaEl.contains(e.target)) tMenu(false); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') tMenu(false); });
 $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
-  // Chip de la cabecera: si no hay sesión, abre el login
-  $('id-cliente-header')?.addEventListener('click', () => { if (!sesion) pedirLogin('', null); });
+  // ---------- Ventana "Datos de entrega" (ID / User) ----------
+  const idOv = $('id-overlay'), idIn = $('id-input'), idErr = $('id-err');
+  const pasoConfirmar = $('id-paso-confirmar'), pasoIngresar = $('id-paso-ingresar');
+
+  function verPaso(cual) {
+    pasoConfirmar.classList.toggle('on', cual === 'confirmar');
+    pasoIngresar.classList.toggle('on', cual === 'ingresar');
+    if (cual === 'ingresar') setTimeout(() => idIn.focus(), 50);
+  }
+  function abrirId() {
+    const actual = leerIdFortnite();
+    idErr.textContent = '';
+    idIn.value = '';
+    if (actual) {
+      $('id-actual-nombre').textContent = actual;
+      verPaso('confirmar');
+    } else {
+      verPaso('ingresar');
+    }
+    idOv.classList.add('abierto');
+    document.body.classList.add('lg-bloqueado');
+  }
+  function cerrarId() {
+    idOv.classList.remove('abierto');
+    document.body.classList.remove('lg-bloqueado');
+  }
+  function guardarId() {
+    const v = idIn.value.trim();
+    if (!v) { idErr.textContent = 'Escribe tu ID o nick.'; return; }
+    guardarIdFortnite(v);
+    avisoCarrito('');
+    cerrarId();
+  }
+  $('id-cliente-header')?.addEventListener('click', () => {
+    if (!sesion) pedirLogin('Inicia sesión con Google para guardar tu ID.', abrirId);
+    else abrirId();
+  });
+  $('id-si')?.addEventListener('click', () => { avisoCarrito(''); cerrarId(); });
+  $('id-no')?.addEventListener('click', () => verPaso('ingresar'));
+  $('id-guardar')?.addEventListener('click', guardarId);
+  $('id-cerrar')?.addEventListener('click', cerrarId);
+  idIn?.addEventListener('keydown', (e) => { if (e.key === 'Enter') guardarId(); });
+  idOv?.addEventListener('click', (e) => { if (e.target === idOv) cerrarId(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && idOv.classList.contains('abierto')) cerrarId(); });
 
   // ---------- ID de Fortnite en el carrito ----------
   function avisoCarrito(texto) {
