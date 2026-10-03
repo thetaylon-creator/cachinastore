@@ -137,7 +137,15 @@ button{font-family:inherit;cursor:pointer}
 .pd-pie span small{font-size:11px;letter-spacing:.06em;margin-right:8px;color:var(--text-muted)}
 .claro .pd-item{background:rgba(255,255,255,.55)}
 .claro .pd-item-cant,.claro .pd-pie{color:#4a3a7a}
-
+.pd-est.no_confirmado{color:#f87171;border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.1)}
+.pd-motivo{display:flex;align-items:center;gap:10px;margin:12px 20px 0;padding:14px 16px;border-radius:12px;border:1px solid var(--border-color);font-size:14px;font-weight:600}
+.pd-motivo .material-symbols-rounded{color:#a78bfa;font-size:20px}
+.pd-error{margin:12px 20px 0;padding:14px 16px;border-radius:12px;border:1px solid rgba(248,113,113,.35);background:rgba(120,40,20,.35);font-size:13px;color:#fecaca}
+.pd-error b{color:#fff}
+.pd-wa{display:inline-flex;align-items:center;gap:8px;margin-top:10px;height:38px;padding:0 14px;border-radius:8px;background:var(--pri);color:#fff;font-size:13px;font-weight:700}
+.pd-wa .material-symbols-rounded{font-size:18px}
+.claro .pd-error{background:rgba(248,113,113,.15);color:#7f1d1d}
+.claro .pd-error b{color:#450a0a}
 /* Modo claro */
 html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);--text-muted:#6b5f8f;--txt:#1b1238}
 .claro .lx-nav{background:#cdbde9}
@@ -466,13 +474,13 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   });
  // ---------- Mis pedidos (desde el servidor) ----------
   const ETIQUETAS = {
-    verificando: 'VERIFICANDO', aprobado: 'APROBADO', entregado: 'ENTREGADO', rechazado: 'RECHAZADO'
+    verificando: 'VERIFICANDO', aprobado: 'APROBADO', entregado: 'ENTREGADO', no_confirmado: 'NO CONFIRMADO'
   };
   const MENSAJES = {
     verificando: 'Estamos verificando tu pago. Te avisamos aquí cuando lo confirmemos.',
     aprobado: 'Tu pago fue aprobado. Estamos preparando tu pedido.',
     entregado: '¡Tu pedido fue entregado! Gracias por tu compra.',
-    rechazado: 'No pudimos validar tu pago. Escríbenos por WhatsApp y lo revisamos.'
+    no_confirmado: 'No pudimos confirmar tu pago.'
   };
 
   function el(tag, cls, texto) {
@@ -496,6 +504,23 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     card.append(top);
 
     if (MENSAJES[p.estado]) card.append(el('p', 'pd-msg', MENSAJES[p.estado]));
+        if (p.estado === 'no_confirmado') {
+      const mot = el('div', 'pd-motivo');
+      mot.append(el('span', 'material-symbols-rounded', 'chat'), el('span', '', p.motivo || 'No llegó el pago'));
+      card.append(mot);
+
+      const err = el('div', 'pd-error');
+      const txt = el('span');
+      txt.append('Si crees que es un error, escríbenos con tu ticket ', el('b', '', p.ticket), ' y lo revisamos.');
+      const wa = document.createElement('a');
+      wa.className = 'pd-wa';
+      wa.target = '_blank';
+      wa.rel = 'noopener';
+      wa.href = 'https://wa.me/51969639154?text=' + encodeURIComponent('Hola, mi pedido ' + p.ticket + ' figura como no confirmado. Quiero que lo revisen.');
+      wa.append(el('span', 'material-symbols-rounded', 'chat'), 'Escríbenos por WhatsApp');
+      err.append(txt, document.createElement('br'), wa);
+      card.append(err);
+    }
 
     const items = el('div', 'pd-items');
     (p.items || []).forEach(i => {
