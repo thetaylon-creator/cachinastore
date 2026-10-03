@@ -918,7 +918,12 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 
   function iniciar(urls) {
     if (!urls.length) { art.classList.add('fallback'); return; }
-    lista = urls;
+    // Orden aleatorio en cada recarga (Fisher-Yates)
+    lista = urls.slice();
+    for (let i = lista.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
     indice = 0;
     lista.forEach(src => { const im = new Image(); im.src = src; });
     clearInterval(timer);
