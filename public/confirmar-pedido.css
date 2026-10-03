@@ -1,230 +1,570 @@
-// ==========================================
-// MODAL "CONFIRMAR PEDIDO"
-// Se carga DESPUÉS de script.js.
-// ==========================================
-(function () {
-  const modal = document.getElementById('modal-pago');
-  if (!modal) return;
+/* ==========================================
+   MODAL "CONFIRMAR PEDIDO"
+   Se carga DESPUÉS de style.css y reemplaza visualmente al
+   modal de pago anterior (mismo id: #modal-pago).
+   ========================================== */
+.modal-pago.modal-confirmar {
+  width: 900px;
+  max-width: 94vw;
+  height: 600px;
+  max-height: 92dvh;
+  padding: 0;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #150f2b;
+  border: 1px solid #2d2352;
+}
 
-  const $ = (id) => document.getElementById(id);
+/* ---------- Panel izquierdo (morado) ---------- */
+.mc-lateral {
+  width: 340px;
+  flex-shrink: 0;
+  padding: 32px;
+  background: linear-gradient(165deg, #6428c8 0%, #7c3aed 45%, #9333ea 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
 
-  const el = {
-    listaPedido: $('mc-lista-pedido'),
-    total: $('monto-total-pago'),
-    usuarioNombre: $('mc-usuario-nombre'),
-    usuarioEmail: $('mc-usuario-email'),
-    mensaje: $('mc-mensaje'),
-    pasoPedido: $('mc-paso-pedido'),
-    pasoComprobante: $('mc-paso-comprobante'),
-    pasoExito: $('mc-paso-exito'),
-    selector: $('mc-selector'),
-    seleccionado: $('mc-seleccionado'),
-    detalle: $('mc-detalle'),
-    btnMetodo: $('mc-btn-metodo'),
-    btnCambiar: $('mc-btn-cambiar'),
-    btnYaPague: $('btn-ya-pague'),
-    ayuda: $('mc-ayuda'),
-    btnVolver: $('mc-btn-volver'),
-    inputArchivo: $('mc-input-archivo'),
-    zona: $('mc-zona-subir'),
-    preview: $('mc-preview'),
-    btnFinalizar: $('mc-btn-finalizar'),
-    btnSinComprobante: $('mc-btn-sin-comprobante')
-  };
+.mc-logo {
+  background: #ffffff;
+  border-radius: 12px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  flex-shrink: 0;
+}
 
-  let urlPreview = null;
-  let finalizando = false;
+.mc-logo img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
 
-  function leerSesion() {
-    try { return JSON.parse(localStorage.getItem('cachina_sesion') || 'null') || {}; } catch (e) { return {}; }
+.mc-usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 14px 16px;
+  flex-shrink: 0;
+}
+
+.mc-usuario svg {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.mc-usuario strong {
+  display: block;
+  font-size: 0.95rem;
+  word-break: break-all;
+}
+
+.mc-usuario small {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.78rem;
+}
+
+.mc-linea {
+  height: 2px;
+  background: linear-gradient(90deg, #fbbf24, transparent);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.mc-mensaje p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 18px;
+}
+
+/* ---------- Panel derecho ---------- */
+.mc-contenido {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 28px 22px;
+  background: #171229;
+}
+
+.mc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+
+.mc-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.mc-header h2 svg {
+  color: #8b5cf6;
+}
+
+.mc-cerrar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #3b2d78;
+  background: rgba(124, 58, 237, 0.12);
+  color: #a78bfa;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.mc-cerrar:hover {
+  background: rgba(124, 58, 237, 0.3);
+  border-color: #7c3aed;
+}
+
+.mc-paso {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 4px;
+}
+
+.mc-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #8b5cf6;
+  margin: 4px 0 10px;
+}
+
+/* ---------- Tu pedido ---------- */
+.mc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #211a3d;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.mc-item img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: rgba(124, 58, 237, 0.25);
+  flex-shrink: 0;
+}
+
+.mc-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-item-nombre {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-item-para {
+  font-size: 0.75rem;
+  color: #8b5cf6;
+  margin-top: 2px;
+}
+
+.mc-item-cant {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.mc-item-precio {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #8b5cf6;
+  white-space: nowrap;
+}
+
+.mc-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #7c3aed;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin: 12px 0 18px;
+}
+
+.mc-total span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.mc-total strong {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #fbbf24;
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+}
+
+/* ---------- Método de pago ---------- */
+.mc-moneda {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.mc-metodo {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #4c3a9a;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.mc-metodo:hover {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: #7c3aed;
+}
+
+.mc-metodo-activo {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: #7c3aed;
+  cursor: default;
+}
+
+.mc-metodo-nombre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-metodo-nombre img {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.mc-cambiar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #a78bfa;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.mc-cambiar:hover {
+  color: #fff;
+}
+
+.mc-detalle {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2d2352;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.mc-detalle-texto {
+  flex: 1;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #a09cb0;
+}
+
+.mc-detalle-texto b {
+  display: block;
+  color: #fff;
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.mc-detalle-texto strong {
+  color: #fff;
+  font-size: 0.95rem;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+.mc-detalle .qr-contenedor {
+  flex-shrink: 0;
+}
+
+.mc-detalle .qr-imagen {
+  width: 150px;
+  background: #fff;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+/* ---------- Botón "Ya pagué" / "Listo, finalizar" ---------- */
+.mc-pie {
+  flex-shrink: 0;
+  padding-top: 14px;
+  text-align: center;
+}
+
+.mc-pie p {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.mc-btn-pagado {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: #4ade80;
+  color: #052e16;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
+}
+
+.mc-btn-pagado:hover:not(:disabled) {
+  background: #22c55e;
+  transform: translateY(-1px);
+}
+
+.mc-btn-pagado:disabled {
+  background: #2e2653;
+  color: #9a93b8;
+  cursor: not-allowed;
+}
+
+/* ---------- Paso 2: subir comprobante ---------- */
+.mc-volver {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #c4b5fd;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.mc-volver:hover {
+  color: #fff;
+}
+
+.mc-subir {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 10px;
+  overflow-y: auto;
+}
+
+.mc-subir-icono {
+  color: #8b5cf6;
+  margin-bottom: 8px;
+}
+
+.mc-subir h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.mc-subir > p {
+  font-size: 0.85rem;
+  color: #c4bfd8;
+  max-width: 330px;
+  margin-bottom: 16px;
+}
+
+.mc-zona-subir {
+  width: 100%;
+  max-width: 380px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #120d24;
+  border: 1.5px dashed #3b2d78;
+  border-radius: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.mc-zona-subir:hover {
+  border-color: #7c3aed;
+  background: #170f2e;
+}
+
+.mc-zona-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d4d0e6;
+}
+
+.mc-zona-vacia svg {
+  color: #a78bfa;
+}
+
+.mc-preview {
+  display: none;
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+.mc-zona-subir.con-imagen .mc-preview {
+  display: block;
+}
+
+.mc-zona-subir.con-imagen .mc-zona-vacia {
+  display: none;
+}
+
+.mc-formatos {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  max-width: 380px;
+  margin-top: 10px;
+}
+
+.mc-hint-wsp {
+  font-size: 0.75rem;
+  color: #fde047;
+  max-width: 380px;
+  margin-top: 12px;
+}
+
+.mc-link {
+  align-self: center;
+  background: none;
+  border: none;
+  color: #c4b5fd;
+  text-decoration: underline;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 14px;
+  flex-shrink: 0;
+}
+
+.mc-link:hover {
+  color: #fff;
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 760px) {
+  .modal-pago.modal-confirmar {
+    flex-direction: column;
+    width: 94vw;
+    height: 92dvh;
+    border-radius: 18px;
   }
 
-  window.construirMensajePedido = function () {
-    const ses = leerSesion();
-    const idFortnite = localStorage.getItem('usuarioLogueado') || 'No especificado';
-    const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
-
-    let lista = '';
-    let total = 0;
-    if (!items.length) {
-      lista = '• (carrito vacío)\n';
-    } else {
-      items.forEach((item) => {
-        const subtotal = item.precio * item.cantidad;
-        total += subtotal;
-        lista += `• *${item.nombre}* x${item.cantidad} — ${subtotal.toFixed(2)} PEN\n`;
-      });
-    }
-
-    const cuenta = ses.email ? `${ses.nombre || ''} (${ses.email})`.trim() : 'No especificado';
-    return `*ORDEN CREADA — CachinaStore*\n\n` +
-           `*Cliente:* ${cuenta}\n` +
-           `*ID de Fortnite (regalo para):* ${idFortnite}\n\n` +
-           `${lista}` +
-           `*Total:* ${total.toFixed(2)} PEN\n` +
-           `*Moneda:* PEN`;
-  };
-
-  // ---------- Pasos ----------
-  function mostrarPaso(paso) {
-    el.pasoPedido.classList.toggle('oculto', paso !== 'pedido');
-    el.pasoComprobante.classList.toggle('oculto', paso !== 'comprobante');
-    if (el.pasoExito) el.pasoExito.classList.toggle('oculto', paso !== 'exito');
+  .mc-lateral {
+    width: 100%;
+    padding: 14px 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    overflow: visible;
   }
 
-  function seleccionarMetodo(activo) {
-    el.selector.classList.toggle('oculto', activo);
-    el.seleccionado.classList.toggle('oculto', !activo);
-    el.detalle.classList.toggle('oculto', !activo);
-    el.mensaje.classList.toggle('oculto', !activo);
-    el.btnYaPague.disabled = !activo;
-    el.ayuda.classList.toggle('oculto', activo);
+  .mc-logo {
+    width: 64px;
+    height: 48px;
+    padding: 4px;
   }
 
-  function limpiarComprobante() {
-    if (urlPreview) URL.revokeObjectURL(urlPreview);
-    urlPreview = null;
-    el.inputArchivo.value = '';
-    el.preview.removeAttribute('src');
-    el.zona.classList.remove('con-imagen');
-    el.btnFinalizar.disabled = true;
-    el.pasoComprobante.classList.remove('sin-comp');
+  .mc-usuario {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
   }
 
-  // ---------- Rellenar con el carrito ----------
-  function pintarPedido() {
-    const ses = leerSesion();
-    const idCliente = localStorage.getItem('usuarioLogueado') || '—';
-    el.usuarioNombre.textContent = ses.nombre || ses.email || '—';
-    el.usuarioEmail.textContent = ses.nombre ? (ses.email || '') : '';
-
-    const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
-    el.listaPedido.innerHTML = '';
-
-    let total = 0;
-    items.forEach((item) => {
-      const subtotal = item.precio * item.cantidad;
-      total += subtotal;
-
-      const fila = document.createElement('div');
-      fila.className = 'mc-item';
-
-      const img = document.createElement('img');
-      img.src = item.imagen;
-      img.alt = item.nombre;
-
-      const info = document.createElement('div');
-      info.className = 'mc-item-info';
-
-      const nombre = document.createElement('div');
-      nombre.className = 'mc-item-nombre';
-      nombre.textContent = item.nombre;
-
-      const para = document.createElement('div');
-      para.className = 'mc-item-para';
-      para.textContent = 'Para: ' + idCliente;
-
-      const cant = document.createElement('div');
-      cant.className = 'mc-item-cant';
-      cant.textContent = 'Cantidad: ' + item.cantidad;
-
-      info.append(nombre, para, cant);
-
-      const precio = document.createElement('div');
-      precio.className = 'mc-item-precio';
-      precio.textContent = 'S/ ' + subtotal.toFixed(2);
-
-      fila.append(img, info, precio);
-      el.listaPedido.appendChild(fila);
-    });
-
-    el.total.textContent = 'S/ ' + total.toFixed(2);
+  .mc-linea,
+  .mc-mensaje {
+    display: none;
   }
 
-  function reiniciarModal() {
-    finalizando = false;
-    pintarPedido();
-    limpiarComprobante();
-    seleccionarMetodo(false);
-    mostrarPaso('pedido');
+  .mc-contenido {
+    padding: 16px 16px 16px;
   }
 
-  let estabaAbierto = false;
-  new MutationObserver(() => {
-    const abierto = modal.classList.contains('mostrar');
-    if (abierto && !estabaAbierto) reiniciarModal();
-    estabaAbierto = abierto;
-  }).observe(modal, { attributes: true, attributeFilter: ['class'] });
-
-  // ---------- Eventos ----------
-  el.btnMetodo.addEventListener('click', () => seleccionarMetodo(true));
-  el.btnCambiar.addEventListener('click', () => seleccionarMetodo(false));
-
-  el.btnYaPague.addEventListener('click', () => {
-    if (el.btnYaPague.disabled) return;
-    mostrarPaso('comprobante');
-  });
-
-  el.btnVolver.addEventListener('click', () => mostrarPaso('pedido'));
-
-  el.zona.addEventListener('click', () => el.inputArchivo.click());
-
-  el.inputArchivo.addEventListener('change', () => {
-    const archivo = el.inputArchivo.files && el.inputArchivo.files[0];
-    if (!archivo) { limpiarComprobante(); return; }
-
-    const permitidos = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!permitidos.includes(archivo.type)) {
-      limpiarComprobante();
-      alert('Sube una imagen JPG, PNG o WebP. Si tu banco te dio un PDF, mándanos una captura de pantalla.');
-      return;
-    }
-    if (archivo.size > 10 * 1024 * 1024) {
-      limpiarComprobante();
-      alert('La imagen pesa más de 10 MB. Prueba con una captura de pantalla.');
-      return;
-    }
-
-    if (urlPreview) URL.revokeObjectURL(urlPreview);
-    urlPreview = URL.createObjectURL(archivo);
-    el.preview.src = urlPreview;
-    el.zona.classList.add('con-imagen');
-    el.btnFinalizar.disabled = false;
-  });
-
-  // Pantalla "¡Pedido creado!" (sin cerrar el modal)
-  function mostrarExito(ticket) {
-    const num = $('mc-ticket-num');
-    const caja = el.pasoExito.querySelector('.mc-ticket');
-    const etiqueta = caja && caja.previousElementSibling;
-    const hayTicket = ticket !== undefined && ticket !== null && ticket !== '';
-
-    if (num) num.textContent = hayTicket ? '#' + String(ticket).replace('#', '') : '';
-    if (caja) caja.style.display = hayTicket ? '' : 'none';
-    if (etiqueta) etiqueta.style.display = hayTicket ? '' : 'none';
-
-    mostrarPaso('exito');
-  }
-  window.mostrarPedidoCreado = mostrarExito;
-
-  function finalizarPedido() {
-    if (finalizando) return;
-    finalizando = true;
-
-    // Abre WhatsApp (función de script.js). Va primero para que el
-    // navegador no bloquee la ventana.
-    if (typeof enviarPedidoWhatsApp === 'function') enviarPedidoWhatsApp();
-
-    // TODO: cuando exista la ruta del servidor que crea el pedido,
-    // llamarla aquí y pasar el ticket real: mostrarExito(ticket)
-    mostrarExito(null);
+  .mc-detalle {
+    flex-direction: column-reverse;
+    align-items: center;
   }
 
-  el.btnFinalizar.addEventListener('click', () => {
-    if (el.btnFinalizar.disabled) return;
-    finalizarPedido();
-  });
+  .mc-detalle-texto {
+    text-align: center;
+  }
 
-  // "No puedo subir comprobante" lo maneja el script del index
-  // (muestra el aviso). Aquí no hace nada.
-})();
+  .mc-total strong {
+    font-size: 1.4rem;
+  }
+}
