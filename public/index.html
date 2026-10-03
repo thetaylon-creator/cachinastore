@@ -372,6 +372,40 @@ html.claro #id-cliente-header:hover{color:#2e1065}
   display:block;
   flex-shrink:0;
 }
+@media (max-width: 820px){
+  #modal-pago{
+    max-height: 100dvh !important;
+    height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  #modal-pago .mc-lateral{
+    flex-shrink: 0;
+  }
+  #modal-pago .mc-contenido{
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #modal-pago .mc-paso:not(.oculto){
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #modal-pago .mc-scroll{
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  #modal-pago .mc-pie{
+    flex-shrink: 0;
+  }
+}
 </style>
 
 </head>
