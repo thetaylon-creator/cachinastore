@@ -175,18 +175,17 @@ body.lg-bloqueado{overflow:hidden}
   .lx-izq{left:calc(50% - 60px)}
   .lx-der{right:calc(50% - 60px)}
   .lx-reviews h2{font-size:24px}
-  
 }
-/* Producto encima del círculo (puede salirse un poco, como en tu ejemplo) */
+
+/* Producto (skin) encima del círculo */
 .lx-art{position:relative}
 .lx-art.con-prod{background-image:none !important}
-
 .lx-prod{
   position:absolute;
   left:-30%;
   width:160%;
-  height:118%;           /* un poco menos para que quepa entera */
-  bottom:-24%;           /* antes -20%: baja la skin */
+  height:118%;
+  bottom:-24%;
   max-width:none;
   object-fit:contain;
   object-position:center bottom;
@@ -231,6 +230,7 @@ html.claro{--bg-dark:#d8cbee;--bg-card:#efe8fa;--border-color:rgba(76,29,149,.22
 .claro .lx-like{background:#e3d7f5;color:#4a3a7a}
 .claro .lx-rempty{background:rgba(239,232,250,.6)}
 .claro .lx-shield{color:#6d28d9}
+
 /* ===== FOOTER ===== */
 .lx-footer{background:#3a2c70;border-top:1px solid var(--border-color);margin-top:0}
 .lx-footer-in{max-width:1070px;margin:0 auto;padding:44px 16px 26px;display:grid;grid-template-columns:1fr auto;gap:28px 24px;align-items:start}
@@ -260,7 +260,6 @@ html.claro{--bg-dark:#d8cbee;--bg-card:#efe8fa;--border-color:rgba(76,29,149,.22
 
 /* Transición suave solo mientras se cambia de tema */
 html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:background-color .5s ease,color .5s ease,border-color .5s ease,box-shadow .5s ease!important}
-  
 </style>
 </head>
 <body>
@@ -305,8 +304,8 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
         </div>
       </div>
       <div class="lx-art" id="hero-art" role="img" aria-label="CachinaStore">
-      <img id="hero-img" class="lx-prod" alt="" style="display:none">
-      </div>     
+        <img id="hero-img" class="lx-prod" alt="" style="display:none">
+      </div>
     </div>
   </header>
 
@@ -330,12 +329,42 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
       <div class="lx-comu-ico"><span class="material-symbols-rounded">groups</span></div>
       <h2>Únete a nuestra comunidad</h2>
       <p>Sigue nuestro canal de WhatsApp y entérate de las mejores ofertas, sorteos y novedades antes que nadie.</p>
-      <a class="lx-btn lx-btn-wa" href="https://whatsapp.com/channel/TU_CODIGO_DEL_CANAL" target="_blank" rel="noopener">
+      <a class="lx-btn lx-btn-wa" href="https://chat.whatsapp.com/HIcWJdyu1XgKg79lYhotpd" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.24 8.24Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29Z"/></svg>
         Seguir el canal de WhatsApp
       </a>
     </div>
   </section>
+
+  <footer class="lx-footer">
+    <div class="lx-footer-in">
+      <a class="lx-footer-brand" href="preview-bienvenida.html">
+        <img src="logo.png" alt="CachinaStore">CachinaStore
+      </a>
+
+      <div class="lx-footer-redes">
+        <small>Nuestras redes</small>
+        <div>
+          <a class="lx-red" href="https://wa.me/51969639154" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.24 8.24Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29Z"/></svg>
+          </a>
+          <a class="lx-red" href="https://facebook.com/TU_PAGINA" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.88v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07Z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <nav class="lx-footer-links">
+        <a href="#">Contacto</a><i>·</i>
+        <a href="#">Preguntas frecuentes</a><i>·</i>
+        <a href="mi-cuenta.html">Mi cuenta</a><i>·</i>
+        <a href="#">Términos y condiciones</a><i>·</i>
+        <a href="#">Política de privacidad</a>
+      </nav>
+
+      <div class="lx-footer-copy">© 2026 CachinaStore · Todos los derechos reservados.</div>
+    </div>
+  </footer>
 </section>
 
 <div class="lx-modal" id="modal-resena" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-resena">
@@ -406,6 +435,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   </div>
 </div>
 
+<!-- 1) Palabras rotativas -->
 <script>
 (function () {
   const palabras = ['skins', 'pavos', 'bailes', 'picos', 'mochilas', 'planeadores', 'envoltorios', 'pase de batalla', 'club Fortnite', 'packs'];
@@ -423,6 +453,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 })();
 </script>
 
+<!-- 2) Reseñas -->
 <script>
 (function () {
   const grid = document.getElementById('reviews-grid');
@@ -436,7 +467,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   let hayMas = false;
   let cargando = false;
 
-  // ---------- utilidades ----------
   function hace(fecha) {
     const min = Math.floor((Date.now() - new Date(fecha).getTime()) / 60000);
     if (min < 1) return 'hace un momento';
@@ -458,7 +488,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
     try { localStorage.setItem('resenas_likes', JSON.stringify(arr)); } catch (e) {}
   }
 
-  // ---------- tarjetas ----------
   function crearVacio() {
     const v = document.createElement('div');
     v.className = 'lx-rempty';
@@ -528,7 +557,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
     return card;
   }
 
-  // ---------- carga desde el servidor (6 por página) ----------
   function actualizarFlechas() {
     btnIzq.disabled = cargando || pagina === 0;
     btnDer.disabled = cargando || !hayMas;
@@ -552,7 +580,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
       grid.innerHTML = '';
       d.resenas.forEach(r => grid.appendChild(crearTarjeta(r)));
 
-      // Cuadros vacíos (sin texto) hasta completar los 6 de la primera página
       if (p === 0) for (let k = d.resenas.length; k < PAGINA; k++) grid.appendChild(crearVacio());
     } catch (e) {
       if (!grid.children.length) {
@@ -567,7 +594,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   btnDer.addEventListener('click', () => cargar(pagina + 1));
   cargar(0);
 
-  // ---------- formulario ----------
   let nota = 5;
   const cont = document.getElementById('res-estrellas');
   function pintarEstrellas() {
@@ -610,7 +636,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   document.getElementById('res-cancelar').addEventListener('click', cerrar);
   modal.addEventListener('click', e => { if (e.target === modal) cerrar(); });
 
-  // Reduce la foto (máx. 900 px, JPEG) para que pese poco al guardarla
   function comprimir(archivo) {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(archivo);
@@ -669,6 +694,8 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   });
 })();
 </script>
+
+<!-- 3) Login / sesión -->
 <script>
 (function () {
   const ov = document.getElementById('lg-overlay');
@@ -680,7 +707,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   const aviso = document.getElementById('lg-aviso');
   const btnEntrar = document.getElementById('btn-entrar');
 
-  // ---------- sesión con Google ----------
   const LS = 'cachina_sesion';
   let sesion = null;
   let alLoguear = null;
@@ -749,7 +775,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 
   let gsiListo = false;
 
-  // Dibuja el botón real de Google (invisible) encima de nuestro botón con tu diseño
   function pintarGoogle() {
     if (!gsiListo) return;
     const slot = document.getElementById('lg-google-slot');
@@ -758,7 +783,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
     google.accounts.id.renderButton(slot, { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'rectangular', width: w, locale: 'es' });
   }
 
-  // Si Google no está listo, el clic en el botón avisa
   document.getElementById('lg-google-wrap').addEventListener('click', () => {
     if (!gsiListo) err1.textContent = 'El inicio con Google aún no está disponible.';
   });
@@ -776,7 +800,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
       gsiListo = false;
     }
   })();
-
 
   function paso(n) {
     p1.classList.toggle('on', n === 1); p2.classList.toggle('on', n === 2);
@@ -806,12 +829,10 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   codigo.addEventListener('input', () => { codigo.value = codigo.value.replace(/\D/g, ''); });
   document.getElementById('lg-volver').addEventListener('click', () => paso(1));
 
-  // Solo vista previa: aún no hay servidor que envíe o valide códigos
   document.getElementById('lg-verificar').addEventListener('click', () => {
     err2.textContent = 'Vista previa: el inicio de sesión aún no está conectado.';
   });
 
-  // ---------- menú de la cuenta ----------
   const cuentaEl = document.getElementById('lx-cuenta');
   const cuentaBtn = document.getElementById('lx-cuenta-btn');
   function menuAbierto(v) {
@@ -825,24 +846,8 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   cuentaEl.querySelectorAll('a[href="#"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); menuAbierto(false); }));
 })();
 </script>
-<script>
-(function () {
-  var raiz = document.documentElement, btn = document.getElementById('btn-tema'), ico = document.getElementById('ico-tema');
-  function pintar() {
-    var c = raiz.classList.contains('claro');
-    ico.textContent = c ? 'dark_mode' : 'light_mode';
-    btn.setAttribute('aria-label', c ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro');
-  }
-  btn.addEventListener('click', function () {
-    raiz.classList.add('cambiando');
-    var c = raiz.classList.toggle('claro');
-    try { localStorage.setItem('cachina_tema', c ? 'claro' : 'oscuro'); } catch (e) {}
-    pintar();
-    setTimeout(function () { raiz.classList.remove('cambiando'); }, 600);
-  });
-  pintar();
-})();
-</script>
+
+<!-- 4) Tema claro/oscuro (UNA sola vez) -->
 <script>
 (function () {
   var raiz = document.documentElement, btn = document.getElementById('btn-tema'), ico = document.getElementById('ico-tema');
@@ -862,6 +867,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 })();
 </script>
 
+<!-- 5) Hero: skins de la tienda (cada 10 s) -->
 <script>
 (function () {
   const API_URL = '';
@@ -874,29 +880,29 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   const INTERVALO_MS = 10000;
   let lista = [], indice = 0, pausado = false, timer = null;
 
-function extraerUrls(entries) {
-  const candidatos = [];
-  const vistas = new Set();
+  function extraerUrls(entries) {
+    const candidatos = [];
+    const vistas = new Set();
 
-  entries.forEach(entry => {
-    if ((entry.cars || []).length) return;
-    if ((entry.instruments || []).length) return;
-    if ((entry.tracks || []).length) return;
+    entries.forEach(entry => {
+      if ((entry.cars || []).length) return;
+      if ((entry.instruments || []).length) return;
+      if ((entry.tracks || []).length) return;
 
-    const items = entry.brItems || [];
-    const skin = items.find(i => i.type?.value === 'outfit');
-    if (!skin) return;
+      const items = entry.brItems || [];
+      const skin = items.find(i => i.type?.value === 'outfit');
+      if (!skin) return;
 
-    // Imagen de cuerpo completo de la skin (con pies)
-    const url = skin.images?.featured || skin.images?.icon;
-    if (!url || vistas.has(url)) return;
-    vistas.add(url);
+      // Imagen de cuerpo completo de la skin (con pies)
+      const url = skin.images?.featured || skin.images?.icon;
+      if (!url || vistas.has(url)) return;
+      vistas.add(url);
 
-    candidatos.push({ url, prioridad: 0 });
-  });
+      candidatos.push(url);
+    });
 
-  return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
-}
+    return candidatos.slice(0, MAX_IMAGENES);
+  }
 
   function mostrar(n) {
     img.classList.add('saliendo');
