@@ -299,6 +299,48 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
 @media (max-width:820px){ #btn-iniciar-sesion-tienda{padding:0 10px} .lx-cuenta-nom{display:none} }
 #pantalla-tienda{--w-border:rgba(255,255,255,.1);--w-muted:#a99fc9}
 html.claro #pantalla-tienda{--w-border:rgba(76,29,149,.22);--w-muted:#6b5f8f}
+/* ===== Tienda en modo claro (morado crema) ===== */
+
+/* Barra superior y subbar */
+html.claro #pantalla-tienda header,
+html.claro #pantalla-tienda .subbar-moneda{
+  background:#e6dcf6;
+  border-bottom:1px solid rgba(76,29,149,.18);
+  box-shadow:0 2px 12px rgba(76,29,149,.12);
+  backdrop-filter:none;
+}
+html.claro #pantalla-tienda .logo-header,
+html.claro #pantalla-tienda .logo-header span{color:#1b1238}
+html.claro #pantalla-tienda .nav-links span{color:#3b2a6b}
+html.claro #pantalla-tienda .nav-links span:hover{color:#4c1d95}
+html.claro #pantalla-tienda .nav-links span.activo{color:#4c1d95;border-bottom-color:#7c3aed}
+
+/* Moneda, tema, carrito, ID */
+html.claro #pantalla-tienda .lx-moneda{color:#1b1238;background:#f1eafb;border-color:rgba(76,29,149,.2)}
+html.claro #pantalla-tienda .lx-moneda small{color:#6b5f8f}
+html.claro #pantalla-tienda .lx-ico{color:#4c1d95}
+html.claro #pantalla-tienda .btn-carrito{background:#f1eafb;border-color:rgba(76,29,149,.2);color:#d97706}
+html.claro #pantalla-tienda .btn-carrito:hover{background:#7c3aed;color:#fff}
+html.claro #pantalla-tienda .id-cliente-header{color:#3b2a6b;background:#f1eafb;border-color:rgba(76,29,149,.25)}
+
+/* Buscador */
+html.claro #pantalla-tienda .buscador-tienda{background:#efe8fa;border-color:rgba(76,29,149,.2)}
+html.claro #pantalla-tienda .buscador-tienda input{color:#1b1238}
+html.claro #pantalla-tienda .buscador-tienda input::placeholder{color:#7d6fa3}
+html.claro #pantalla-tienda .buscador-tienda svg{color:#6b5f8f}
+
+/* Menú lateral de categorías */
+html.claro #pantalla-tienda .sidebar{background:#ddd0f0;border-right-color:rgba(76,29,149,.18)}
+html.claro #pantalla-tienda .sidebar ul{background:#ddd0f0 !important;color:#3b2a6b !important}
+html.claro #pantalla-tienda .panel-filtros-header{background:#efe8fa;color:#1b1238}
+html.claro #pantalla-tienda .panel-filtros{background:#ddd0f0;border-color:rgba(76,29,149,.18);scrollbar-color:rgba(76,29,149,.4) transparent}
+html.claro #pantalla-tienda .panel-filtros::-webkit-scrollbar-thumb{background:rgba(76,29,149,.4)}
+html.claro #pantalla-tienda .panel-filtros .item-filtro,
+html.claro #pantalla-tienda .sidebar li{color:#3b2a6b}
+html.claro #pantalla-tienda .panel-filtros .item-filtro:hover,
+html.claro #pantalla-tienda .sidebar li:hover{background:rgba(124,58,237,.14);color:#2e1065}
+html.claro #pantalla-tienda .sidebar li.activo,
+html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{background:rgba(124,58,237,.25);color:#2e1065}
 </style>
 
 </head>
