@@ -1,10 +1,6 @@
 // ==========================================
 // MODAL "CONFIRMAR PEDIDO"
-// Se carga DESPUÉS de script.js. No modifica script.js: observa el
-// modal #modal-pago y, cada vez que se abre, lo rellena con el
-// carrito real (carritoItems) y lo deja en el primer paso.
-// Reutiliza de script.js: carritoItems, enviarPedidoWhatsApp(),
-// cerrarModalPago() y el zoom del QR (.qr-imagen / .qr-ayuda).
+// Se carga DESPUÉS de script.js.
 // ==========================================
 (function () {
   const modal = document.getElementById('modal-pago');
@@ -20,6 +16,7 @@
     mensaje: $('mc-mensaje'),
     pasoPedido: $('mc-paso-pedido'),
     pasoComprobante: $('mc-paso-comprobante'),
+    pasoExito: $('mc-paso-exito'),
     selector: $('mc-selector'),
     seleccionado: $('mc-seleccionado'),
     detalle: $('mc-detalle'),
@@ -31,18 +28,17 @@
     inputArchivo: $('mc-input-archivo'),
     zona: $('mc-zona-subir'),
     preview: $('mc-preview'),
-    btnFinalizar: $('mc-btn-finalizar'),
-    btnSinComprobante: $('mc-btn-sin-comprobante')
+    btnFinalizar: $('mc-btn-finalizar')
   };
 
   let urlPreview = null;
+  let finalizando = false;
 
   function leerSesion() {
     try { return JSON.parse(localStorage.getItem('cachina_sesion') || 'null') || {}; } catch (e) { return {}; }
   }
 
-  // El mensaje de WhatsApp ahora incluye la cuenta de Google del cliente.
-  // (Reemplaza a la función de script.js sin modificar ese archivo.)
+  // Mensaje de WhatsApp (incluye cuenta de Google y ticket)
   window.construirMensajePedido = function () {
     const ses = leerSesion();
     const idFortnite = localStorage.getItem('usuarioLogueado') || 'No especificado';
@@ -61,7 +57,8 @@
     }
 
     const cuenta = ses.email ? `${ses.nombre || ''} (${ses.email})`.trim() : 'No especificado';
-    return `*ORDEN CREADA — CachinaStore*\n\n` +
+    return `*ORDEN CREADA — CachinaStore*\n` +
+           (window.ticketPedidoActual ? `*Ticket:* ${window.ticketPedidoActual}\n` : '') + `\n` +
            `*Cliente:* ${cuenta}\n` +
            `*ID de Fortnite (regalo para):* ${idFortnite}\n\n` +
            `${lista}` +
@@ -73,6 +70,7 @@
   function mostrarPaso(paso) {
     el.pasoPedido.classList.toggle('oculto', paso !== 'pedido');
     el.pasoComprobante.classList.toggle('oculto', paso !== 'comprobante');
+    if (el.pasoExito) el.pasoExito.classList.toggle('oculto', paso !== 'exito');
   }
 
   function seleccionarMetodo(activo) {
@@ -91,11 +89,11 @@
     el.preview.removeAttribute('src');
     el.zona.classList.remove('con-imagen');
     el.btnFinalizar.disabled = true;
+    el.pasoComprobante.classList.remove('sin-comp');
   }
 
   // ---------- Rellenar con el carrito ----------
   function pintarPedido() {
-    // Cuenta de Google (nombre y correo) y ID de Fortnite que recibe el regalo
     const ses = leerSesion();
     const idCliente = localStorage.getItem('usuarioLogueado') || '—';
     el.usuarioNombre.textContent = ses.nombre || ses.email || '—';
@@ -145,6 +143,8 @@
   }
 
   function reiniciarModal() {
+    finalizando = false;
+    window.ticketPedidoActual = null;
     pintarPedido();
     limpiarComprobante();
     seleccionarMetodo(false);
@@ -195,12 +195,76 @@
     el.btnFinalizar.disabled = false;
   });
 
-  function finalizarPedido() {
-    // Abre WhatsApp con el resumen del pedido (función de script.js).
-    // Nota: wa.me no permite adjuntar la imagen automáticamente; el
-    // cliente la adjunta en el chat de WhatsApp.
-    if (typeof enviarPedidoWhatsApp === 'function') enviarPedidoWhatsApp();
-    if (typeof cerrarModalPago === 'function') cerrarModalPago();
+  // ---------- Pantalla "¡Pedido creado!" ----------
+  function mostrarExito(ticket) {
+    const num = $('mc-ticket-num');
+    const caja = el.pasoExito ? el.pasoExito.querySelector('.mc-ticket') : null;
+    const etiqueta = caja && caja.previousElementSibling;
+    const hayTicket = ticket !== undefined && ticket !== null && ticket !== '';
+
+    if (num) num.textContent = hayTicket ? '#' + String(ticket).replace('#', '') : '';
+    if (caja) caja.style.display = hayTicket ? '' : 'none';
+    if (etiqueta) etiqueta.style.display = hayTicket ? '' : 'none';
+
+    mostrarPaso('exito');
+  }
+  window.mostrarPedidoCreado = mostrarExito;
+
+  // ---------- Crear pedido en el servidor ----------
+  function comprimirImagen(archivo) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(archivo);
+      const im = new Image();
+      im.onload = () => {
+        const escala = Math.min(1, 1000 / Math.max(im.width, im.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(im.width * escala);
+        c.height = Math.round(im.height * escala);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.75));
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagen')); };
+      im.src = url;
+    });
+  }
+
+  async function finalizarPedido() {
+    if (finalizando) return;
+    finalizando = true;
+    el.btnFinalizar.disabled = true;
+
+    try {
+      const auth = window.CachinaAuth;
+      if (!auth || !auth.logueado()) throw new Error('Inicia sesión para finalizar tu pedido.');
+
+      const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
+      const sinComp = el.pasoComprobante.classList.contains('sin-comp');
+      const archivo = el.inputArchivo.files && el.inputArchivo.files[0];
+      const comprobante = (!sinComp && archivo) ? await comprimirImagen(archivo) : null;
+
+      const resp = await fetch('/api/pedidos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token() },
+        body: JSON.stringify({
+          idFortnite: localStorage.getItem('usuarioLogueado') || '',
+          items: items.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.cantidad, imagen: i.imagen })),
+          comprobante
+        })
+      });
+      const d = await resp.json().catch(() => ({}));
+
+      if (resp.status === 401) { auth.salir(); throw new Error('Tu sesión venció. Inicia sesión de nuevo.'); }
+      if (!resp.ok) throw new Error(d.error || 'No se pudo crear el pedido.');
+
+      window.ticketPedidoActual = d.ticket;
+      if (typeof enviarPedidoWhatsApp === 'function') enviarPedidoWhatsApp();
+      mostrarExito(d.ticket);
+    } catch (e) {
+      alert(e.message || 'No se pudo crear el pedido. Intenta de nuevo.');
+      finalizando = false;
+      el.btnFinalizar.disabled = false;
+    }
   }
 
   el.btnFinalizar.addEventListener('click', () => {
@@ -208,5 +272,6 @@
     finalizarPedido();
   });
 
-  el.btnSinComprobante.addEventListener('click', finalizarPedido);
+  // "No puedo subir comprobante" lo maneja el script del index
+  // (muestra el aviso amarillo). Aquí no hace nada.
 })();
