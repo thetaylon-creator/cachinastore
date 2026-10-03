@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pedidos - Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1d1540;color:#fff;font-family:Inter,'Segoe UI',system-ui,sans-serif;padding:20px;max-width:900px;margin:0 auto}
+h1{font-size:22px;margin-bottom:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+input,select{background:#0d0819;border:1px solid #4c3a9a;border-radius:8px;padding:10px 12px;color:#fff;font:inherit}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:9px 13px;font-weight:700;color:#fff;background:#7c3aed}
+button.ok{background:#16a34a}button.ent{background:#2563eb}button.no{background:#dc2626}button.gris{background:#3b2d78}
+.card{background:#2a1e55;border:1px solid rgba(167,139,250,.25);border-radius:16px;margin-bottom:14px;overflow:hidden}
+.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tk{font-family:'Courier New',monospace;font-size:20px;font-weight:700;color:#a78bfa}
+.est{border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;margin-left:8px;border:1px solid}
+.verificando{color:#fbbf24}.aprobado{color:#4ade80}.entregado{color:#60a5fa}.no_confirmado{color:#f87171}
+.meta{padding:12px 16px;font-size:13px;color:#cfc6ee;line-height:1.6}
+.it{display:flex;justify-content:space-between;padding:6px 16px;font-size:14px}
+.acc{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.msg{color:#f87171;font-size:13px;margin-bottom:10px}
+#visor{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+#visor img{max-width:100%;max-height:100%;border-radius:10px}
+</style>
+</head>
+<body>
+<h1>Pedidos</h1>
+<div class="bar">
+  <input id="clave" type="password" placeholder="Clave de admin">
+  <button id="entrar" type="button">Entrar</button>
+  <select id="filtro">
+    <option value="">Todos</option>
+    <option value="verificando">Verificando</option>
+    <option value="aprobado">Aprobado</option>
+    <option value="entregado">Entregado</option>
+    <option value="no_confirmado">No confirmado</option>
+  </select>
+  <button class="gris" id="recargar" type="button">Recargar</button>
+</div>
+<div class="msg" id="msg"></div>
+<div id="lista"></div>
+<div id="visor"><img id="visor-img" alt=""></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let clave = sessionStorage.getItem('admin_key') || '';
+  let pedidos = [];
+  $('clave').value = clave;
+  const ET = { verificando: 'VERIFICANDO', aprobado: 'APROBADO', entregado: 'ENTREGADO', no_confirmado: 'NO CONFIRMADO' };
+
+  function el(tag, cls, texto) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+  }
+
+  async function api(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Content-Type': 'application/json', 'x-admin-key': clave }, opts.headers || {});
+    const r = await fetch(url, opts);
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || ('Error ' + r.status));
+    return d;
+  }
+
+  async function cargar() {
+    $('msg').textContent = '';
+    try { pedidos = await api('/api/admin/pedidos'); pintar(); }
+    catch (e) { $('msg').textContent = e.message; }
+  }
+
+  async function cambiar(id, estado, motivo) {
+    try {
+      await api('/api/admin/pedidos/' + id, { method: 'PUT', body: JSON.stringify({ estado, motivo }) });
+      await cargar();
+    } catch (e) { $('msg').textContent = e.message; }
+  }
+
+  async function verComprobante(id) {
+    try {
+      const d = await api('/api/admin/pedidos/' + id + '/comprobante');
+      if (!/^data:image\/jpeg;base64,/.test(d.comprobante)) throw new Error('Comprobante inválido');
+      $('visor-img').src = d.comprobante;
+      $('visor').style.display = 'flex';
+    } catch (e) { $('msg').textContent = e.message; }
+  }
+
+  function boton(texto, cls, fn) {
+    const b = el('button', cls, texto);
+    b.type = 'button';
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function pintar() {
+    const f = $('filtro').value;
+    const lista = $('lista');
+    lista.textContent = '';
+    pedidos.filter(p => !f || p.estado === f).forEach(p => {
+      const c = el('div', 'card');
+
+      const top = el('div', 'top');
+      const izq = el('div');
+      izq.append(el('span', 'tk', p.ticket), el('span', 'est ' + p.estado, ET[p.estado] || p.estado));
+      top.append(izq, el('span', '', new Date(p.fecha).toLocaleString('es-PE')));
+      c.append(top);
+
+      c.append(el('div', 'meta', p.nombre + ' · ' + (p.email || 'sin correo') + ' · Para: ' + p.idFortnite +
+        (p.motivo ? ' · Motivo: ' + p.motivo : '')));
+
+      (p.items || []).forEach(i => {
+        const r = el('div', 'it');
+        r.append(el('span', '', i.nombre + ' ×' + i.cantidad), el('span', '', 'S/ ' + (i.precio * i.cantidad).toFixed(2)));
+        c.append(r);
+      });
+      const t = el('div', 'it');
+      t.append(el('b', '', 'TOTAL'), el('b', '', 'S/ ' + Number(p.total).toFixed(2)));
+      c.append(t);
+
+      const a = el('div', 'acc');
+      if (p.tieneComprobante) a.append(boton('Ver comprobante', 'gris', () => verComprobante(p.id)));
+      else a.append(el('span', 'meta', 'Sin comprobante'));
+      a.append(boton('Aprobar', 'ok', () => cambiar(p.id, 'aprobado')));
+      a.append(boton('Entregado', 'ent', () => cambiar(p.id, 'entregado')));
+      a.append(boton('No confirmado', 'no', () => {
+        const m = prompt('Motivo que verá el cliente:', 'No llegó el pago');
+        if (m !== null) cambiar(p.id, 'no_confirmado', m);
+      }));
+      a.append(boton('Volver a verificando', 'gris', () => cambiar(p.id, 'verificando')));
+      c.append(a);
+
+      lista.append(c);
+    });
+  }
+
+  $('entrar').addEventListener('click', () => {
+    clave = $('clave').value.trim();
+    sessionStorage.setItem('admin_key', clave);
+    cargar();
+  });
+  $('recargar').addEventListener('click', cargar);
+  $('filtro').addEventListener('change', pintar);
+  $('visor').addEventListener('click', () => { $('visor').style.display = 'none'; });
+  if (clave) cargar();
+})();
+</script>
+</body>
+</html>
