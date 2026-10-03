@@ -201,6 +201,7 @@ async function ensureBotsTable() {
       fecha TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+    await pool.query(`ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS motivo VARCHAR(200);`);
 }
 ensureBotsTable().catch(err => console.error('Error creando tabla bots_requests:', err));
 
@@ -665,7 +666,7 @@ app.post('/api/pedidos', requireGoogle, async (req, res) => {
 app.get('/api/mis-pedidos', requireGoogle, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, id_fortnite AS "idFortnite", items, total, metodo, estado, fecha
+      `SELECT id, id_fortnite AS "idFortnite", items, total, metodo, estado, motivo, fecha
        FROM pedidos WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 50`,
       [req.usuario.sub]
     );
@@ -679,7 +680,7 @@ app.get('/api/mis-pedidos', requireGoogle, async (req, res) => {
 // ADMIN: ver pedidos y cambiar su estado (verificando / aprobado / entregado / rechazado)
 app.get('/api/admin/pedidos', requireAdmin, async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT id, nombre, email, id_fortnite AS "idFortnite", items, total, estado, fecha,
+    `SELECT id, nombre, email, id_fortnite AS "idFortnite", items, total, estado, motivo, fecha,
             (comprobante IS NOT NULL) AS "tieneComprobante"
      FROM pedidos ORDER BY fecha DESC LIMIT 200`
   );
@@ -694,10 +695,16 @@ app.get('/api/admin/pedidos/:id/comprobante', requireAdmin, async (req, res) => 
 
 app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   const estado = String(req.body.estado || '');
-  if (!['verificando', 'aprobado', 'entregado', 'rechazado'].includes(estado)) {
+  if (!['verificando', 'aprobado', 'entregado', 'no_confirmado'].includes(estado)) {
     return res.status(400).json({ error: 'Estado inválido' });
   }
-  const { rows } = await pool.query('UPDATE pedidos SET estado = $1 WHERE id = $2 RETURNING id', [estado, parseInt(req.params.id, 10)]);
+  const motivo = estado === 'no_confirmado'
+    ? (String(req.body.motivo || '').trim().slice(0, 200) || 'No llegó el pago')
+    : null;
+  const { rows } = await pool.query(
+    'UPDATE pedidos SET estado = $1, motivo = $2 WHERE id = $3 RETURNING id',
+    [estado, motivo, parseInt(req.params.id, 10)]
+  );
   if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
 });
