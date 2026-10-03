@@ -852,27 +852,22 @@ function extraerUrls(entries) {
   const vistas = new Set();
 
   entries.forEach(entry => {
-    // Fuera autos, instrumentos y pistas
     if ((entry.cars || []).length) return;
     if ((entry.instruments || []).length) return;
     if ((entry.tracks || []).length) return;
 
-    // Solo ofertas que incluyan una skin de personaje
     const items = entry.brItems || [];
-    if (!items.some(i => i.type?.value === 'outfit')) return;
+    const skin = items.find(i => i.type?.value === 'outfit');
+    if (!skin) return;
 
-    // Extra: descarta cualquier oferta que traiga otros tipos de vehículo
-    const tipos = items.map(i => i.type?.value);
-    if (tipos.some(t => t === 'vehicle' || t === 'car' || t === 'wheel')) return;
-
-    const url = entry.newDisplayAsset?.renderImages?.[0]?.image;
+    // Imagen de cuerpo completo de la skin (con pies)
+    const url = skin.images?.featured || skin.images?.icon;
     if (!url || vistas.has(url)) return;
     vistas.add(url);
 
-    candidatos.push({ url, prioridad: items.length > 1 ? 0 : 1 });
+    candidatos.push({ url, prioridad: 0 });
   });
 
-  candidatos.sort((a, b) => a.prioridad - b.prioridad);
   return candidatos.slice(0, MAX_IMAGENES).map(c => c.url);
 }
 
