@@ -341,6 +341,25 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro:hover,
 html.claro #pantalla-tienda .sidebar li:hover{background:rgba(124,58,237,.14);color:#2e1065}
 html.claro #pantalla-tienda .sidebar li.activo,
 html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{background:rgba(124,58,237,.25);color:#2e1065}
+/* ===== Ventana Datos de entrega (ID/User) ===== */
+#id-overlay{--w-bg:#100a26;--w-card:#1c1340;--w-border:rgba(255,255,255,.1);--w-muted:#a99fc9}
+#id-overlay *:not(.material-symbols-rounded){font-family:Inter,'Segoe UI',system-ui,sans-serif}
+.id-cab{position:relative;display:flex;align-items:center;gap:10px;padding:22px 64px 18px 24px;border-bottom:2px solid transparent;border-image:linear-gradient(90deg,#7c3aed,#a78bfa,#f0b429) 1}
+.id-cab .material-symbols-rounded{color:#f0b429;font-size:26px}
+.id-cab h3{font-size:20px;margin:0;color:#fff}
+.id-cab .lg-x{top:50%;transform:translateY(-50%)}
+#id-input{-webkit-user-select:text;user-select:text}
+#id-cliente-header{cursor:pointer !important}
+#id-cliente-header:hover{border-color:#a78bfa;color:#fff}
+html.claro #id-cliente-header:hover{color:#2e1065}
+.id-pregunta{font-size:18px;text-align:center;margin:6px 0 18px;color:#fff}
+.id-actual{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:12px;border:1px solid var(--w-border);background:#0d0819;color:#fff;margin-bottom:16px}
+.id-actual .material-symbols-rounded{color:#f0b429;font-size:26px}
+.id-actual b{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.id-botones{display:flex;gap:10px}
+.id-botones .lx-btn{flex:1;justify-content:center;height:48px;font-size:14px;padding:0 10px}
+.id-btn-si{background:rgba(124,58,237,.18);color:#a78bfa}
+.id-btn-si:hover{background:rgba(124,58,237,.3)}
 </style>
 
 </head>
@@ -618,6 +637,37 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{background:rgba(1
         <div class="lg-google-real" id="lg-google-slot"></div>
       </div>
       <div class="lg-seg"><span class="material-symbols-rounded">lock</span>Acceso seguro con Google. Nunca vemos tu contraseña.</div>
+    </div>
+  </div>
+</div>
+  <!-- DATOS DE ENTREGA (ID / USER) -->
+<div class="lg-overlay" id="id-overlay" role="dialog" aria-modal="true" aria-labelledby="id-titulo">
+  <div class="lg-box">
+    <div class="id-cab">
+      <span class="material-symbols-rounded">redeem</span>
+      <h3 id="id-titulo">Datos de entrega</h3>
+      <button class="lg-x" id="id-cerrar" type="button" aria-label="Cerrar"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="lg-body">
+
+      <div class="lg-paso on" id="id-paso-confirmar">
+        <h4 class="id-pregunta">¿Para el mismo usuario?</h4>
+        <div class="id-actual"><span class="material-symbols-rounded">account_circle</span><b id="id-actual-nombre"></b></div>
+        <div class="id-botones">
+          <button class="lx-btn id-btn-si" id="id-si" type="button"><span class="material-symbols-rounded">check_circle</span>Sí, el mismo</button>
+          <button class="lx-btn lx-btn-pri" id="id-no" type="button"><span class="material-symbols-rounded">edit</span>No, ingresar otros</button>
+        </div>
+      </div>
+
+      <div class="lg-paso" id="id-paso-ingresar">
+        <label class="lg-label" for="id-input">ID o nick de tu usuario (Epic, Xbox o PSN)</label>
+        <div class="lg-input">
+          <input type="text" id="id-input" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ej: Gamer123">
+        </div>
+        <div class="lg-err" id="id-err"></div>
+        <button class="lx-btn lx-btn-pri lg-btn" id="id-guardar" type="button"><span class="material-symbols-rounded">check_circle</span>Guardar</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1330,11 +1380,11 @@ if (tBtn && tCuenta) {
     tCuenta.classList.remove('abierto');
   }
 }
-    // Cabecera de la tienda
+    // Cabecera de la tienda (botón ID/User)
     const chip = $('id-cliente-header');
     if (chip) {
-      chip.textContent = sesion ? (leerIdFortnite() ? 'ID: ' + leerIdFortnite() : (sesion.nombre || sesion.email)) : 'Iniciar sesión';
-      chip.style.cursor = sesion ? '' : 'pointer';
+      const idf = sesion ? leerIdFortnite() : '';
+      chip.textContent = idf ? 'ID: ' + idf : 'ID/User';
     }
     // Carrito
     const etiqueta = $('nombre-usuario-carrito');
