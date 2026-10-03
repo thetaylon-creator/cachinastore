@@ -589,7 +589,118 @@ app.delete('/api/admin/resenas/:id', requireAdmin, async (req, res) => {
   if (!rows.length) return res.status(404).json({ error: 'Reseña no encontrada' });
   res.json({ success: true });
 });
+// ============ PEDIDOS (tickets) ============
+async function ensurePedidosTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS pedidos (
+      id SERIAL PRIMARY KEY,
+      google_sub VARCHAR(64) NOT NULL,
+      nombre VARCHAR(100) NOT NULL,
+      email VARCHAR(200) NOT NULL DEFAULT '',
+      id_fortnite VARCHAR(100) NOT NULL,
+      items JSONB NOT NULL,
+      total NUMERIC(10,2) NOT NULL,
+      metodo VARCHAR(30) NOT NULL DEFAULT 'yape',
+      comprobante TEXT,
+      estado VARCHAR(20) NOT NULL DEFAULT 'verificando',
+      fecha TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+}
+ensurePedidosTable().catch(err => console.error('Error creando tabla pedidos:', err));
 
+const ticketDe = (id) => '#' + String(id).padStart(4, '0');
+const ultimoPedidoPorUsuario = new Map();
+
+// Crear pedido (solo con sesión de Google)
+app.post('/api/pedidos', requireGoogle, async (req, res) => {
+  try {
+    const idFortnite = String(req.body.idFortnite || '').trim().slice(0, 100);
+    const comprobante = req.body.comprobante ? String(req.body.comprobante) : null;
+    const itemsIn = Array.isArray(req.body.items) ? req.body.items.slice(0, 50) : [];
+
+    if (!idFortnite) return res.status(400).json({ error: 'Falta tu ID de Fortnite.' });
+    if (!itemsIn.length) return res.status(400).json({ error: 'El carrito está vacío.' });
+    if (comprobante) {
+      if (!comprobante.startsWith('data:image/jpeg;base64,')) {
+        return res.status(400).json({ error: 'El comprobante debe ser una imagen.' });
+      }
+      if (comprobante.length > 1500000) {
+        return res.status(413).json({ error: 'El comprobante es demasiado pesado.' });
+      }
+    }
+
+    const items = itemsIn.map(i => ({
+      nombre: String(i.nombre || '').slice(0, 120),
+      precio: Number(i.precio) || 0,
+      cantidad: Math.max(1, Math.min(parseInt(i.cantidad, 10) || 1, 99)),
+      imagen: String(i.imagen || '').slice(0, 500)
+    }));
+    const total = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
+    if (!(total > 0)) return res.status(400).json({ error: 'Total inválido.' });
+
+    // Freno simple: un pedido cada 15 segundos por usuario
+    const ultimo = ultimoPedidoPorUsuario.get(req.usuario.sub) || 0;
+    if (Date.now() - ultimo < 15000) {
+      return res.status(429).json({ error: 'Espera unos segundos antes de enviar otro pedido.' });
+    }
+    ultimoPedidoPorUsuario.set(req.usuario.sub, Date.now());
+
+    const u = await pool.query('SELECT email FROM google_users WHERE sub = $1', [req.usuario.sub]);
+    const email = u.rows[0]?.email || '';
+
+    const { rows } = await pool.query(
+      `INSERT INTO pedidos (google_sub, nombre, email, id_fortnite, items, total, comprobante)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, fecha`,
+      [req.usuario.sub, req.usuario.nombre, email, idFortnite, JSON.stringify(items), total.toFixed(2), comprobante]
+    );
+    res.status(201).json({ success: true, id: rows[0].id, ticket: ticketDe(rows[0].id), fecha: rows[0].fecha });
+  } catch (err) {
+    console.error('[pedidos] Error creando:', err);
+    res.status(500).json({ error: 'No se pudo crear el pedido. Intenta de nuevo.' });
+  }
+});
+
+// Pedidos del cliente que inició sesión (para Mi cuenta > Pedidos)
+app.get('/api/mis-pedidos', requireGoogle, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, id_fortnite AS "idFortnite", items, total, metodo, estado, fecha
+       FROM pedidos WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 50`,
+      [req.usuario.sub]
+    );
+    res.json({ pedidos: rows.map(p => ({ ...p, ticket: ticketDe(p.id), total: Number(p.total) })) });
+  } catch (err) {
+    console.error('[pedidos] Error listando:', err);
+    res.status(500).json({ error: 'No se pudieron cargar tus pedidos.' });
+  }
+});
+
+// ADMIN: ver pedidos y cambiar su estado (verificando / aprobado / entregado / rechazado)
+app.get('/api/admin/pedidos', requireAdmin, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id, nombre, email, id_fortnite AS "idFortnite", items, total, estado, fecha,
+            (comprobante IS NOT NULL) AS "tieneComprobante"
+     FROM pedidos ORDER BY fecha DESC LIMIT 200`
+  );
+  res.json(rows.map(p => ({ ...p, ticket: ticketDe(p.id), total: Number(p.total) })));
+});
+
+app.get('/api/admin/pedidos/:id/comprobante', requireAdmin, async (req, res) => {
+  const { rows } = await pool.query('SELECT comprobante FROM pedidos WHERE id = $1', [parseInt(req.params.id, 10)]);
+  if (!rows.length || !rows[0].comprobante) return res.status(404).json({ error: 'Sin comprobante' });
+  res.json({ comprobante: rows[0].comprobante });
+});
+
+app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
+  const estado = String(req.body.estado || '');
+  if (!['verificando', 'aprobado', 'entregado', 'rechazado'].includes(estado)) {
+    return res.status(400).json({ error: 'Estado inválido' });
+  }
+  const { rows } = await pool.query('UPDATE pedidos SET estado = $1 WHERE id = $2 RETURNING id', [estado, parseInt(req.params.id, 10)]);
+  if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
+  res.json({ success: true });
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
