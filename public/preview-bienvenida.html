@@ -322,7 +322,6 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
       <div class="lx-reviews-grid" id="reviews-grid"></div>
       <button class="lx-flecha lx-der" id="btn-resenas-der" type="button" aria-label="Reseñas siguientes"><span class="material-symbols-rounded">chevron_right</span></button>
     </div>
-    <button class="lx-btn lx-btn-pri lx-subir" id="btn-subir-resena" type="button"><span class="material-symbols-rounded">add_photo_alternate</span>Subir mi reseña</button>
   </section>
 
   <section class="lx-comu">
@@ -629,7 +628,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
     prev.style.display = 'none'; prev.src = '';
     fotoData = ''; err.textContent = ''; nota = 5; pintarEstrellas();
   }
-  document.getElementById('btn-subir-resena').addEventListener('click', () => {
+  document.getElementById('btn-subir-resena')?.addEventListener('click', () => {
     const a = window.CachinaAuth;
     if (a && a.logueado()) abrir();
     else if (a) a.pedirLogin(abrir);
