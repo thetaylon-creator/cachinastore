@@ -178,16 +178,16 @@ body.lg-bloqueado{overflow:hidden}
   
 }
 /* Producto encima del círculo (puede salirse un poco, como en tu ejemplo) */
-.lx-art{position:relative}
-.lx-art.con-prod{background-image:none}   /* quita la foto de fondo cuando hay producto */
 .lx-prod{
-  position:absolute;left:50%;bottom:-4%;
-  height:104%;max-width:none;object-fit:contain;
-  transform:translateX(-50%);
+  position:absolute;left:50%;top:50%;
+  width:auto;height:auto;
+  max-width:125%;max-height:112%;
+  object-fit:contain;
+  transform:translate(-50%,-50%);
   filter:drop-shadow(0 20px 30px rgba(0,0,0,.45));
   transition:opacity .4s ease,transform .4s ease;
 }
-.lx-prod.saliendo{opacity:0;transform:translateX(-50%) translateX(40px)}
+.lx-prod.saliendo{opacity:0;transform:translate(-50%,-50%) translateX(40px)}
 
 /* Título y palabra con fade */
 #hero-titulo{transition:opacity .4s ease,transform .4s ease}
