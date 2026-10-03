@@ -266,7 +266,37 @@ async function calcularEstadoBots(idCliente) {
 
   return { activo: restanteMs > 0, cuentas: recientes.length, restanteMs };
 }
+// ---- RUTA PÚBLICA: solo verifica si un usuario existe (no guarda nada) ----
+const _verifHits = new Map();
+app.get('/api/verificar-usuario', async (req, res) => {
+  // Límite simple: 10 consultas por minuto por IP, para que nadie abuse de la API
+  const ahora = Date.now();
+  const hits = (_verifHits.get(req.ip) || []).filter(t => ahora - t < 60000);
+  if (hits.length >= 10) return res.status(429).json({ error: 'Demasiados intentos. Espera un minuto e intenta de nuevo.' });
+  hits.push(ahora);
+  _verifHits.set(req.ip, hits);
 
+  const username = String(req.query.username || '').trim();
+  const plataforma = String(req.query.plataforma || 'epic');
+  if (!username || username.length > 40 || !['epic', 'psn', 'xbox'].includes(plataforma)) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+
+  try {
+    const existe = await verificarUsuarioFortnite(username, plataforma);
+    if (!existe) {
+      const nombres = { epic: 'EPIC', psn: 'PSN', xbox: 'XBOX' };
+      return res.status(404).json({
+        existe: false,
+        error: `Usuario '${username}' no encontrado en ${nombres[plataforma]}. Verifica que escribiste bien tu username y seleccionaste la plataforma correcta.`
+      });
+    }
+    res.json({ existe: true });
+  } catch (err) {
+    console.error('[verificar-usuario]', err);
+    res.status(502).json({ error: 'No se pudo verificar ahora. Intenta de nuevo en unos segundos.' });
+  }
+});
 // ---- RUTA PÚBLICA: el cliente registra su solicitud (con verificación) ----
 app.post('/api/bots-request', async (req, res) => {
   const { idCliente, username, plataforma } = req.body;
