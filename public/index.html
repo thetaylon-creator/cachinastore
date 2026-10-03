@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="confirmar-pedido.css">
 </head>
 <body>
 
@@ -202,55 +203,167 @@
 </div>
 </aside>
 
-<!-- PANTALLA (MODAL) DE REALIZAR PAGO (YAPE) -->
+<!-- PANTALLA (MODAL) CONFIRMAR PEDIDO -->
 <div id="overlay-pago" class="overlay-pago oculto"></div>
 
-<div id="modal-pago" class="modal-pago oculto">
-  <div class="pago-header">
-    <h2>Realizar pago</h2>
-    <button id="btn-cerrar-pago" class="btn-cerrar-modal">&times;</button>
-  </div>
+<div id="modal-pago" class="modal-pago modal-confirmar oculto">
 
-  <div class="pago-resumen">
-    <span>Total a pagar</span>
-    <strong id="monto-total-pago">0.00 PEN</strong>
-  </div>
+  <!-- Panel izquierdo: tu logo + usuario + mensaje -->
+  <aside class="mc-lateral">
+    <div class="mc-logo">
+      <img src="logo.png" alt="CachinaStore">
+    </div>
 
-  <div class="pago-metodos">
-    <p class="metodos-titulo">SELECCIONA TU MÉTODO DE PAGO</p>
-    
-    <div class="metodo-opcion opcion-activa">
-      <div class="metodo-info">
-        <div class="icono-metodo yape-plin">
-         <img src="yape-logo.png" alt="Yape" class="img-yape-icono">
-        </div>
-        <span>Yape/Plin/Sip</span>
+    <div class="mc-usuario">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="10" r="3"></circle>
+        <path d="M6.2 18.5a7 7 0 0 1 11.6 0"></path>
+      </svg>
+      <div>
+        <strong id="mc-usuario-id">—</strong>
+        <small>ID Fortnite</small>
       </div>
     </div>
-  </div>
 
-<div class="pago-detalle yape-detalle">
-  <div class="qr-contenedor">
-    <img src="qr-yape.jpg" alt="Código QR Yape - Frank Mendoza" class="qr-imagen">
-    <p class="qr-ayuda">Toca para ampliar</p>
-  </div>
+    <div class="mc-linea"></div>
 
-  <div class="pago-instrucciones">
-    <p class="instrucciones-titulo">ESCANEA EL QR O TOMA CAPTURA PARA PAGAR MAS RAPIDO</p>
-    <p class="instrucciones-texto">
-      SI EL QR NO FUNCIONA, Enviar al numero: 
-      <strong>969639154</strong>
-      - OTROS BANCOS - AGORA/FINANCIERA OH o YAPE DIRECTO (Solo en casos de que el QR NO FUNCIONE)
-    </p>
-  </div>
+    <div class="mc-mensaje oculto" id="mc-mensaje">
+      <p>Gracias por confiar en CachinaStore.</p>
+      <p>Una vez que realices el pago, recomendamos subir el comprobante y procesaremos tu pedido lo más antes posible.</p>
+      <p>Cualquier duda escríbenos, con gusto te ayudamos.</p>
+    </div>
+  </aside>
 
-  <button class="btn-whatsapp" id="btn-pago-whatsapp">
-    <svg class="icono-ws-svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.299.429 2.502 1.156 3.473l-.758 2.766 2.836-.744a5.728 5.728 0 002.534.591h.003c3.18 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.766-5.771-5.766zm3.385 8.131c-.144.405-.837.774-1.17.822-.312.043-.717.076-2.286-.572-1.879-.777-3.08-2.705-3.174-2.83-.093-.125-.765-1.02-.765-1.944 0-.925.485-1.378.658-1.553.172-.175.375-.219.5-.219.125 0 .25.001.359.006.115.005.27-.044.422.322.156.375.531 1.298.578 1.393.047.094.078.204.016.33-.063.125-.094.203-.188.312-.094.109-.198.244-.282.328-.094.094-.192.196-.083.384.109.187.486.803 1.042 1.298.715.637 1.317.835 1.505.929.188.094.297.078.406-.047.109-.125.469-.547.594-.735.125-.188.25-.156.422-.094.172.063 1.094.516 1.281.609.188.094.313.141.359.219.047.078.047.453-.097.858zM12 2C6.477 2 2 6.477 2 12c0 2.201.713 4.236 1.92 5.882L2 22l4.246-1.859A9.948 9.948 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.167a8.118 8.118 0 01-4.137-1.132l-.297-.176-2.518 1.101 1.09-2.457-.193-.306A8.128 8.128 0 013.833 12c0-4.503 3.664-8.167 8.167-8.167 4.503 0 8.167 3.664 8.167 8.167 0 4.503-3.664 8.167-8.167 8.167z"/>
-    </svg>
-    YA PAGUÉ - IR A WHATSAPP
-  </button>
-</div>
+  <!-- Panel derecho -->
+  <section class="mc-contenido">
+    <div class="mc-header">
+      <h2>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        Confirmar pedido
+      </h2>
+      <button id="btn-cerrar-pago" class="mc-cerrar" type="button" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <!-- PASO 1: pedido + método de pago -->
+    <div class="mc-paso" id="mc-paso-pedido">
+      <div class="mc-scroll">
+        <p class="mc-etiqueta">TU PEDIDO</p>
+        <div id="mc-lista-pedido"></div>
+
+        <div class="mc-total">
+          <span>TOTAL A PAGAR</span>
+          <strong id="monto-total-pago">S/ 0.00</strong>
+        </div>
+
+        <p class="mc-etiqueta">MÉTODO DE PAGO</p>
+        <p class="mc-moneda">Moneda: Sol Peruano (PEN)</p>
+
+        <!-- Lista de métodos (antes de elegir) -->
+        <div id="mc-selector">
+          <button type="button" class="mc-metodo" id="mc-btn-metodo">
+            <span class="mc-metodo-nombre">
+              <img src="yape-logo.png" alt="Yape">
+              Yape/Plin/Sip
+            </span>
+          </button>
+        </div>
+
+        <!-- Método elegido -->
+        <div id="mc-seleccionado" class="mc-metodo mc-metodo-activo oculto">
+          <span class="mc-metodo-nombre">
+            <img src="yape-logo.png" alt="Yape">
+            Yape/Plin/Sip
+          </span>
+          <button type="button" class="mc-cambiar" id="mc-btn-cambiar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+            Cambiar
+          </button>
+        </div>
+
+        <div class="mc-detalle oculto" id="mc-detalle">
+          <div class="mc-detalle-texto">
+            <b>ESCANEA EL QR O TOMA CAPTURA PARA PAGAR MÁS RÁPIDO</b>
+            Si el QR NO FUNCIONA puedes mandar a: <strong>969639154</strong> - YAPE
+            <br>Otros bancos: Ágora / Financiera Oh o Yape directo (solo si el QR no funciona).
+          </div>
+          <div class="qr-contenedor">
+            <img src="qr-yape.jpg" alt="Código QR Yape" class="qr-imagen">
+            <p class="qr-ayuda">Toca para ampliar</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mc-pie">
+        <button type="button" class="mc-btn-pagado" id="btn-ya-pague" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="8 12 11 15 16 9"></polyline>
+          </svg>
+          Ya pagué
+        </button>
+        <p id="mc-ayuda">Selecciona un método de pago para continuar.</p>
+      </div>
+    </div>
+
+    <!-- PASO 2: subir comprobante -->
+    <div class="mc-paso oculto" id="mc-paso-comprobante">
+      <button type="button" class="mc-volver" id="mc-btn-volver">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver
+      </button>
+
+      <div class="mc-subir">
+        <svg class="mc-subir-icono" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="11" x2="16" y2="11"></line>
+          <line x1="8" y1="15" x2="14" y2="15"></line>
+        </svg>
+        <h3>Sube tu comprobante</h3>
+        <p>Adjunta la captura de tu pago: nos ayuda a aprobarlo mucho más rápido.</p>
+
+        <div class="mc-zona-subir" id="mc-zona-subir" role="button" tabindex="0">
+          <div class="mc-zona-vacia">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            Elegir imagen
+          </div>
+          <img class="mc-preview" id="mc-preview" alt="Vista previa del comprobante">
+        </div>
+        <input type="file" id="mc-input-archivo" accept="image/jpeg,image/png,image/webp" hidden>
+
+        <p class="mc-formatos">JPG, PNG o WebP · si tu banco te dio un PDF, mándanos una captura de pantalla.</p>
+        <p class="mc-hint-wsp">Al finalizar se abrirá WhatsApp con tu pedido. Adjunta ahí la misma captura.</p>
+      </div>
+
+      <div class="mc-pie">
+        <button type="button" class="mc-btn-pagado" id="mc-btn-finalizar" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="8 12 11 15 16 9"></polyline>
+          </svg>
+          Listo, finalizar
+        </button>
+        <button type="button" class="mc-link" id="mc-btn-sin-comprobante">No puedo subir comprobante</button>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- MODAL PARA AMPLIAR QR -->
@@ -305,5 +418,6 @@
 </div>
 <!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
 <script src="script.js"></script>
+<script src="confirmar-pedido.js"></script>
 </body>
 </html>
