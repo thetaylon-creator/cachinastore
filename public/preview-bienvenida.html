@@ -184,11 +184,11 @@ body.lg-bloqueado{overflow:hidden}
 .lx-prod{
   position:absolute;
   left:-15%;
-  width:130%;            /* caja centrada sobre el círculo */
-  height:100%;           /* misma altura que el círculo */
-  bottom:-9%;            /* baja un poco para que se vean los pies */
+  width:130%;
+  height:90%;            /* antes 100%: más pequeña, cabe completa */
+  bottom:6%;             /* antes -9%: sube, así los pies quedan dentro */
   max-width:none;
-  object-fit:contain;    /* la skin se ve completa, sin deformarse */
+  object-fit:contain;
   object-position:center bottom;
   filter:drop-shadow(0 20px 30px rgba(0,0,0,.45));
   transition:opacity .4s ease, transform .4s ease;
