@@ -44,8 +44,9 @@ body{background:var(--bg-dark);color:#fff;min-height:100dvh;font-family:Inter,'S
 #palabra-rotativa.saliendo{opacity:0;transform:translateY(8px)}
 .lx-cta{display:flex;gap:14px;flex-wrap:wrap}
 .lx-art{justify-self:center;width:min(100%,475px);aspect-ratio:1;border-radius:50%;margin-top:-80px;
-  background:rgba(255,255,255,.14) url('fondo-bienvenida.jpg') center/cover no-repeat;
+  background:rgba(255,255,255,.14);
   box-shadow:0 0 60px rgba(124,58,237,.35)}
+.lx-art.fallback{background:rgba(255,255,255,.14) url('fondo-bienvenida.jpg') center/cover no-repeat}
 
 .lx-trust{max-width:1070px;margin:0 auto;padding:64px 16px 90px;text-align:center}
 .lx-trust h2{display:inline-flex;align-items:center;gap:12px;font-size:30px;margin-bottom:10px}
@@ -916,7 +917,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
   }
 
   function iniciar(urls) {
-    if (!urls.length) return;
+    if (!urls.length) { art.classList.add('fallback'); return; }
     lista = urls;
     indice = 0;
     lista.forEach(src => { const im = new Image(); im.src = src; });
@@ -938,7 +939,7 @@ html.cambiando *,html.cambiando *::before,html.cambiando *::after{transition:bac
       console.log('Hero: tienda cargada', d?.data?.entries?.length, 'entradas');
       if (d?.data?.entries) iniciar(extraerUrls(d.data.entries));
     })
-    .catch(e => console.log('Hero: no se pudo cargar /api/shop', e));
+    .catch(e => { console.log('Hero: no se pudo cargar /api/shop', e); art.classList.add('fallback'); });
 })();
 </script>
 </body>
