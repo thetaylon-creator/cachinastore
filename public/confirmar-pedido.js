@@ -15,7 +15,8 @@
   const el = {
     listaPedido: $('mc-lista-pedido'),
     total: $('monto-total-pago'),
-    usuarioId: $('mc-usuario-id'),
+    usuarioNombre: $('mc-usuario-nombre'),
+    usuarioEmail: $('mc-usuario-email'),
     mensaje: $('mc-mensaje'),
     pasoPedido: $('mc-paso-pedido'),
     pasoComprobante: $('mc-paso-comprobante'),
@@ -35,6 +36,38 @@
   };
 
   let urlPreview = null;
+
+  function leerSesion() {
+    try { return JSON.parse(localStorage.getItem('cachina_sesion') || 'null') || {}; } catch (e) { return {}; }
+  }
+
+  // El mensaje de WhatsApp ahora incluye la cuenta de Google del cliente.
+  // (Reemplaza a la función de script.js sin modificar ese archivo.)
+  window.construirMensajePedido = function () {
+    const ses = leerSesion();
+    const idFortnite = localStorage.getItem('usuarioLogueado') || 'No especificado';
+    const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
+
+    let lista = '';
+    let total = 0;
+    if (!items.length) {
+      lista = '• (carrito vacío)\n';
+    } else {
+      items.forEach((item) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        lista += `• *${item.nombre}* x${item.cantidad} — ${subtotal.toFixed(2)} PEN\n`;
+      });
+    }
+
+    const cuenta = ses.email ? `${ses.nombre || ''} (${ses.email})`.trim() : 'No especificado';
+    return `*ORDEN CREADA — CachinaStore*\n\n` +
+           `*Cliente:* ${cuenta}\n` +
+           `*ID de Fortnite (regalo para):* ${idFortnite}\n\n` +
+           `${lista}` +
+           `*Total:* ${total.toFixed(2)} PEN\n` +
+           `*Moneda:* PEN`;
+  };
 
   // ---------- Pasos ----------
   function mostrarPaso(paso) {
@@ -62,8 +95,11 @@
 
   // ---------- Rellenar con el carrito ----------
   function pintarPedido() {
+    // Cuenta de Google (nombre y correo) y ID de Fortnite que recibe el regalo
+    const ses = leerSesion();
     const idCliente = localStorage.getItem('usuarioLogueado') || '—';
-    el.usuarioId.textContent = idCliente;
+    el.usuarioNombre.textContent = ses.nombre || ses.email || '—';
+    el.usuarioEmail.textContent = ses.nombre ? (ses.email || '') : '';
 
     const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
     el.listaPedido.innerHTML = '';
