@@ -360,6 +360,10 @@ html.claro #id-cliente-header:hover{color:#2e1065}
 .id-botones .lx-btn{flex:1;justify-content:center;height:48px;font-size:14px;padding:0 10px}
 .id-btn-si{background:rgba(124,58,237,.18);color:#a78bfa}
 .id-btn-si:hover{background:rgba(124,58,237,.3)}
+.id-plataformas{display:flex;gap:8px;margin-bottom:14px}
+.id-plat{flex:1;height:40px;border-radius:10px;border:1px solid var(--w-border);background:#0d0819;color:#a99fc9;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.id-plat:hover{border-color:#a78bfa;color:#fff}
+.id-plat.activa{background:#7c3aed;color:#fff;border-color:#7c3aed}
 </style>
 
 </head>
@@ -660,6 +664,11 @@ html.claro #id-cliente-header:hover{color:#2e1065}
       </div>
 
       <div class="lg-paso" id="id-paso-ingresar">
+          <div class="id-plataformas" id="id-plataformas">
+          <button type="button" class="id-plat activa" data-plat="epic">EPIC</button>
+          <button type="button" class="id-plat" data-plat="psn">PSN</button>
+          <button type="button" class="id-plat" data-plat="xbox">XBOX</button>
+        </div>
         <label class="lg-label" for="id-input">ID o nick de tu usuario (Epic, Xbox o PSN)</label>
         <div class="lg-input">
           <input type="text" id="id-input" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ej: Gamer123">
@@ -1563,12 +1572,34 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
     idOv.classList.remove('abierto');
     document.body.classList.remove('lg-bloqueado');
   }
-  function guardarId() {
+  let idPlat = 'epic';
+  document.querySelectorAll('.id-plat').forEach((b) => b.addEventListener('click', () => {
+    idPlat = b.getAttribute('data-plat');
+    document.querySelectorAll('.id-plat').forEach((x) => x.classList.toggle('activa', x === b));
+  }));
+
+  async function guardarId() {
     const v = idIn.value.trim();
     if (!v) { idErr.textContent = 'Escribe tu ID o nick.'; return; }
-    guardarIdFortnite(v);
-    avisoCarrito('');
-    cerrarId();
+
+    const btn = $('id-guardar');
+    btn.disabled = true;
+    idErr.textContent = 'Buscando usuario...';
+    try {
+      const r = await fetch('/api/verificar-usuario?username=' + encodeURIComponent(v) + '&plataforma=' + idPlat);
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        idErr.textContent = d.error || 'No se pudo verificar ahora. Intenta de nuevo.';
+      } else {
+        idErr.textContent = '';
+        guardarIdFortnite(v);
+        avisoCarrito('');
+        cerrarId();
+      }
+    } catch (e) {
+      idErr.textContent = 'No se pudo conectar con el servidor.';
+    }
+    btn.disabled = false;
   }
   $('id-cliente-header')?.addEventListener('click', () => {
     if (!sesion) pedirLogin('Inicia sesión con Google para guardar tu ID.', abrirId);
@@ -1580,6 +1611,10 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
   $('id-cerrar')?.addEventListener('click', cerrarId);
   idIn?.addEventListener('keydown', (e) => { if (e.key === 'Enter') guardarId(); });
   idOv?.addEventListener('click', (e) => { if (e.target === idOv) cerrarId(); });
+    if (inputId) {
+    inputId.readOnly = true;
+    inputId.addEventListener('click', () => { if (sesion) abrirId(); else pedirLogin('Inicia sesión con Google para guardar tu ID.', abrirId); });
+  }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && idOv.classList.contains('abierto')) cerrarId(); });
 
   // ---------- ID de Fortnite en el carrito ----------
