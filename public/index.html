@@ -451,6 +451,28 @@ html.claro #id-cliente-header:hover{color:#2e1065}
   padding: 0 !important;
   outline: 0 !important;
 }
+/* Modo "sin comprobante" */
+.mc-aviso-demora,#mc-btn-mejor-subo{display:none}
+#mc-paso-comprobante.sin-comp .mc-aviso-demora{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px auto 8px;padding:14px 18px;max-width:380px;border-radius:12px;border:1px solid rgba(240,180,41,.5);background:rgba(240,180,41,.1);color:#fbbf24;font-weight:700;font-size:14px}
+#mc-paso-comprobante.sin-comp #mc-btn-mejor-subo{display:block;margin:0 auto 14px}
+#mc-paso-comprobante.sin-comp .mc-zona-subir,
+#mc-paso-comprobante.sin-comp .mc-formatos,
+#mc-paso-comprobante.sin-comp .mc-hint-wsp,
+#mc-paso-comprobante.sin-comp #mc-btn-sin-comprobante{display:none !important}
+#mc-paso-comprobante.sin-comp #mc-btn-finalizar{background:#4ade80;color:#052e16}
+
+/* Pedido creado */
+#mc-paso-exito.mc-paso:not(.oculto){display:flex;align-items:center;justify-content:center;flex:1;min-height:0}
+.mc-exito{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:24px;max-width:380px}
+.mc-exito-check{color:#4ade80}
+.mc-exito h3{font-size:24px;margin:6px 0 0;color:#fff}
+.mc-exito p{color:#a99fc9;font-size:14px;margin:0}
+.mc-exito-txt{line-height:1.5;margin:6px 0 10px !important}
+.mc-exito-txt b{color:#fff}
+.mc-ticket{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0d0819}
+.mc-ticket strong{font-family:ui-monospace,Consolas,monospace;font-size:18px;color:#fff}
+.mc-ticket button{border:1px solid rgba(255,255,255,.15);background:none;color:#cfc6ee;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.mc-cerrar-exito{margin-top:6px;border:1px solid rgba(255,255,255,.15);background:none;color:#cfc6ee;border-radius:10px;padding:9px 18px;cursor:pointer;font-family:inherit}
 </style>
 
 </head>
@@ -969,6 +991,11 @@ html.claro #id-cliente-header:hover{color:#2e1065}
 
         <p class="mc-formatos">JPG, PNG o WebP · si tu banco te dio un PDF, mándanos una captura de pantalla.</p>
         <p class="mc-hint-wsp">Al finalizar se abrirá WhatsApp con tu pedido. Adjunta ahí la misma captura.</p>
+        <div class="mc-aviso-demora" id="mc-aviso-demora">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+  Tu pago puede demorar en ser aceptado.
+</div>
+<button type="button" class="mc-link" id="mc-btn-mejor-subo">Mejor sí subo una captura</button>
       </div>
 
       <div class="mc-pie">
@@ -982,6 +1009,21 @@ html.claro #id-cliente-header:hover{color:#2e1065}
         <button type="button" class="mc-link" id="mc-btn-sin-comprobante">No puedo subir comprobante</button>
       </div>
     </div>
+    <!-- PASO 3: pedido creado -->
+<div class="mc-paso oculto" id="mc-paso-exito">
+  <div class="mc-exito">
+    <svg class="mc-exito-check" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 11 15 16 9"></polyline></svg>
+    <h3>¡Pedido creado!</h3>
+    <p>Tu número de ticket es</p>
+    <div class="mc-ticket">
+      <strong id="mc-ticket-num">#0000</strong>
+      <button type="button" id="mc-ticket-copiar">Copiar</button>
+    </div>
+    <p class="mc-exito-txt">Estamos verificando tu pago. Sigue el estado de tu pedido y recibe las indicaciones de entrega en <b>Mi cuenta › Pedidos</b>.</p>
+    <button type="button" class="lx-btn lx-btn-pri" id="mc-ver-pedidos">Ver mis pedidos</button>
+    <button type="button" class="mc-cerrar-exito" id="mc-cerrar-exito">✕ Cerrar</button>
+  </div>
+</div>
   </section>
 </div>
 
@@ -1748,6 +1790,73 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
 
   pintar();
   sincronizar();
+})();
+
+</script>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const paso2 = $('mc-paso-comprobante'), paso3 = $('mc-paso-exito');
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#mc-btn-sin-comprobante')) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      paso2.classList.add('sin-comp');
+      $('mc-btn-finalizar').disabled = false;
+    }
+    if (e.target.closest('#mc-btn-mejor-subo')) {
+      paso2.classList.remove('sin-comp');
+      $('mc-btn-finalizar').disabled = !$('mc-input-archivo').files.length;
+    }
+  }, true);
+
+  window.mostrarPedidoCreado = function(ticket){
+    $('mc-ticket-num').textContent = ticket ? ('#' + String(ticket).replace('#','')) : '';
+    document.querySelectorAll('#modal-pago .mc-paso').forEach(p => p.classList.add('oculto'));
+    paso3.classList.remove('oculto');
+  };
+
+  $('mc-ticket-copiar')?.addEventListener('click', () => {
+    navigator.clipboard?.writeText($('mc-ticket-num').textContent);
+    $('mc-ticket-copiar').textContent = '¡Copiado!';
+    setTimeout(() => $('mc-ticket-copiar').textContent = 'Copiar', 1500);
+  });
+  $('mc-ver-pedidos')?.addEventListener('click', () => { location.href = 'mi-cuenta.html#pedidos'; });
+  $('mc-cerrar-exito')?.addEventListener('click', () => $('btn-cerrar-pago').click());
+})();
+</script>
+<script>
+(function () {
+  let esperando = false, timer = null;
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#mc-btn-finalizar')) {
+      esperando = true;
+      clearTimeout(timer);
+      timer = setTimeout(() => { esperando = false; }, 20000);
+    }
+  }, true);
+
+  const fetchOriginal = window.fetch;
+  window.fetch = async function (...args) {
+    const resp = await fetchOriginal.apply(this, args);
+    try {
+      const opts = args[1] || {};
+      const metodo = String(opts.method || (args[0] && args[0].method) || 'GET').toUpperCase();
+      if (esperando && metodo === 'POST' && resp.ok) {
+        const d = await resp.clone().json().catch(() => null);
+        if (d) {
+          const p = d.pedido || d.order || d;
+          const ticket = p.ticket ?? p.numeroTicket ?? p.numero ?? p.codigo ?? p.id ?? d.id;
+          if (ticket !== undefined && ticket !== null && ticket !== '') {
+            esperando = false;
+            setTimeout(() => window.mostrarPedidoCreado(ticket), 400);
+          }
+        }
+      }
+    } catch (e) {}
+    return resp;
+  };
 })();
 </script>
 <!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
