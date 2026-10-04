@@ -1915,3 +1915,8 @@ btnEnviarBots?.addEventListener('click', enviarSolicitudBots);
     .then(d => { if (d?.data?.entries) window.actualizarHero(d.data.entries); })
     .catch(e => console.log('Hero: no se pudo cargar /api/shop', e));
 })();
+// Tocar el logo de la tienda vuelve a la pantalla de inicio
+document.querySelector('#pantalla-tienda .logo-header')?.addEventListener('click', () => {
+  mostrarPantalla('pantalla-bienvenida');
+  window.scrollTo(0, 0);
+});
