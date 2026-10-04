@@ -988,7 +988,7 @@ function crearTarjetaProducto(p, seccion) {
     const fila = document.createElement('div');
     fila.className = 'club-duracion';
     fila.innerHTML = '<span>Duración:</span><button type="button" class="club-select-btn" aria-haspopup="listbox" aria-expanded="false"><b>1 MES</b><span class="material-symbols-rounded">expand_more</span></button>';
-    nombreEl.after(fila);
+    tarjeta.querySelector('.tarjeta-pie-extra').appendChild(fila);
     const btnSel = fila.querySelector('.club-select-btn');
     const txtSel = btnSel.querySelector('b');
 
@@ -1068,14 +1068,21 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
       <div class="tarjeta-overlay"></div>
       <div class="tarjeta-info">
         ${badgeExpira}
-       <h4 class="tarjeta-nombre">${nombre}</h4>
-        ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
-        <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+        <h4 class="tarjeta-nombre">${nombre}</h4>
       </div>
-      <button class="btn-agregar btn-agregar-icono"
-              data-nombre="${nombreLimpio}"
-              data-precio="${precioSoles}"
-              data-imagen="${imagen}">+</button>
+    </div>
+    <div class="tarjeta-pie">
+      <div class="tarjeta-pie-extra"></div>
+      <div class="tarjeta-pie-fila">
+        <div class="tarjeta-precios">
+          ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
+          <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+        </div>
+        <button class="btn-agregar btn-agregar-icono"
+                data-nombre="${nombreLimpio}"
+                data-precio="${precioSoles}"
+                data-imagen="${imagen}">+</button>
+      </div>
     </div>
   `;
   return tarjeta;
