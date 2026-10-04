@@ -344,12 +344,17 @@ function generarMenuFiltros(secciones) {
 
   let htmlMenu = `
     <div class="panel-filtros-header" id="btn-toggle-filtros">
-      <span class="filtros-label">FILTROS</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <span class="filtros-label filtros-pc">FILTROS</span>
+      <svg class="filtros-pc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="4" y1="6" x2="20" y2="6"></line>
         <line x1="7" y1="12" x2="17" y2="12"></line>
         <line x1="10" y1="18" x2="14" y2="18"></line>
       </svg>
+      <span class="filtros-movil">
+        <span class="material-symbols-rounded">format_list_bulleted</span>
+        <span class="filtros-movil-txt">Secciones</span>
+        <span class="material-symbols-rounded chev">expand_more</span>
+      </span>
     </div>
     <ul class="panel-filtros" id="panel-filtros">
   `;
