@@ -317,7 +317,7 @@ header {
   align-self: start;
   max-height: calc(100vh - var(--cab-h, 118px) - 20px);
   z-index: 60;
-  width: 360px !important;
+  width: 100% !important;
 }
 
 .sidebar h4 {
@@ -2025,3 +2025,87 @@ body .modal-bots-card.oculto:not(.mostrar) {
     bottom: 0;
   }
 }
+/* ===== Tarjetas Crew/DLC/Packs y V-Bucks (imagen arriba, pie abajo) ===== */
+.tarjeta-producto.tarjeta-estilo-pie {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: auto !important;   /* quita el alto fijo */
+  height: auto !important;
+  min-width: 0;
+  content-visibility: visible;
+}
+
+.tarjeta-estilo-pie .tarjeta-fondo {
+  position: relative;
+  aspect-ratio: 1 / 1;             /* solo la imagen es cuadrada */
+  height: auto;
+  flex: none;
+  overflow: hidden;
+}
+.tarjeta-estilo-pie .tarjeta-imagen {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  padding: 0;
+  object-fit: cover;
+  transform: none !important;
+}
+.tarjeta-estilo-pie .tarjeta-overlay { height: 70%; }
+
+.tarjeta-estilo-pie .tarjeta-info {
+  left: 0; right: 0; bottom: 0;
+  padding: clamp(8px, 2.5vw, 12px);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+}
+.tarjeta-estilo-pie .tarjeta-nombre {
+  margin: 0;
+  font-size: clamp(.72rem, 3.2vw, .9rem);
+  line-height: 1.2;
+  white-space: normal;             /* permite varias líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: clip;
+}
+.tarjeta-estilo-pie .club-badge { margin: 0; font-size: clamp(.58rem, 2.6vw, .68rem); }
+
+/* Pie */
+.tarjeta-pie {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: clamp(8px, 2.5vw, 12px);
+  margin-top: auto;
+  background: rgba(10, 8, 24, .55);
+}
+.tarjeta-pie-extra:empty { display: none; }
+.tarjeta-pie-extra .club-duracion { margin: 0; font-size: clamp(.62rem, 2.8vw, .8rem); }
+.tarjeta-pie .club-select-btn { font-size: clamp(.7rem, 3vw, .85rem); padding: 7px 8px 7px 10px; }
+
+.tarjeta-pie-fila {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+}
+.tarjeta-precios { min-width: 0; }
+.tarjeta-precios p { margin: 0; }
+.tarjeta-pie .tarjeta-precio-pen {
+  margin: 0;
+  font-size: clamp(.8rem, 3.6vw, 1rem);
+  white-space: nowrap;
+}
+
+/* Botón "+" dentro del pie (ya no flota sobre la imagen) */
+.tarjeta-estilo-pie .btn-agregar-icono {
+  position: static;
+  flex: none;
+  width: clamp(30px, 9vw, 38px);
+  height: clamp(30px, 9vw, 38px);
+  font-size: clamp(18px, 5.5vw, 24px);
+}
+
+/* Ícono "i" proporcional */
+.tarjeta-estilo-pie .btn-info-producto {
+  top: 8px; right: 8px;
+  width: clamp(26px, 8vw, 32px);
+  height: clamp(26px, 8vw, 32px);
+}
+
+/* Cada tarjeta mantiene su propia altura en la sección Crew */
+#seccion-crew-dlc-packs .grid-productos { align-items: start; }
