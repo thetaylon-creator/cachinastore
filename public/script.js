@@ -859,6 +859,11 @@ function seVaHoy(outDate) {
 // DESCRIPCIONES (ícono "i") Y TARJETA DEL CLUB
 // ==========================================
 const INFO_CLUB = "Suscripción mensual de Fortnite Crew. Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes. Se puede renovar cada mes.";
+// Precio del Club según los meses (1 mes usa el precio de la tarjeta)
+const PRECIOS_CLUB = { 2: 26, 3: 34, 4: 42, 5: 50, 6: 58 };
+function precioClub(meses, precioMes) {
+  return PRECIOS_CLUB[meses] ?? precioMes * meses;
+}
 
 const INFO_PRODUCTOS = {
   "800 V-Bucks": "ⓘ Necesitamos acceso a tu cuenta.\n\nPaquete de 800 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
@@ -967,42 +972,78 @@ function crearTarjetaProducto(p, seccion) {
     tarjeta.querySelector('.tarjeta-fondo')?.appendChild(btnInfo);
   }
 
-  // Club: etiqueta + duración de 1 a 6 meses
+  // Club: etiqueta + duración de 1 a 6 meses (menú propio)
   if (p.clubMeses) {
     const cuadro = tarjeta.querySelector('.tarjeta-info');
     const nombreEl = tarjeta.querySelector('.tarjeta-nombre');
     const precioEl = tarjeta.querySelector('.tarjeta-precio-pen');
     const precioMes = parseFloat(p.precioSoles);
+    let meses = 1;
 
     const badge = document.createElement('span');
     badge.className = 'club-badge';
     badge.textContent = 'DESTACADO';
     cuadro.insertBefore(badge, nombreEl);
 
-    const fila = document.createElement('label');
+    const fila = document.createElement('div');
     fila.className = 'club-duracion';
-    let opciones = '';
-    for (let m = 1; m <= 6; m++) opciones += `<option value="${m}">${m} ${m === 1 ? 'MES' : 'MESES'}</option>`;
-    fila.innerHTML = `<span>Duración:</span><select>${opciones}</select>`;
+    fila.innerHTML = '<span>Duración:</span><button type="button" class="club-select-btn" aria-haspopup="listbox" aria-expanded="false"><b>1 MES</b><span class="material-symbols-rounded">expand_more</span></button>';
     nombreEl.after(fila);
-    const sel = fila.querySelector('select');
+    const btnSel = fila.querySelector('.club-select-btn');
+    const txtSel = btnSel.querySelector('b');
 
-    sel.addEventListener('change', () => {
-      precioEl.textContent = (precioMes * Number(sel.value)).toFixed(2) + ' PEN';
+    // El menú vive en <body> para que la tarjeta no lo recorte
+    document.querySelectorAll('.club-menu').forEach(m => m.remove());
+    const menu = document.createElement('div');
+    menu.className = 'club-menu';
+    menu.setAttribute('role', 'listbox');
+    for (let m = 1; m <= 6; m++) {
+      const op = document.createElement('button');
+      op.type = 'button';
+      op.className = 'club-op' + (m === 1 ? ' sel' : '');
+      op.textContent = `${m} ${m === 1 ? 'MES' : 'MESES'}`;
+      op.addEventListener('click', () => {
+        meses = m;
+        txtSel.textContent = op.textContent;
+        menu.querySelectorAll('.club-op').forEach(x => x.classList.toggle('sel', x === op));
+        precioEl.textContent = precioClub(meses, precioMes).toFixed(2) + ' PEN';
+        cerrarMenusClub();
+      });
+      menu.appendChild(op);
+    }
+    document.body.appendChild(menu);
+
+    btnSel.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (menu.classList.contains('abierto')) { cerrarMenusClub(); return; }
+      cerrarMenusClub();
+      const r = btnSel.getBoundingClientRect();
+      const ancho = Math.max(r.width, 150);
+      menu.style.width = ancho + 'px';
+      menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - ancho - 8)) + 'px';
+      const altoMenu = 6 * 42 + 16;
+      if (window.innerHeight - r.bottom < altoMenu + 10 && r.top > altoMenu + 10) {
+        menu.style.top = 'auto';
+        menu.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+      } else {
+        menu.style.bottom = 'auto';
+        menu.style.top = (r.bottom + 6) + 'px';
+      }
+      menu.classList.add('abierto');
+      btnSel.classList.add('abierto');
+      btnSel.setAttribute('aria-expanded', 'true');
     });
 
-    // Botón "+" propio (se le quita .btn-agregar para que el manejador global no lo tome)
-        const btn = tarjeta.querySelector('.btn-agregar');
+    // El "+" agrega el Club con la duración elegida
+    const btn = tarjeta.querySelector('.btn-agregar');
     if (btn) {
       btn.addEventListener('click', (e) => {
-        e.stopPropagation(); // evita que el manejador global agregue "Club" sin los meses
-        const m = Number(sel.value);
-        const nombre = `Club - ${m} ${m === 1 ? 'Mes' : 'Meses'} (Xbox)`;
-        // Si ya había un Club en el carrito, se reemplaza por la nueva duración
+        e.stopPropagation(); // evita que el manejador global lo agregue sin los meses
+        const nombre = `Club - ${meses} ${meses === 1 ? 'Mes' : 'Meses'} (Xbox)`;
         for (let i = carritoItems.length - 1; i >= 0; i--) {
-          if (/^Club - \d+ Mes/.test(carritoItems[i].nombre)) carritoItems.splice(i, 1);
+        if (/^Club - \d+ Mes(es)? \(Xbox\)$/.test(carritoItems[i].nombre)) carritoItems.splice(i, 1);
         }
-        agregarAlCarrito(nombre, (precioMes * m).toFixed(2), p.imagen);
+        agregarAlCarrito(nombre, precioClub(meses, precioMes).toFixed(2), p.imagen);
       });
     }
   }
@@ -1133,7 +1174,7 @@ function obtenerProductosVBucks() {
 
 function obtenerProductosCrew() {
   return [
-    { nombre: "Club", pavos: 0, precioSoles: "15.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #1e1b4b, #4c1d95)',clubMeses: true },
+    { nombre: "Club", pavos: 0, precioSoles: "18.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #1e1b4b, #4c1d95)',clubMeses: true },
     { nombre: "Club - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "crew-epic.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase de Batalla [Regalo]", pavos: 0, precioSoles: "20.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasebatallanew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasemusicnew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
