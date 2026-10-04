@@ -725,6 +725,19 @@ app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
 });
+// ADMIN: borrar un pedido (también se elimina su comprobante)
+app.delete('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'ID inválido' });
+    const { rows } = await pool.query('DELETE FROM pedidos WHERE id = $1 RETURNING id', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[pedidos] Error borrando:', err);
+    res.status(500).json({ error: 'No se pudo borrar el pedido.' });
+  }
+});
 // Mi reseña: ¿puede reseñar? ¿ya tiene una?
 app.get('/api/mi-resena', requireGoogle, async (req, res) => {
   try {
