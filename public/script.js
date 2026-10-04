@@ -738,7 +738,7 @@ if (productos.length === 1) {
   const LIMITE_PISTAS = 8;
 
   productos.forEach((p, i) => {
-    const tarjeta = crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal);
+const tarjeta = crearTarjetaProducto(p, nombreSeccion);
     if (esSeccionPistas && i >= LIMITE_PISTAS) tarjeta.classList.add('ver-mas-oculta');
     grid.appendChild(tarjeta);
   });
@@ -855,7 +855,141 @@ function seVaHoy(outDate) {
     return false;
   }
 }
+// ==========================================
+// DESCRIPCIONES (ícono "i") Y TARJETA DEL CLUB
+// ==========================================
+const INFO_CLUB = "Suscripción mensual de Fortnite Crew. Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes. Se puede renovar cada mes.";
 
+const INFO_PRODUCTOS = {
+  "800 V-Bucks": "Paquete de 800 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "2.400 V-Bucks": "Paquete de 2.400 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "4.500 V-Bucks": "Paquete de 4.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "12.500 V-Bucks": "Paquete de 12.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "Club - 1 Mes (EPIC)": "Suscripción de 1 mes a Fortnite Crew (cuenta Epic Games). Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes.",
+  "Pase de Batalla [Regalo]": "Pase de batalla de la temporada actual, enviado como regalo a tu cuenta de Fortnite.",
+  "Pase Musical [Regalo]": "Pase musical de Festival de Fortnite, enviado como regalo a tu cuenta de Fortnite.",
+  "Paquete de inicio Operación brillante": "ⓘ Necesitamos acceso a tu cuenta.",
+  "Pack de inicio Ruptura de la computadora central": "ⓘ Necesitamos acceso a tu cuenta.\n\nZoe Clash y el Sargento Shiba están dispuestos a cambiar los protocolos a su favor. ¡Asegúrate de tenerlos de tu parte con el pack de Ruptura de la computadora central! Incluye:\n• 800 paVos\n• Traje de Zoe Clash (con estilo LEGO®)\n• Accesorio mochilero Sargento Shiba\n• Pico Bip y Bop\n• Envoltorio Locura de calcomanía",
+  "Pack de misiones de Conejita momia": "ⓘ Necesitamos acceso a tu cuenta.",
+  "Paquete Día del Juicio": "ⓘ Necesitamos acceso a tu cuenta."
+};
+
+function inyectarEstilosInfoProducto() {
+  if (document.getElementById('estilos-info-producto')) return;
+  const st = document.createElement('style');
+  st.id = 'estilos-info-producto';
+  st.textContent = `
+    .tarjeta-con-info .tarjeta-fondo{position:relative}
+    .btn-info-producto{position:absolute;top:10px;right:10px;z-index:6;width:32px;height:32px;padding:0;border-radius:50%;border:1px solid rgba(167,139,250,.55);background:rgba(20,14,40,.78);color:#fff;display:grid;place-items:center;cursor:pointer}
+    .btn-info-producto:hover{background:#7c3aed}
+    .btn-info-producto .material-symbols-rounded{font-size:20px}
+    .club-badge{display:inline-block;background:#fbbf24;color:#3b2a00;font-weight:800;font-size:.68rem;padding:3px 10px;border-radius:999px;margin-bottom:6px}
+    .club-duracion{display:flex;align-items:center;gap:8px;margin:8px 0;color:#cfc6ee;font-size:.8rem;font-weight:600}
+    .club-duracion select{flex:1;min-width:0;background:#0d0819;color:#fff;border:1px solid #6d3fd6;border-radius:10px;padding:8px 10px;font-weight:700;font-family:inherit;font-size:.85rem}
+    #overlay-info-producto{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,4,20,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    #overlay-info-producto.abierto{display:flex}
+    .info-prod-box{position:relative;width:100%;max-width:440px;max-height:85dvh;overflow:auto;background:#150f2b;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 24px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+    .info-prod-titulo{margin:0 40px 14px 0;font-size:1.2rem;font-weight:800}
+    .info-prod-texto{margin:0;color:#cfc6ee;line-height:1.55;font-size:.95rem;white-space:pre-line}
+    .info-prod-x{position:absolute;top:14px;right:16px;background:none;border:0;color:#cfc6ee;font-size:28px;line-height:1;cursor:pointer}
+    .info-prod-x:hover{color:#fff}
+  `;
+  document.head.appendChild(st);
+}
+
+let _infoProductoAbierta = false;
+
+function abrirInfoProducto(titulo, texto) {
+  inyectarEstilosInfoProducto();
+  let ov = document.getElementById('overlay-info-producto');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'overlay-info-producto';
+    ov.innerHTML = '<div class="info-prod-box" role="dialog" aria-modal="true"><button type="button" class="info-prod-x" aria-label="Cerrar">&times;</button><h3 class="info-prod-titulo"></h3><p class="info-prod-texto"></p></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', (e) => {
+      if (e.target === ov || e.target.closest('.info-prod-x')) cerrarInfoProducto();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarInfoProducto(); });
+  }
+  ov.querySelector('.info-prod-titulo').textContent = titulo;
+  ov.querySelector('.info-prod-texto').textContent = texto;
+  ov.classList.add('abierto');
+  if (!_infoProductoAbierta) { _infoProductoAbierta = true; bloquearScrollBody(); }
+}
+
+function cerrarInfoProducto() {
+  const ov = document.getElementById('overlay-info-producto');
+  if (!ov || !_infoProductoAbierta) return;
+  ov.classList.remove('abierto');
+  _infoProductoAbierta = false;
+  desbloquearScrollBody();
+}
+
+// Tarjeta normal + ícono "i" (si tiene descripción) + selector de meses (solo el Club)
+function crearTarjetaProducto(p, seccion) {
+  const tarjeta = crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, seccion, p.expira, p.esLote, p.fondoReal);
+  const info = p.clubMeses ? INFO_CLUB : INFO_PRODUCTOS[p.nombre];
+  if (!info && !p.clubMeses) return tarjeta;
+
+  inyectarEstilosInfoProducto();
+  tarjeta.classList.add('tarjeta-con-info');
+
+  // Ícono "i"
+  if (info) {
+    const btnInfo = document.createElement('button');
+    btnInfo.type = 'button';
+    btnInfo.className = 'btn-info-producto';
+    btnInfo.setAttribute('aria-label', 'Ver detalles de ' + p.nombre);
+    btnInfo.innerHTML = '<span class="material-symbols-rounded">info</span>';
+    btnInfo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      abrirInfoProducto(p.nombre, info);
+    });
+    tarjeta.querySelector('.tarjeta-fondo')?.appendChild(btnInfo);
+  }
+
+  // Club: etiqueta + duración de 1 a 6 meses
+  if (p.clubMeses) {
+    const cuadro = tarjeta.querySelector('.tarjeta-info');
+    const nombreEl = tarjeta.querySelector('.tarjeta-nombre');
+    const precioEl = tarjeta.querySelector('.tarjeta-precio-pen');
+    const precioMes = parseFloat(p.precioSoles);
+
+    const badge = document.createElement('span');
+    badge.className = 'club-badge';
+    badge.textContent = 'DESTACADO';
+    cuadro.insertBefore(badge, nombreEl);
+
+    const fila = document.createElement('label');
+    fila.className = 'club-duracion';
+    let opciones = '';
+    for (let m = 1; m <= 6; m++) opciones += `<option value="${m}">${m} ${m === 1 ? 'MES' : 'MESES'}</option>`;
+    fila.innerHTML = `<span>Duración:</span><select>${opciones}</select>`;
+    nombreEl.after(fila);
+    const sel = fila.querySelector('select');
+
+    sel.addEventListener('change', () => {
+      precioEl.textContent = (precioMes * Number(sel.value)).toFixed(2) + ' PEN';
+    });
+
+    // Botón "+" propio (se le quita .btn-agregar para que el manejador global no lo tome)
+    const btn = tarjeta.querySelector('.btn-agregar');
+    if (btn) {
+      btn.classList.remove('btn-agregar');
+      btn.addEventListener('click', () => {
+        const m = Number(sel.value);
+        const nombre = `Club - ${m} ${m === 1 ? 'Mes' : 'Meses'} (Xbox)`;
+        // Si ya había un Club en el carrito, se reemplaza por la nueva duración
+        for (let i = carritoItems.length - 1; i >= 0; i--) {
+          if (/^Club - \d+ Mes/.test(carritoItems[i].nombre)) carritoItems.splice(i, 1);
+        }
+        agregarAlCarrito(nombre, (precioMes * m).toFixed(2), p.imagen);
+      });
+    }
+  }
+  return tarjeta;
+}
 function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote, fondoReal) {
   const tarjeta = document.createElement('div');
     tarjeta.classList.add('tarjeta-producto');
