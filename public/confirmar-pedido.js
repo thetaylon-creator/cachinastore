@@ -205,7 +205,8 @@
     if (num) num.textContent = hayTicket ? '#' + String(ticket).replace('#', '') : '';
     if (caja) caja.style.display = hayTicket ? '' : 'none';
     if (etiqueta) etiqueta.style.display = hayTicket ? '' : 'none';
-
+    const wa = $('mc-wa-link');
+if (wa) wa.href = window.urlWhatsAppPedido || '#';
     mostrarPaso('exito');
   }
   window.mostrarPedidoCreado = mostrarExito;
