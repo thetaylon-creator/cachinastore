@@ -201,7 +201,6 @@ async function ensureBotsTable() {
       fecha TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
-    await pool.query(`ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS motivo VARCHAR(200);`);
 }
 ensureBotsTable().catch(err => console.error('Error creando tabla bots_requests:', err));
 
@@ -617,6 +616,7 @@ async function ensurePedidosTable() {
       fecha TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+  await pool.query(`ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS motivo VARCHAR(200);`);
 }
 ensurePedidosTable().catch(err => console.error('Error creando tabla pedidos:', err));
 
