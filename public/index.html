@@ -479,6 +479,64 @@ html.claro #id-cliente-header:hover{color:#2e1065}
   #pantalla-tienda .header-acciones{ gap:6px; }
   #pantalla-tienda .header-acciones .lx-btn{ padding:0 10px; }
 }
+/* ===== Barra "Secciones" (móvil) ===== */
+.filtros-movil{ display:none; }
+
+@media (max-width: 900px){
+  .filtros-pc{ display:none !important; }
+  .filtros-movil{
+    display:flex !important; align-items:center; gap:12px; width:100%;
+  }
+  .filtros-movil .chev{ margin-left:auto; transition:transform .2s; }
+  .filtros-movil .material-symbols-rounded{ font-size:22px; width:auto; height:auto; }
+  .filtros-movil > .material-symbols-rounded:first-child{ color:#cfc6ee; }
+
+  #pantalla-tienda .sidebar{
+    width:100% !important; max-width:100% !important;
+    margin:0 !important;
+    padding:8px 12px !important;
+  }
+
+  #pantalla-tienda .panel-filtros-header{
+    width:100% !important; margin:0 !important;
+    height:auto !important; min-height:0 !important;
+    padding:14px 16px !important;
+    background:#0f0a22 !important;
+    color:#fff !important;
+    border:1px solid rgba(167,139,250,.28);
+    border-radius:14px !important;
+    box-shadow:0 0 0 1px rgba(124,58,237,.3), 0 8px 24px rgba(0,0,0,.35);
+    font-family:Inter,'Segoe UI',system-ui,sans-serif !important;
+    font-size:.95rem !important;
+    font-weight:700;
+    letter-spacing:0;
+    text-transform:none;
+  }
+
+  /* La flecha gira cuando el panel está abierto */
+  .panel-filtros-header:has(+ .panel-filtros:not(.oculto)) .chev{
+    transform:rotate(180deg);
+  }
+
+  #pantalla-tienda .panel-filtros{
+    margin-top:6px;
+    width:100% !important;
+    border-radius:14px !important;
+    max-height:55vh;
+  }
+}
+
+/* Modo claro */
+@media (max-width: 900px){
+  html.claro #pantalla-tienda .panel-filtros-header{
+    background:#efe8fa !important; color:#1b1238 !important;
+    border-color:rgba(76,29,149,.25);
+  }
+  html.claro .filtros-movil > .material-symbols-rounded:first-child{ color:#4c1d95; }
+}
+
+/* Logo clicable */
+#pantalla-tienda .logo-header{ cursor:pointer; }
 </style>
 
 </head>
