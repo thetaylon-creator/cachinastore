@@ -861,11 +861,11 @@ function seVaHoy(outDate) {
 const INFO_CLUB = "Suscripción mensual de Fortnite Crew. Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes. Se puede renovar cada mes.";
 
 const INFO_PRODUCTOS = {
-  "800 V-Bucks": "Paquete de 800 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
-  "2.400 V-Bucks": "Paquete de 2.400 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
-  "4.500 V-Bucks": "Paquete de 4.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
-  "12.500 V-Bucks": "Paquete de 12.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
-  "Club - 1 Mes (EPIC)": "Suscripción de 1 mes a Fortnite Crew (cuenta Epic Games). Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes.",
+  "800 V-Bucks": "ⓘ Necesitamos acceso a tu cuenta.\n\nPaquete de 800 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "2.400 V-Bucks": "ⓘ Necesitamos acceso a tu cuenta.\n\nPaquete de 2.400 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "4.500 V-Bucks": "ⓘ Necesitamos acceso a tu cuenta.\n\nPaquete de 4.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "12.500 V-Bucks": "ⓘ Necesitamos acceso a tu cuenta.\n\nPaquete de 12.500 V-Bucks, la moneda de Fortnite para comprar skins, emotes, pases de batalla y más en la tienda de objetos.",
+  "Club - 1 Mes (EPIC)": "ⓘ Necesitamos acceso a tu cuenta.\n\nSuscripción de 1 mes a Fortnite Crew (cuenta Epic Games). Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes.",
   "Pase de Batalla [Regalo]": "Pase de batalla de la temporada actual, enviado como regalo a tu cuenta de Fortnite.",
   "Pase Musical [Regalo]": "Pase musical de Festival de Fortnite, enviado como regalo a tu cuenta de Fortnite.",
   "Paquete de inicio Operación brillante": "ⓘ Necesitamos acceso a tu cuenta.",
@@ -1115,7 +1115,7 @@ function obtenerProductosVBucks() {
 
 function obtenerProductosCrew() {
   return [
-    { nombre: "Club", pavos: 0, precioSoles: "15.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: true, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #1e1b4b, #4c1d95)',clubMeses: true },
+    { nombre: "Club", pavos: 0, precioSoles: "15.00", imagen: "https://cdn1.epicgames.com/offer/fn/FNECO_34-20_CyberDelivery_PaidMedia_EGS_PDP_LogoThumb_512x512_512x512-51e6dfb8c179b2f73f3b3bc2a740de84", expira: false, esLote: false, artistaProducto: '', fondoReal: 'linear-gradient(160deg, #1e1b4b, #4c1d95)',clubMeses: true },
     { nombre: "Club - 1 Mes (EPIC)", pavos: 0, precioSoles: "25.00", imagen: "crew-epic.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase de Batalla [Regalo]", pavos: 0, precioSoles: "20.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasebatallanew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pase Musical [Regalo]", pavos: 0, precioSoles: "28.00", imagen: "https://epiclim.com/img/tgbot/fnasset/pasemusicnew.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
