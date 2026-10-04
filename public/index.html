@@ -1371,19 +1371,15 @@ html.claro #id-cliente-header:hover{color:#2e1065}
   const hero = document.querySelector('.lx-hero');
   if (!img || !art || !hero) return;
 
-  const MAX_IMAGENES = 8;
+  const MAX_IMAGENES = 16;
   const INTERVALO_MS = 10000;
   let lista = [], indice = 0, pausado = false, timer = null;
 
-  function extraerUrls(entries) {
+function extraerUrls(entries) {
     const candidatos = [];
     const vistas = new Set();
 
     entries.forEach(entry => {
-      if ((entry.cars || []).length) return;
-      if ((entry.instruments || []).length) return;
-      if ((entry.tracks || []).length) return;
-
       const items = entry.brItems || [];
       const skin = items.find(i => i.type?.value === 'outfit');
       if (!skin) return;
