@@ -2017,3 +2017,11 @@ body .modal-bots-card.oculto:not(.mostrar) {
   align-items: center;
   gap: 10px;
 }
+@media (max-width: 820px) {
+  .lx-prod {
+    left: -10%;
+    width: 120%;
+    height: 105%;
+    bottom: -10%;
+  }
+}
