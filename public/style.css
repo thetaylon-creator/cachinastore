@@ -15,6 +15,7 @@
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -1988,4 +1989,26 @@ body .modal-bots-card.oculto:not(.mostrar) {
   .tarjeta-producto-lote {
     grid-column: span 2 !important;
   }
+}
+/* Feedback táctil propio, reemplaza el resaltado azul por defecto
+   del navegador en botones, tarjetas e íconos clicables. */
+.btn-principal:active,
+.btn-entrar-auth:active,
+.btn-agregar-bots:active,
+.btn-carrito:active,
+.btn-realizar-pago:active,
+.btn-whatsapp:active,
+.btn-enviar-solicitud-bots:active,
+.btn-plataforma-bots:active,
+.btn-icono-accion:active,
+.btn-cerrar-modal:active,
+.btn-cerrar-bots-x:active,
+.item-filtro:active,
+.sidebar li:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+.tarjeta-producto:active {
+  transform: scale(0.98);
 }
