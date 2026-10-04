@@ -967,7 +967,7 @@ function crearTarjetaProducto(p, seccion) {
     btnInfo.innerHTML = '<span class="material-symbols-rounded">info</span>';
     btnInfo.addEventListener('click', (e) => {
       e.stopPropagation();
-      abrirInfoProducto(p.nombre, info);
+    abrirInfoProducto(p.clubMeses ? 'Club vía Xbox' : p.nombre, info);
     });
     tarjeta.querySelector('.tarjeta-fondo')?.appendChild(btnInfo);
   }
