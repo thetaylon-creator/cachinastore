@@ -21,6 +21,10 @@ button.ok{background:#16a34a}button.ent{background:#2563eb}button.no{background:
 .it{display:flex;justify-content:space-between;padding:6px 16px;font-size:14px}
 .acc{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid rgba(255,255,255,.1)}
 .msg{color:#f87171;font-size:13px;margin-bottom:10px}
+.der{display:flex;align-items:center;gap:12px}
+button.del{background:none;border:1px solid rgba(248,113,113,.45);color:#f87171;padding:6px 8px;line-height:0;border-radius:8px}
+button.del:hover{background:#dc2626;color:#fff}
+button.del svg{width:18px;height:18px}
 #visor{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
 #visor img{max-width:100%;max-height:100%;border-radius:10px}
 </style>
@@ -88,6 +92,14 @@ button.ok{background:#16a34a}button.ent{background:#2563eb}button.no{background:
       $('visor').style.display = 'flex';
     } catch (e) { $('msg').textContent = e.message; }
   }
+    async function borrar(p) {
+    if (!confirm('¿Borrar el pedido ' + p.ticket + '?\n\nSe elimina también su comprobante y no se puede deshacer.')) return;
+    try {
+      await api('/api/admin/pedidos/' + p.id, { method: 'DELETE' });
+      pedidos = pedidos.filter(x => x.id !== p.id);
+      pintar();
+    } catch (e) { $('msg').textContent = e.message; }
+  }
 
   function boton(texto, cls, fn) {
     const b = el('button', cls, texto);
@@ -106,7 +118,16 @@ button.ok{background:#16a34a}button.ent{background:#2563eb}button.no{background:
       const top = el('div', 'top');
       const izq = el('div');
       izq.append(el('span', 'tk', p.ticket), el('span', 'est ' + p.estado, ET[p.estado] || p.estado));
-      top.append(izq, el('span', '', new Date(p.fecha).toLocaleString('es-PE')));
+      const der = el('div', 'der');
+      const bDel = el('button', 'del');
+      bDel.type = 'button';
+      bDel.title = 'Borrar pedido';
+      bDel.setAttribute('aria-label', 'Borrar pedido ' + p.ticket);
+      bDel.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>';
+      bDel.addEventListener('click', () => borrar(p));
+      der.append(el('span', '', new Date(p.fecha).toLocaleString('es-PE')), bDel);
+      top.append(izq, der);
+      
       c.append(top);
 
       c.append(el('div', 'meta', p.nombre + ' · ' + (p.email || 'sin correo') + ' · Para: ' + p.idFortnite +
