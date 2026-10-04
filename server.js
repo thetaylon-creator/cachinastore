@@ -548,6 +548,16 @@ app.post('/api/resenas', requireGoogle, async (req, res) => {
       return res.status(400).json({ error: 'Debes subir una foto.' });
     }
     if (foto.length > 1500000) return res.status(413).json({ error: 'La foto es demasiado pesada.' });
+        // Solo clientes con una compra aprobada, y una reseña por cliente
+    const compro = await pool.query(
+      `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
+      [req.usuario.sub]
+    );
+    if (!compro.rows.length) {
+      return res.status(403).json({ error: 'Podrás dejar tu reseña cuando tu compra sea aprobada.' });
+    }
+    const ya = await pool.query('SELECT 1 FROM resenas WHERE google_sub = $1 LIMIT 1', [req.usuario.sub]);
+    if (ya.rows.length) return res.status(409).json({ error: 'Ya dejaste tu reseña.' });
 
     const ultima = ultimaResenaPorUsuario.get(req.usuario.sub) || 0;
     if (Date.now() - ultima < 60000) {
@@ -707,6 +717,34 @@ app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   );
   if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
+});
+// Mi reseña: ¿puede reseñar? ¿ya tiene una?
+app.get('/api/mi-resena', requireGoogle, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, nombre, nota, texto, foto, likes, fecha
+       FROM resenas WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 1`,
+      [req.usuario.sub]
+    );
+    const p = await pool.query(
+      `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
+      [req.usuario.sub]
+    );
+    res.json({ resena: r.rows[0] || null, puede: p.rows.length > 0 });
+  } catch (err) {
+    console.error('[resenas] Error en mi-resena:', err);
+    res.status(500).json({ error: 'No se pudo cargar tu reseña.' });
+  }
+});
+
+app.delete('/api/mi-resena', requireGoogle, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM resenas WHERE google_sub = $1', [req.usuario.sub]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[resenas] Error borrando la propia:', err);
+    res.status(500).json({ error: 'No se pudo eliminar tu reseña.' });
+  }
 });
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
