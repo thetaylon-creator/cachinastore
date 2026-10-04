@@ -395,6 +395,16 @@ function aplicarScrollSticky() {
   sidebar.style.alignSelf = 'start';
   sidebar.style.maxHeight = 'calc(100vh - var(--cab-h, 118px) - 20px)';
 }
+// Al pasar de móvil a escritorio (o al revés) ajusta el panel de filtros
+function ajustarPanelFiltrosSegunAncho() {
+  const panel = document.getElementById('panel-filtros');
+  if (!panel) return;
+  if (window.innerWidth > 900) {
+    panel.classList.remove('oculto');   // en PC siempre visible
+  }
+  aplicarScrollSticky();
+}
+window.addEventListener('resize', ajustarPanelFiltrosSegunAncho);
 
 // 6. OBTENER LA IMAGEN REAL DEL PRODUCTO
 function obtenerImagenReal(entry, item) {
