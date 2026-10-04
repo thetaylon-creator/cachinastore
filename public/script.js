@@ -885,7 +885,15 @@ function inyectarEstilosInfoProducto() {
     .btn-info-producto .material-symbols-rounded{font-size:20px}
     .club-badge{display:inline-block;background:#fbbf24;color:#3b2a00;font-weight:800;font-size:.68rem;padding:3px 10px;border-radius:999px;margin-bottom:6px}
     .club-duracion{display:flex;align-items:center;gap:8px;margin:8px 0;color:#cfc6ee;font-size:.8rem;font-weight:600}
-    .club-duracion select{flex:1;min-width:0;background:#0d0819;color:#fff;border:1px solid #6d3fd6;border-radius:10px;padding:8px 10px;font-weight:700;font-family:inherit;font-size:.85rem}
+    .club-select-btn{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:6px;background:#0d0819;color:#fff;border:1px solid #6d3fd6;border-radius:12px;padding:8px 10px 8px 12px;font-family:inherit;font-weight:800;font-size:.85rem;cursor:pointer}
+    .club-select-btn:hover,.club-select-btn.abierto{border-color:#a78bfa}
+    .club-select-btn .material-symbols-rounded{font-size:20px;color:#a78bfa;transition:transform .2s}
+    .club-select-btn.abierto .material-symbols-rounded{transform:rotate(180deg)}
+    .club-menu{position:fixed;z-index:3500;display:none;flex-direction:column;gap:2px;padding:8px;background:#120c26;border:1px solid #6d3fd6;border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+    .club-menu.abierto{display:flex}
+    .club-op{background:none;border:0;text-align:left;color:#e6e0f7;font-family:inherit;font-weight:800;font-size:.85rem;padding:10px 12px;border-radius:10px;cursor:pointer}
+    .club-op:hover{background:rgba(167,139,250,.18);color:#fff}
+    .club-op.sel{background:#7c3aed;color:#fff}
     #overlay-info-producto{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,4,20,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
     #overlay-info-producto.abierto{display:flex}
     .info-prod-box{position:relative;width:100%;max-width:440px;max-height:85dvh;overflow:auto;background:#150f2b;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 24px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
@@ -925,7 +933,17 @@ function cerrarInfoProducto() {
   _infoProductoAbierta = false;
   desbloquearScrollBody();
 }
-
+function cerrarMenusClub() {
+  document.querySelectorAll('.club-menu.abierto').forEach(m => m.classList.remove('abierto'));
+  document.querySelectorAll('.club-select-btn.abierto').forEach(b => {
+    b.classList.remove('abierto');
+    b.setAttribute('aria-expanded', 'false');
+  });
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.club-menu')) cerrarMenusClub(); });
+window.addEventListener('scroll', cerrarMenusClub, { passive: true });
+window.addEventListener('resize', cerrarMenusClub);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarMenusClub(); });
 // Tarjeta normal + ícono "i" (si tiene descripción) + selector de meses (solo el Club)
 function crearTarjetaProducto(p, seccion) {
   const tarjeta = crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, seccion, p.expira, p.esLote, p.fondoReal);
