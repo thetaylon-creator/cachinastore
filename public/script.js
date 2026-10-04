@@ -1051,7 +1051,7 @@ function crearTarjetaProducto(p, seccion) {
 }
 function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, esLote, fondoReal) {
   const tarjeta = document.createElement('div');
-    tarjeta.classList.add('tarjeta-producto');
+  tarjeta.classList.add('tarjeta-producto');
   if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
   if (seccion === 'V-Bucks') tarjeta.setAttribute('data-vbucks', '1');
   const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
@@ -1060,6 +1060,41 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
     ? `<span class="badge-se-va-hoy"><span class="punto-pulso"></span>SE VA HOY</span>`
     : '';
   const estiloFondo = fondoReal ? `style="background: ${fondoReal};"` : '';
+
+  // Secciones manuales: imagen arriba, pie (duración + precio + "+") abajo
+  const usaPie = (seccion === 'Crew · DLC · Packs' || seccion === 'V-Bucks');
+
+  if (usaPie) {
+    tarjeta.classList.add('tarjeta-estilo-pie');
+    tarjeta.innerHTML = `
+      <div class="tarjeta-fondo" ${estiloFondo}>
+        <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
+             loading="lazy" decoding="async"
+             onerror="this.onerror=null; this.src='https://placehold.co/200x200/181528/ffffff?text=Fortnite';">
+        <div class="tarjeta-overlay"></div>
+        <div class="tarjeta-info">
+          ${badgeExpira}
+          <h4 class="tarjeta-nombre">${nombre}</h4>
+        </div>
+      </div>
+      <div class="tarjeta-pie">
+        <div class="tarjeta-pie-extra"></div>
+        <div class="tarjeta-pie-fila">
+          <div class="tarjeta-precios">
+            ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
+            <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+          </div>
+          <button class="btn-agregar btn-agregar-icono"
+                  data-nombre="${nombreLimpio}"
+                  data-precio="${precioSoles}"
+                  data-imagen="${imagen}">+</button>
+        </div>
+      </div>
+    `;
+    return tarjeta;
+  }
+
+  // Tarjetas normales (skins, lotes...): igual que antes
   tarjeta.innerHTML = `
     <div class="tarjeta-fondo" ${estiloFondo}>
       <img src="${imagen}" alt="${nombreLimpio}" class="tarjeta-imagen"
@@ -1069,20 +1104,13 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
       <div class="tarjeta-info">
         ${badgeExpira}
         <h4 class="tarjeta-nombre">${nombre}</h4>
+        ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
+        <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
       </div>
-    </div>
-    <div class="tarjeta-pie">
-      <div class="tarjeta-pie-extra"></div>
-      <div class="tarjeta-pie-fila">
-        <div class="tarjeta-precios">
-          ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
-          <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
-        </div>
-        <button class="btn-agregar btn-agregar-icono"
-                data-nombre="${nombreLimpio}"
-                data-precio="${precioSoles}"
-                data-imagen="${imagen}">+</button>
-      </div>
+      <button class="btn-agregar btn-agregar-icono"
+              data-nombre="${nombreLimpio}"
+              data-precio="${precioSoles}"
+              data-imagen="${imagen}">+</button>
     </div>
   `;
   return tarjeta;
