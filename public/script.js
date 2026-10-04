@@ -736,24 +736,23 @@ if (productos.length === 1) {
   // Se muestran solo las primeras 8 y el resto detrás de "Ver más".
   const esSeccionPistas = nombreSeccion.toLowerCase().includes('pista');
   const LIMITE_PISTAS = 8;
-  const productosVisibles = esSeccionPistas ? productos.slice(0, LIMITE_PISTAS) : productos;
-  const productosOcultos = esSeccionPistas ? productos.slice(LIMITE_PISTAS) : [];
 
-  productosVisibles.forEach(p => {
-    grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal));
+  productos.forEach((p, i) => {
+    const tarjeta = crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal);
+    if (esSeccionPistas && i >= LIMITE_PISTAS) tarjeta.classList.add('ver-mas-oculta');
+    grid.appendChild(tarjeta);
   });
 
   bloqueSeccion.appendChild(grid);
 
-  if (productosOcultos.length > 0) {
+  const cantOcultos = esSeccionPistas ? Math.max(0, productos.length - LIMITE_PISTAS) : 0;
+  if (cantOcultos > 0) {
     const btnVerMas = document.createElement('button');
     btnVerMas.type = 'button';
     btnVerMas.className = 'btn-ver-mas-pistas';
-    btnVerMas.textContent = `Ver más (${productosOcultos.length} restantes)`;
+    btnVerMas.textContent = `Ver más (${cantOcultos} restantes)`;
     btnVerMas.addEventListener('click', () => {
-      productosOcultos.forEach(p => {
-        grid.appendChild(crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, nombreSeccion, p.expira, p.esLote, p.fondoReal));
-      });
+      grid.querySelectorAll('.ver-mas-oculta').forEach(t => t.classList.remove('ver-mas-oculta'));
       btnVerMas.remove();
     });
     bloqueSeccion.appendChild(btnVerMas);
@@ -777,25 +776,67 @@ if (productos.length === 1) {
 // ==========================================
 function inicializarBuscador() {
   const input = document.getElementById('input-buscar');
-  if (!input) return;
+  const contenedor = document.getElementById('contenedor-productos');
+  if (!input || !contenedor) return;
 
-  input.oninput = () => {
-    const termino = input.value.trim().toLowerCase();
-    const tarjetas = document.querySelectorAll('.tarjeta-producto');
-    const secciones = document.querySelectorAll('.seccion-tienda');
+  if (!document.getElementById('estilos-buscador')) {
+    const st = document.createElement('style');
+    st.id = 'estilos-buscador';
+    st.textContent = `
+      #contenedor-productos:not(.buscando) .ver-mas-oculta{display:none !important}
+      #contenedor-productos.buscando .btn-ver-mas-pistas{display:none !important}
+      .busqueda-oculta{display:none !important}
+      .sin-resultados-busqueda{color:#a29bfe;text-align:center;padding:30px 16px}
+    `;
+    document.head.appendChild(st);
+  }
 
-    tarjetas.forEach(tarjeta => {
-      const nombre = (tarjeta.querySelector('.tarjeta-nombre')?.textContent || '').toLowerCase();
-      const coincide = !termino || nombre.includes(termino);
-      tarjeta.style.display = coincide ? '' : 'none';
+  // Quita tildes, mayúsculas y todo lo que no sea letra o número
+  const compacto = (t) => String(t || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+  function filtrar() {
+    const palabras = String(input.value)
+      .split(/\s+/)
+      .map(compacto)
+      .filter(Boolean);
+    const buscando = palabras.length > 0;
+    contenedor.classList.toggle('buscando', buscando);
+
+    let hayResultados = false;
+
+    contenedor.querySelectorAll('.seccion-tienda').forEach(seccion => {
+      const nombreSeccion = seccion.getAttribute('data-seccion-nombre') || '';
+      let visibles = 0;
+
+      seccion.querySelectorAll('.tarjeta-producto, .tarjeta-producto-grande').forEach(t => {
+        const nombre = t.querySelector('.tarjeta-nombre')?.textContent || '';
+        const texto = compacto(nombreSeccion + ' ' + nombre);
+        const coincide = !buscando || palabras.every(p => texto.includes(p));
+        t.classList.toggle('busqueda-oculta', !coincide);
+        if (coincide) visibles++;
+      });
+
+      seccion.classList.toggle('busqueda-oculta', visibles === 0);
+      if (visibles > 0) hayResultados = true;
     });
 
-    secciones.forEach(seccion => {
-      const algunaVisible = Array.from(seccion.querySelectorAll('.tarjeta-producto'))
-        .some(t => t.style.display !== 'none');
-      seccion.style.display = algunaVisible ? '' : 'none';
-    });
-  };
+    let msg = document.getElementById('sin-resultados-busqueda');
+    if (!msg) {
+      msg = document.createElement('p');
+      msg.id = 'sin-resultados-busqueda';
+      msg.className = 'sin-resultados-busqueda';
+      msg.textContent = 'No encontramos productos con esa búsqueda.';
+      contenedor.parentNode.insertBefore(msg, contenedor.nextSibling);
+    }
+    msg.style.display = (buscando && !hayResultados) ? '' : 'none';
+  }
+
+  input.oninput = filtrar;
+  filtrar(); // por si la tienda se recarga con texto ya escrito
 }
 
 // ==========================================
