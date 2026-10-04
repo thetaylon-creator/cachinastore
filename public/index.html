@@ -1717,13 +1717,16 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
     try {
       const r = await fetch('/api/verificar-usuario?username=' + encodeURIComponent(v) + '&plataforma=' + idPlat);
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        idErr.textContent = d.error || 'No se pudo verificar ahora. Intenta de nuevo.';
-      } else {
+      const guardarIgual = r.status === 404 &&
+        confirm((d.error || 'No encontramos ese usuario.') +
+          '\n\nSi el ID está bien escrito puedes guardarlo igual. Si está mal, tu regalo no llegará.\n\n¿Guardarlo de todos modos?');
+      if (r.ok || guardarIgual) {
         idErr.textContent = '';
         guardarIdFortnite(v);
         avisoCarrito('');
         cerrarId();
+      } else {
+        idErr.textContent = d.error || 'No se pudo verificar ahora. Intenta de nuevo.';
       }
     } catch (e) {
       idErr.textContent = 'No se pudo conectar con el servidor.';
