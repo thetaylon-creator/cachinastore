@@ -2012,3 +2012,8 @@ body .modal-bots-card.oculto:not(.mostrar) {
 .tarjeta-producto:active {
   transform: scale(0.98);
 }
+.grupo-moneda-id {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
