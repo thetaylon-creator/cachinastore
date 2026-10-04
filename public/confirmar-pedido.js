@@ -230,7 +230,7 @@ if (wa) wa.href = window.urlWhatsAppPedido || '#';
     });
   }
 
-  async function finalizarPedido(ventana) {
+async function finalizarPedido() {
     if (finalizando) return;
     finalizando = true;
     el.btnFinalizar.disabled = true;
@@ -259,14 +259,12 @@ if (wa) wa.href = window.urlWhatsAppPedido || '#';
       if (!resp.ok) throw new Error(d.error || 'No se pudo crear el pedido.');
 
       window.ticketPedidoActual = d.ticket;
-const urlWA = 'https://wa.me/51969639154?text=' +
-  encodeURIComponent(window.construirMensajePedido());
-window.urlWhatsAppPedido = urlWA;
+      const urlWA = 'https://wa.me/51969639154?text=' +
+        encodeURIComponent(window.construirMensajePedido());
+      window.urlWhatsAppPedido = urlWA;
 
-if (ventana && !ventana.closed) ventana.location.href = urlWA;
-mostrarExito(d.ticket);
+      mostrarExito(d.ticket);
     } catch (e) {
-      if (ventana && !ventana.closed) ventana.close();
       alert(e.message || 'No se pudo crear el pedido. Intenta de nuevo.');
       finalizando = false;
       el.btnFinalizar.disabled = false;
@@ -275,10 +273,8 @@ mostrarExito(d.ticket);
 
 el.btnFinalizar.addEventListener('click', () => {
   if (el.btnFinalizar.disabled) return;
-  const ventana = window.open('about:blank', '_blank'); // dentro del clic: permitido
-  finalizarPedido(ventana);
+  finalizarPedido();
 });
-
   // "No puedo subir comprobante" lo maneja el script del index
   // (muestra el aviso amarillo). Aquí no hace nada.
 })();
