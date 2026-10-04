@@ -227,7 +227,6 @@ async function eliminarBotsRequest(id) {
   return rows.length > 0;
 }
 
-// ---- Verifica si el usuario existe realmente en Fortnite (EPIC/PSN/XBOX) ----
 async function verificarUsuarioFortnite(username, plataforma) {
   if (!FORTNITE_API_KEY) {
     console.warn('[bots] FORTNITE_API_KEY no configurada: se omite verificación');
@@ -238,11 +237,19 @@ async function verificarUsuarioFortnite(username, plataforma) {
   const accountType = mapaPlataforma[plataforma] || 'epic';
 
   try {
-    const url = `https://fortnite-api.com/v2/stats/br/v2?name=${encodeURIComponent(username)}&accountType=${accountType}`;
-    const respuesta = await fetch(url, {
-      headers: { Authorization: FORTNITE_API_KEY }
-    });
-    return respuesta.status === 200;
+    // Si pegan el ID largo de Epic (32 caracteres), se busca por ID
+    const esAccountId = plataforma === 'epic' && /^[0-9a-f]{32}$/i.test(username);
+    const url = esAccountId
+      ? `https://fortnite-api.com/v2/stats/br/v2/${username}`
+      : `https://fortnite-api.com/v2/stats/br/v2?name=${encodeURIComponent(username)}&accountType=${accountType}`;
+
+    const respuesta = await fetch(url, { headers: { Authorization: FORTNITE_API_KEY } });
+    console.log(`[verificar] ${plataforma}:${username} -> ${respuesta.status}`);
+
+    // Solo un 404 prueba que la cuenta no existe.
+    // 200 = existe, 403 = existe pero con estadísticas privadas,
+    // 429 / 5xx = la API falló y no se puede saber, así que se deja pasar.
+    return respuesta.status !== 404;
   } catch (error) {
     console.error('[bots] Error verificando usuario en Fortnite API:', error);
     return true;
