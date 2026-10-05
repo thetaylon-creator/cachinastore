@@ -237,7 +237,12 @@ async function finalizarPedido() {
 
     try {
       const auth = window.CachinaAuth;
-      if (!auth || !auth.logueado()) throw new Error('Inicia sesión para finalizar tu pedido.');
+if (!auth || !auth.logueado()) {
+  throw new Error('DEBUG auth=' + !!auth +
+    ' logueado=' + (auth && auth.logueado ? auth.logueado() : 'n/a') +
+    ' token=' + (auth && auth.token ? !!auth.token() : 'n/a') +
+    ' ses=' + !!localStorage.getItem('cachina_sesion'));
+}
 
       const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
       const sinComp = el.pasoComprobante.classList.contains('sin-comp');
