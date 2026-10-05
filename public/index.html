@@ -1526,7 +1526,10 @@ function extraerUrls(entries) {
   let sesion = null;
   let alLoguear = null;
   try { sesion = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
-  if (sesion && sesion.exp && sesion.exp * 1000 < Date.now()) sesion = null;
+if (sesion && sesion.exp && sesion.exp * 1000 < Date.now()) {
+  sesion = null;
+  try { localStorage.removeItem(LS); } catch (e) {}
+}
 
   // ---------- ID de Fortnite (se guarda por cuenta) ----------
   function claveId() { return sesion ? 'fortniteId_' + (sesion.email || sesion.nombre) : null; }
@@ -1606,7 +1609,10 @@ if (tBtn && tCuenta) {
 
   // API pública (la usan las reseñas)
   window.CachinaAuth = {
-    logueado: () => !!sesion,
+    logueado: () => {
+      if (sesion && sesion.exp && sesion.exp * 1000 < Date.now()) salir();
+      return !!sesion;
+    },
     token: () => sesion ? sesion.token : '',
     nombre: () => sesion ? sesion.nombre : '',
     email: () => sesion ? sesion.email : '',
