@@ -1604,6 +1604,7 @@ if (tBtn && tCuenta) {
   function salir() {
     sesion = null;
     try { localStorage.removeItem(LS); } catch (e) {}
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     sincronizar();
   }
 
@@ -1859,7 +1860,22 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
       }
     }
   }, true);
-
+  // Restaura la sesión (cookie o token guardado) y la renueva en cada visita
+  (async function restaurarSesion() {
+    try {
+      const r = await fetch('/api/auth/me', {
+        headers: sesion ? { Authorization: 'Bearer ' + sesion.token } : {}
+      });
+      if (r.ok) {
+        const d = await r.json();
+        guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp });
+      } else if (r.status === 401 && sesion) {
+        sesion = null;
+        try { localStorage.removeItem(LS); } catch (e) {}
+        sincronizar();
+      }
+    } catch (e) { /* sin conexión: se queda con lo que hay */ }
+  })();
   pintar();
   sincronizar();
 })();
