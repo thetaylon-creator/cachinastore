@@ -8,7 +8,8 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || 'cambia-esta-clave';
+// CAMBIO: sin valor por defecto y sin espacios sobrantes. Si falta la variable, el panel queda bloqueado.
+const ADMIN_KEY = (process.env.ADMIN_KEY || '').trim();
 const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || '51999999999';
 const RESET_HOUR = 19; // 7:00 PM
 const DAILY_SHOP_SIZE = 8;
@@ -88,9 +89,12 @@ function nextResetTimestamp() {
 }
 
 // ---------- Middleware de autenticación para el panel admin ----------
+// CAMBIO: recorta espacios y deja un log (solo longitudes, nunca la clave) cuando falla.
 function requireAdmin(req, res, next) {
-  const key = req.headers['x-admin-key'];
-  if (key !== ADMIN_KEY) {
+  const key = String(req.headers['x-admin-key'] || '').trim();
+  if (!ADMIN_KEY || key !== ADMIN_KEY) {
+    console.log('[admin] 401 en', req.method, req.path,
+      '| recibida:', key.length, 'caracteres | esperada:', ADMIN_KEY.length, 'caracteres');
     return res.status(401).json({ error: 'No autorizado' });
   }
   next();
@@ -403,17 +407,11 @@ app.get('/api/shop', (req, res) => {
 });
 
 // ============ LOGIN CON GOOGLE + RESEÑAS (Postgres) ============
-// Pega este bloque en server.js, ANTES de app.listen(...)
-// REEMPLAZA el bloque de reseñas anterior (no dejes los dos).
-//
 // Requisitos:
 //   1) npm install google-auth-library
 //   2) Variables de entorno en Render:
 //        GOOGLE_CLIENT_ID = (el ID de cliente de Google Cloud)
-//        SESSION_SECRET   = (texto largo y aleatorio, solo tuyo)
-//   3) Arriba en server.js:
-//        app.set('trust proxy', 1);
-//        app.use(express.json({ limit: '3mb' }));
+//        SESSION_SECRET   = (texto largo y aleatorio, solo tuyo; NO lo cambies o se cierran todas las sesiones)
 
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
@@ -421,7 +419,7 @@ const { OAuth2Client } = require('google-auth-library');
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || '';
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
-const SESION_DIAS = 30;
+const SESION_DIAS = 90; // CAMBIO: antes 30
 
 if (!GOOGLE_CLIENT_ID || !SESSION_SECRET) {
   console.warn('[google] Faltan GOOGLE_CLIENT_ID o SESSION_SECRET: el login con Google no funcionará.');
@@ -451,10 +449,38 @@ function verificarSesion(token) {
   }
 }
 
-function requireGoogle(req, res, next) {
+// ---------- NUEVO: sesión también en cookie (Safari no la borra como el localStorage) ----------
+function leerCookie(req, nombre) {
+  const c = req.headers.cookie || '';
+  const m = c.split(';').map(s => s.trim()).find(s => s.startsWith(nombre + '='));
+  return m ? decodeURIComponent(m.slice(nombre.length + 1)) : '';
+}
+
+function sesionDeRequest(req) {
   const h = req.headers.authorization || '';
-  const sesion = verificarSesion(h.startsWith('Bearer ') ? h.slice(7) : '');
-  if (!sesion) return res.status(401).json({ error: 'Inicia sesión con Google para continuar.' });
+  const bearer = h.startsWith('Bearer ') ? h.slice(7) : '';
+  return verificarSesion(bearer) || verificarSesion(leerCookie(req, 'cachina_token'));
+}
+
+function guardarCookieSesion(res, token) {
+  res.cookie('cachina_token', token, {
+    httpOnly: true,
+    secure: !!process.env.RENDER,
+    sameSite: 'lax',
+    maxAge: SESION_DIAS * 24 * 60 * 60 * 1000,
+    path: '/'
+  });
+}
+
+function requireGoogle(req, res, next) {
+  const sesion = sesionDeRequest(req);
+  if (!sesion) {
+    console.log('[auth] 401 en', req.method, req.path,
+      '| header:', (req.headers.authorization ? 'presente' : 'ausente'),
+      '| cookie:', (leerCookie(req, 'cachina_token') ? 'presente' : 'ausente'),
+      '| SESSION_SECRET:', SESSION_SECRET ? 'configurado' : 'VACÍO');
+    return res.status(401).json({ error: 'Inicia sesión con Google para continuar.' });
+  }
   req.usuario = sesion;
   next();
 }
@@ -514,11 +540,35 @@ app.post('/api/auth/google', async (req, res) => {
     );
 
     const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
-    res.json({ token: firmar({ sub: p.sub, nombre, exp }), nombre, email: p.email, exp });
+    const token = firmar({ sub: p.sub, nombre, exp });
+    guardarCookieSesion(res, token);
+    res.json({ token, nombre, email: p.email, exp });
   } catch (err) {
     console.error('[google] Error verificando token:', err.message);
     res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google.' });
   }
+});
+
+// NUEVO: restaura y renueva la sesión (90 días desde la última visita)
+app.get('/api/auth/me', async (req, res) => {
+  const s = sesionDeRequest(req);
+  if (!s) return res.status(401).json({ error: 'Sin sesión' });
+  try {
+    const u = await pool.query('SELECT email FROM google_users WHERE sub = $1', [s.sub]);
+    const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
+    const token = firmar({ sub: s.sub, nombre: s.nombre, exp });
+    guardarCookieSesion(res, token);
+    res.json({ token, nombre: s.nombre, email: u.rows[0]?.email || '', exp });
+  } catch (e) {
+    console.error('[auth/me]', e.message);
+    res.status(500).json({ error: 'Error del servidor' });
+  }
+});
+
+// NUEVO: cerrar sesión borra también la cookie
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('cachina_token', { path: '/' });
+  res.json({ success: true });
 });
 
 // ---------- Reseñas ----------
@@ -554,7 +604,7 @@ app.post('/api/resenas', requireGoogle, async (req, res) => {
       return res.status(400).json({ error: 'Debes subir una foto.' });
     }
     if (foto.length > 1500000) return res.status(413).json({ error: 'La foto es demasiado pesada.' });
-        // Solo clientes con una compra aprobada, y una reseña por cliente
+    // Solo clientes con una compra aprobada, y una reseña por cliente
     const compro = await pool.query(
       `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
       [req.usuario.sub]
@@ -606,6 +656,7 @@ app.delete('/api/admin/resenas/:id', requireAdmin, async (req, res) => {
   if (!rows.length) return res.status(404).json({ error: 'Reseña no encontrada' });
   res.json({ success: true });
 });
+
 // ============ PEDIDOS (tickets) ============
 async function ensurePedidosTable() {
   await pool.query(`
@@ -725,6 +776,7 @@ app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
 });
+
 // ADMIN: borrar un pedido (también se elimina su comprobante)
 app.delete('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   try {
@@ -738,6 +790,7 @@ app.delete('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'No se pudo borrar el pedido.' });
   }
 });
+
 // Mi reseña: ¿puede reseñar? ¿ya tiene una?
 app.get('/api/mi-resena', requireGoogle, async (req, res) => {
   try {
@@ -766,7 +819,9 @@ app.delete('/api/mi-resena', requireGoogle, async (req, res) => {
     res.status(500).json({ error: 'No se pudo eliminar tu reseña.' });
   }
 });
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
+  console.log('[config] ADMIN_KEY:', ADMIN_KEY ? ('configurada (' + ADMIN_KEY.length + ' caracteres)') : 'VACÍA, el panel quedará bloqueado');
 });
