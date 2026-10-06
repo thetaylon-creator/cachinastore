@@ -206,7 +206,7 @@
     if (caja) caja.style.display = hayTicket ? '' : 'none';
     if (etiqueta) etiqueta.style.display = hayTicket ? '' : 'none';
     const wa = $('mc-wa-link');
-if (wa) wa.href = window.urlWhatsAppPedido || '#';
+    if (wa) wa.href = window.urlWhatsAppPedido || '#';
     mostrarPaso('exito');
   }
   window.mostrarPedidoCreado = mostrarExito;
@@ -230,19 +230,32 @@ if (wa) wa.href = window.urlWhatsAppPedido || '#';
     });
   }
 
-async function finalizarPedido() {
+  // Si la sesión se perdió, abre el login de Google y reintenta el pedido solo.
+  // El comprobante ya elegido NO se pierde (sigue en el input).
+  function pedirLoginYReintentar(auth) {
+    finalizando = false;
+    el.btnFinalizar.disabled = false;
+    if (auth && auth.pedirLogin) {
+      auth.pedirLogin(
+        () => finalizarPedido(),
+        'Tu sesión venció. Inicia sesión con Google para finalizar tu pedido.'
+      );
+    } else {
+      alert('Inicia sesión para finalizar tu pedido.');
+    }
+  }
+
+  async function finalizarPedido() {
     if (finalizando) return;
     finalizando = true;
     el.btnFinalizar.disabled = true;
 
     try {
       const auth = window.CachinaAuth;
-if (!auth || !auth.logueado()) {
-  throw new Error('DEBUG auth=' + !!auth +
-    ' logueado=' + (auth && auth.logueado ? auth.logueado() : 'n/a') +
-    ' token=' + (auth && auth.token ? !!auth.token() : 'n/a') +
-    ' ses=' + !!localStorage.getItem('cachina_sesion'));
-}
+      if (!auth || !auth.logueado()) {
+        pedirLoginYReintentar(auth);
+        return;
+      }
 
       const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
       const sinComp = el.pasoComprobante.classList.contains('sin-comp');
@@ -260,7 +273,11 @@ if (!auth || !auth.logueado()) {
       });
       const d = await resp.json().catch(() => ({}));
 
-      if (resp.status === 401) { auth.salir(); throw new Error('Tu sesión venció. Inicia sesión de nuevo.'); }
+      if (resp.status === 401) {
+        auth.salir();
+        pedirLoginYReintentar(auth);
+        return;
+      }
       if (!resp.ok) throw new Error(d.error || 'No se pudo crear el pedido.');
 
       window.ticketPedidoActual = d.ticket;
@@ -276,10 +293,10 @@ if (!auth || !auth.logueado()) {
     }
   }
 
-el.btnFinalizar.addEventListener('click', () => {
-  if (el.btnFinalizar.disabled) return;
-  finalizarPedido();
-});
+  el.btnFinalizar.addEventListener('click', () => {
+    if (el.btnFinalizar.disabled) return;
+    finalizarPedido();
+  });
   // "No puedo subir comprobante" lo maneja el script del index
   // (muestra el aviso amarillo). Aquí no hace nada.
 })();
