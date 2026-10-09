@@ -2106,27 +2106,33 @@ body .modal-bots-card.oculto:not(.mostrar) {
   width: clamp(26px, 8vw, 32px);
   height: clamp(26px, 8vw, 32px);
 }
-/* Carrito: solo ícono, sin cuadro, con el contador rojo encima */
-#btn-carrito {
+.btn-carrito {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
   background: none !important;
   border: 0 !important;
   box-shadow: none !important;
-  padding: 6px;
   color: #c4b5fd;
   cursor: pointer;
+  border-radius: 10px;
 }
-#btn-carrito:hover {
-  background: none !important;
+.btn-carrito:hover {
+  background: rgba(167, 139, 250, .14) !important;
   color: #fff;
 }
-#contador-carrito {
+.btn-carrito .material-symbols-rounded {
+  font-size: 26px;
+  line-height: 1;
+}
+.badge-carrito {
   position: absolute;
-  top: -4px;
-  right: -6px;
+  top: 2px;
+  right: 0;
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
