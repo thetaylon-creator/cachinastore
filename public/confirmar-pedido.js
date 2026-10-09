@@ -31,8 +31,9 @@
     btnFinalizar: $('mc-btn-finalizar')
   };
 
-  let urlPreview = null;
-  let finalizando = false;
+let urlPreview = null;
+let comprobanteListo = null; // imagen ya comprimida (data URL)
+let finalizando = false;
 
   function leerSesion() {
     try { return JSON.parse(localStorage.getItem('cachina_sesion') || 'null') || {}; } catch (e) { return {}; }
@@ -82,15 +83,16 @@
     el.ayuda.classList.toggle('oculto', activo);
   }
 
-  function limpiarComprobante() {
-    if (urlPreview) URL.revokeObjectURL(urlPreview);
-    urlPreview = null;
-    el.inputArchivo.value = '';
-    el.preview.removeAttribute('src');
-    el.zona.classList.remove('con-imagen');
-    el.btnFinalizar.disabled = true;
-    el.pasoComprobante.classList.remove('sin-comp');
-  }
+function limpiarComprobante() {
+  if (urlPreview) URL.revokeObjectURL(urlPreview);
+  urlPreview = null;
+  comprobanteListo = null;
+  el.inputArchivo.value = '';
+  el.preview.removeAttribute('src');
+  el.zona.classList.remove('con-imagen');
+  el.btnFinalizar.disabled = true;
+  el.pasoComprobante.classList.remove('sin-comp');
+}
 
   // ---------- Rellenar con el carrito ----------
   function pintarPedido() {
@@ -172,28 +174,35 @@
 
   el.zona.addEventListener('click', () => el.inputArchivo.click());
 
-  el.inputArchivo.addEventListener('change', () => {
-    const archivo = el.inputArchivo.files && el.inputArchivo.files[0];
-    if (!archivo) { limpiarComprobante(); return; }
+el.inputArchivo.addEventListener('change', async () => {
+  const archivo = el.inputArchivo.files && el.inputArchivo.files[0];
+  if (!archivo) { limpiarComprobante(); return; }
 
-    const permitidos = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!permitidos.includes(archivo.type)) {
-      limpiarComprobante();
-      alert('Sube una imagen JPG, PNG o WebP. Si tu banco te dio un PDF, mándanos una captura de pantalla.');
-      return;
-    }
-    if (archivo.size > 10 * 1024 * 1024) {
-      limpiarComprobante();
-      alert('La imagen pesa más de 10 MB. Prueba con una captura de pantalla.');
-      return;
-    }
+  // Acepta cualquier imagen, aunque el celular no informe el tipo
+  const esImagen = /^image\//.test(archivo.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(archivo.name || '');
+  if (!esImagen) {
+    limpiarComprobante();
+    alert('Sube una imagen. Si tu banco te dio un PDF, mándanos una captura de pantalla.');
+    return;
+  }
+  if (archivo.size > 25 * 1024 * 1024) {
+    limpiarComprobante();
+    alert('La imagen es muy pesada. Prueba con una captura de pantalla.');
+    return;
+  }
 
-    if (urlPreview) URL.revokeObjectURL(urlPreview);
-    urlPreview = URL.createObjectURL(archivo);
-    el.preview.src = urlPreview;
+  el.btnFinalizar.disabled = true;
+  try {
+    // Se comprime desde ahora: si no se puede leer, se avisa al instante
+    comprobanteListo = await comprimirImagen(archivo);
+    el.preview.src = comprobanteListo;
     el.zona.classList.add('con-imagen');
     el.btnFinalizar.disabled = false;
-  });
+  } catch (e) {
+    limpiarComprobante();
+    alert('No pudimos leer esa imagen. Toma una captura de pantalla del comprobante y súbela.');
+  }
+});
 
   // ---------- Pantalla "¡Pedido creado!" ----------
   function mostrarExito(ticket) {
@@ -259,8 +268,13 @@
 
       const items = (typeof carritoItems !== 'undefined' && Array.isArray(carritoItems)) ? carritoItems : [];
       const sinComp = el.pasoComprobante.classList.contains('sin-comp');
-      const archivo = el.inputArchivo.files && el.inputArchivo.files[0];
-      const comprobante = (!sinComp && archivo) ? await comprimirImagen(archivo) : null;
+if (!sinComp && !comprobanteListo) {
+  alert('Primero elige la imagen de tu comprobante.');
+  finalizando = false;
+  el.btnFinalizar.disabled = false;
+  return;
+}
+const comprobante = sinComp ? null : comprobanteListo;
 
       const resp = await fetch('/api/pedidos', {
         method: 'POST',
