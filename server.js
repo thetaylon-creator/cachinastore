@@ -649,6 +649,41 @@ app.post('/api/resenas/:id/like', async (req, res) => {
     res.status(500).json({ error: 'No se pudo actualizar' });
   }
 });
+// Compras públicas de quien dejó una reseña (solo producto, precio y fecha)
+app.get('/api/resenas/:id/compras', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'ID inválido' });
+
+    const r = await pool.query('SELECT google_sub FROM resenas WHERE id = $1', [id]);
+    if (!r.rows.length || !r.rows[0].google_sub) return res.json({ compras: [] });
+
+    // Solo pedidos ya aprobados o entregados
+    const { rows } = await pool.query(
+      `SELECT items, fecha FROM pedidos
+       WHERE google_sub = $1 AND estado IN ('aprobado','entregado')
+       ORDER BY fecha DESC LIMIT 20`,
+      [r.rows[0].google_sub]
+    );
+
+    const compras = [];
+    rows.forEach(p => {
+      (p.items || []).forEach(i => {
+        compras.push({
+          nombre: i.nombre,
+          precio: Number(i.precio).toFixed(2),
+          imagen: i.imagen || '',
+          fecha: p.fecha
+        });
+      });
+    });
+
+    res.json({ compras: compras.slice(0, 30) });
+  } catch (err) {
+    console.error('[resenas] Error en compras:', err);
+    res.status(500).json({ error: 'No se pudieron cargar las compras' });
+  }
+});
 
 // ADMIN: borrar una reseña (con tu ADMIN_KEY)
 app.delete('/api/admin/resenas/:id', requireAdmin, async (req, res) => {
