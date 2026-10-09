@@ -919,6 +919,8 @@ function inyectarEstilosInfoProducto() {
     .info-prod-box{position:relative;width:100%;max-width:440px;max-height:85dvh;overflow:auto;background:#150f2b;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 24px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
     .info-prod-titulo{margin:0 40px 14px 0;font-size:1.2rem;font-weight:800}
     .info-prod-texto{margin:0;color:#cfc6ee;line-height:1.55;font-size:.95rem;white-space:pre-line}
+    .info-prod-aviso{display:none;margin:16px 0 0;padding:10px 12px;font-size:.85rem;line-height:1.4;color:#ffd166;background:rgba(255,209,102,.1);border-left:3px solid #ffd166;border-radius:8px}
+    .info-prod-aviso.visible{display:block}
     .info-prod-x{position:absolute;top:14px;right:16px;background:none;border:0;color:#cfc6ee;font-size:28px;line-height:1;cursor:pointer}
     .info-prod-x:hover{color:#fff}
   `;
@@ -927,13 +929,13 @@ function inyectarEstilosInfoProducto() {
 
 let _infoProductoAbierta = false;
 
-function abrirInfoProducto(titulo, texto) {
+function abrirInfoProducto(titulo, texto, conAviso) {
   inyectarEstilosInfoProducto();
   let ov = document.getElementById('overlay-info-producto');
   if (!ov) {
     ov = document.createElement('div');
     ov.id = 'overlay-info-producto';
-    ov.innerHTML = '<div class="info-prod-box" role="dialog" aria-modal="true"><button type="button" class="info-prod-x" aria-label="Cerrar">&times;</button><h3 class="info-prod-titulo"></h3><p class="info-prod-texto"></p></div>';
+    ov.innerHTML = '<div class="info-prod-box" role="dialog" aria-modal="true"><button type="button" class="info-prod-x" aria-label="Cerrar">&times;</button><h3 class="info-prod-titulo"></h3><p class="info-prod-texto"></p><p class="info-prod-aviso"><strong>⚠️ Ojo:</strong> tu saldo acumulado puede usarse en la recarga. Avísanos antes de gastarlo.</p></div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', (e) => {
       if (e.target === ov || e.target.closest('.info-prod-x')) cerrarInfoProducto();
@@ -942,6 +944,11 @@ function abrirInfoProducto(titulo, texto) {
   }
   ov.querySelector('.info-prod-titulo').textContent = titulo;
   ov.querySelector('.info-prod-texto').textContent = texto;
+
+  // El aviso sale en todo producto que necesita acceso a la cuenta
+  const mostrarAviso = conAviso ?? texto.includes('Necesitamos acceso a tu cuenta');
+  ov.querySelector('.info-prod-aviso').classList.toggle('visible', mostrarAviso);
+
   ov.classList.add('abierto');
   if (!_infoProductoAbierta) { _infoProductoAbierta = true; bloquearScrollBody(); }
 }
