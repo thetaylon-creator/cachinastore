@@ -2106,6 +2106,40 @@ body .modal-bots-card.oculto:not(.mostrar) {
   width: clamp(26px, 8vw, 32px);
   height: clamp(26px, 8vw, 32px);
 }
+/* Carrito: solo ícono, sin cuadro, con el contador rojo encima */
+#btn-carrito {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 6px;
+  color: #c4b5fd;
+  cursor: pointer;
+}
+#btn-carrito:hover {
+  background: none !important;
+  color: #fff;
+}
+#contador-carrito {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
 
 /* Cada tarjeta mantiene su propia altura en la sección Crew */
 #seccion-crew-dlc-packs .grid-productos { align-items: start; }
