@@ -873,7 +873,7 @@ function seVaHoy(outDate) {
 // ==========================================
 // DESCRIPCIONES (ícono "i") Y TARJETA DEL CLUB
 // ==========================================
-const INFO_CLUB = "Suscripción mensual de Fortnite Crew. Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes. Se puede renovar cada mes.";
+const INFO_CLUB = "Suscripción mensual de Fortnite Crew. Incluye: 800 V-Bucks, acceso al Battle Pass actual y skin exclusiva del mes. Se puede renovar cada mes.\n\n• Si ya compraste Club antes, pásanos la cuenta Xbox que usaste.\n• Si no tienes una cuenta Xbox vinculada a tu Epic, o eres nuevo en esto, escríbenos al soporte.";
 // Precio del Club según los meses (1 mes usa el precio de la tarjeta)
 const PRECIOS_CLUB = { 2: 26, 3: 34, 4: 42, 5: 50, 6: 58 };
 function precioClub(meses, precioMes) {
