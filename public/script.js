@@ -916,6 +916,8 @@ function inyectarEstilosInfoProducto() {
     .club-op.sel{background:#7c3aed;color:#fff}
     #overlay-info-producto{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,4,20,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
     #overlay-info-producto.abierto{display:flex}
+    .info-prod-alerta{display:none;margin:0 0 12px;color:#f87171;font-weight:700;font-size:.95rem}
+    .info-prod-alerta.visible{display:block}
     .info-prod-box{position:relative;width:100%;max-width:440px;max-height:85dvh;overflow:auto;background:#150f2b;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 24px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
     .info-prod-titulo{margin:0 40px 14px 0;font-size:1.2rem;font-weight:800}
     .info-prod-texto{margin:0;color:#cfc6ee;line-height:1.55;font-size:.95rem;white-space:pre-line}
@@ -935,7 +937,7 @@ function abrirInfoProducto(titulo, texto, conAviso) {
   if (!ov) {
     ov = document.createElement('div');
     ov.id = 'overlay-info-producto';
-    ov.innerHTML = '<div class="info-prod-box" role="dialog" aria-modal="true"><button type="button" class="info-prod-x" aria-label="Cerrar">&times;</button><h3 class="info-prod-titulo"></h3><p class="info-prod-texto"></p><p class="info-prod-aviso"><strong>⚠️ Ojo:</strong> tu saldo acumulado puede usarse en la recarga. Avísanos antes de gastarlo.</p></div>';
+   ov.innerHTML = '<div class="info-prod-box" role="dialog" aria-modal="true"><button type="button" class="info-prod-x" aria-label="Cerrar">&times;</button><h3 class="info-prod-titulo"></h3><p class="info-prod-alerta">ⓘ Necesitamos acceso a tu cuenta.</p><p class="info-prod-texto"></p><p class="info-prod-aviso"><strong>⚠️ Ojo:</strong> tu saldo acumulado puede usarse en la recarga. Avísanos antes de gastarlo.</p></div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', (e) => {
       if (e.target === ov || e.target.closest('.info-prod-x')) cerrarInfoProducto();
@@ -943,10 +945,15 @@ function abrirInfoProducto(titulo, texto, conAviso) {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarInfoProducto(); });
   }
   ov.querySelector('.info-prod-titulo').textContent = titulo;
-  ov.querySelector('.info-prod-texto').textContent = texto;
+const FRASE = 'ⓘ Necesitamos acceso a tu cuenta.';
+const necesitaAcceso = texto.includes(FRASE);
+ov.querySelector('.info-prod-alerta').classList.toggle('visible', necesitaAcceso);
+ov.querySelector('.info-prod-texto').textContent = necesitaAcceso
+  ? texto.replace(FRASE, '').trim()
+  : texto;
 
-  // El aviso sale en todo producto que necesita acceso a la cuenta
-  const mostrarAviso = conAviso ?? texto.includes('Necesitamos acceso a tu cuenta');
+// El aviso amarillo sale en todo producto que necesita acceso a la cuenta
+const mostrarAviso = conAviso ?? necesitaAcceso;
   ov.querySelector('.info-prod-aviso').classList.toggle('visible', mostrarAviso);
 
   ov.classList.add('abierto');
