@@ -160,6 +160,12 @@ button{font-family:inherit;cursor:pointer}
 .rs-zona.con-img img{display:block}
 .rs-zona.con-img .rs-vacia{display:none}
 .rs-err{color:#f87171;font-size:13px;min-height:16px}
+  .rs-minis{display:flex;gap:10px;flex-wrap:wrap}
+.rs-mini{position:relative;width:84px;height:84px}
+.rs-mini img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1px solid var(--border-color)}
+.rs-mini button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#f87171;color:#fff;font-size:12px;line-height:1}
+.rs-galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.rs-galeria .rs-img{height:140px;object-fit:cover}
 .rs-form .ct-btn-pri{align-self:flex-start;border:0;cursor:pointer}
 .rs-card{max-width:520px;padding:24px;display:flex;flex-direction:column;gap:16px}
 .rs-stars{color:#fbbf24;font-size:22px;letter-spacing:2px}
@@ -333,11 +339,11 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
         <p>Tu reseña aparecerá en la página de inicio con tu nombre.</p>
         <div class="rs-est" id="rs-estrellas"></div>
         <textarea id="rs-texto" maxlength="300" placeholder="Escribe tu reseña..."></textarea>
-        <div class="rs-zona" id="rs-zona" role="button" tabindex="0">
-          <div class="rs-vacia"><span class="material-symbols-rounded">add_photo_alternate</span>Sube una foto de tu compra (obligatoria)</div>
-          <img id="rs-prev" alt="Vista previa">
-        </div>
-        <input type="file" id="rs-foto" accept="image/*" hidden>
+       <div class="rs-zona" id="rs-zona" role="button" tabindex="0">
+  <div class="rs-vacia"><span class="material-symbols-rounded">add_photo_alternate</span>Sube fotos de tu compra (obligatoria, máx. 4)</div>
+</div>
+<div class="rs-minis" id="rs-minis"></div>
+<input type="file" id="rs-foto" accept="image/*" multiple hidden>
         <div class="rs-err" id="rs-err"></div>
         <button class="ct-btn-pri" id="rs-enviar" type="button"><span class="material-symbols-rounded">send</span>Publicar reseña</button>
       </section>
@@ -620,7 +626,8 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
       .finally(() => { cargandoPedidos = false; });
   }
     // ---------- Mi reseña ----------
-  let rsNota = 5, rsFoto = '', rsCargando = false;
+let rsNota = 5, rsFotos = [], rsCargando = false;
+const RS_MAX = 4;
 
   function rsComprimir(archivo) {
     return new Promise((resolve, reject) => {
@@ -633,13 +640,28 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
         c.height = Math.round(im.height * escala);
         c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
         URL.revokeObjectURL(url);
-        resolve(c.toDataURL('image/jpeg', 0.75));
+        resolve(c.toDataURL('image/jpeg', 0.7));
       };
       im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagen')); };
       im.src = url;
     });
   }
-
+function rsPintarMinis() {
+  const c = $('rs-minis');
+  c.textContent = '';
+  rsFotos.forEach((src, i) => {
+    const w = el('div', 'rs-mini');
+    const im = document.createElement('img');
+    im.src = src; im.alt = '';
+    const x = el('button', '', '✕');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Quitar foto');
+    x.addEventListener('click', () => { rsFotos.splice(i, 1); rsPintarMinis(); });
+    w.append(im, x);
+    c.append(w);
+  });
+  $('rs-zona').hidden = rsFotos.length >= RS_MAX;
+}
   function rsPintarEstrellas() {
     const cont = $('rs-estrellas');
     cont.textContent = '';
@@ -656,11 +678,17 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     const card = el('section', 'ct-card rs-card');
     card.append(el('div', 'rs-stars', '★'.repeat(r.nota) + '☆'.repeat(5 - r.nota)));
     card.append(el('p', 'rs-quote', '"' + r.texto + '"'));
-    if (/^data:image\/jpeg;base64,/.test(r.foto)) {
-      const im = document.createElement('img');
-      im.className = 'rs-img'; im.src = r.foto; im.alt = 'Foto de tu compra';
-      card.append(im);
-    }
+const lista = (r.fotos && r.fotos.length ? r.fotos : (r.foto ? [r.foto] : []))
+  .filter(f => /^data:image\/jpeg;base64,/.test(f));
+if (lista.length) {
+  const gal = el('div', 'rs-galeria');
+  lista.forEach(f => {
+    const im = document.createElement('img');
+    im.className = 'rs-img'; im.src = f; im.alt = 'Foto de tu compra';
+    gal.append(im);
+  });
+  card.append(gal);
+}
     const foot = el('div', 'rs-foot');
     const info = el('div', 'rs-info');
     info.append(
@@ -711,48 +739,46 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   }
 
   $('rs-zona').addEventListener('click', () => $('rs-foto').click());
-  $('rs-foto').addEventListener('change', async () => {
-    const f = $('rs-foto').files[0];
-    $('rs-err').textContent = '';
-    if (!f) return;
-    if (!f.type.startsWith('image/')) { $('rs-err').textContent = 'El archivo debe ser una imagen.'; $('rs-foto').value = ''; return; }
-    try {
-      rsFoto = await rsComprimir(f);
-      $('rs-prev').src = rsFoto;
-      $('rs-zona').classList.add('con-img');
-    } catch (e) {
-      $('rs-err').textContent = 'No se pudo leer esa imagen.';
-      $('rs-foto').value = '';
-    }
-  });
+$('rs-foto').addEventListener('change', async () => {
+  const err = $('rs-err');
+  err.textContent = '';
+  const archivos = Array.from($('rs-foto').files).filter(f => f.type.startsWith('image/'));
+  const cupo = RS_MAX - rsFotos.length;
+  if (archivos.length > cupo) err.textContent = 'Máximo ' + RS_MAX + ' fotos.';
+  for (const f of archivos.slice(0, cupo)) {
+    try { rsFotos.push(await rsComprimir(f)); }
+    catch (e) { err.textContent = 'No se pudo leer una de las imágenes.'; }
+  }
+  $('rs-foto').value = '';
+  rsPintarMinis();
+});
 
-  $('rs-enviar').addEventListener('click', async () => {
-    const texto = $('rs-texto').value.trim();
-    const err = $('rs-err');
-    if (!texto) { err.textContent = 'Escribe tu reseña.'; return; }
-    if (!rsFoto) { err.textContent = 'Sube una foto de tu compra para publicar.'; return; }
+$('rs-enviar').addEventListener('click', async () => {
+  const texto = $('rs-texto').value.trim();
+  const err = $('rs-err');
+  if (!texto) { err.textContent = 'Escribe tu reseña.'; return; }
+  if (!rsFotos.length) { err.textContent = 'Sube al menos una foto de tu compra para publicar.'; return; }
 
-    const btn = $('rs-enviar');
-    btn.disabled = true;
-    err.textContent = '';
-    try {
-      const r = await fetch('/api/resenas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sesion.token },
-        body: JSON.stringify({ nota: rsNota, texto, foto: rsFoto })
-      });
-      const d = await r.json().catch(() => ({}));
-      if (r.status === 401) { borrar(LS); location.href = '/'; return; }
-      if (!r.ok) throw new Error(d.error || 'No se pudo publicar. Intenta de nuevo.');
-      $('rs-texto').value = ''; $('rs-foto').value = '';
-      $('rs-zona').classList.remove('con-img'); $('rs-prev').removeAttribute('src');
-      rsFoto = ''; rsNota = 5;
-      cargarResena();
-    } catch (e) {
-      err.textContent = e.message || 'No se pudo conectar con el servidor.';
-    }
-    btn.disabled = false;
-  });
+  const btn = $('rs-enviar');
+  btn.disabled = true;
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/resenas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sesion.token },
+      body: JSON.stringify({ nota: rsNota, texto, fotos: rsFotos })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) { borrar(LS); location.href = '/'; return; }
+    if (!r.ok) throw new Error(d.error || 'No se pudo publicar. Intenta de nuevo.');
+    $('rs-texto').value = '';
+    rsFotos = []; rsPintarMinis(); rsNota = 5;
+    cargarResena();
+  } catch (e) {
+    err.textContent = e.message || 'No se pudo conectar con el servidor.';
+  }
+  btn.disabled = false;
+});
   // Cambio de vista: Perfil / Mis pedidos
   const vistas = {
     perfil:  { el: $('vista-perfil'),  titulo: 'Mi cuenta',   ico: 'person' },
