@@ -19,7 +19,7 @@ const STATE_FILE = path.join(__dirname, 'data', 'shop-state.json');
 
 app.set('trust proxy', 1); // para detectar la IP real detrás de Render
 app.use(cors());
-app.use(express.json({ limit: '3mb' })); // 3 MB para poder recibir la foto de las reseñas
+app.use(express.json({ limit: '6mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas de login/registro con ID + PIN
@@ -508,6 +508,7 @@ async function ensureGoogleYResenasTables() {
     );
   `);
   await pool.query(`ALTER TABLE resenas ADD COLUMN IF NOT EXISTS google_sub VARCHAR(64);`);
+  await pool.query(`ALTER TABLE resenas ADD COLUMN IF NOT EXISTS fotos JSONB;`);
 }
 ensureGoogleYResenasTables().catch(err => console.error('Error creando tablas google/resenas:', err));
 
@@ -574,13 +575,15 @@ app.post('/api/auth/logout', (req, res) => {
 // ---------- Reseñas ----------
 const ultimaResenaPorUsuario = new Map();
 
-// Lista pública paginada: ?limit=6&offset=0 (no expone datos de la cuenta)
+const MAX_FOTOS = 4;
+// Lista pública paginada: ?limit=6&offset=0
 app.get('/api/resenas', async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 12);
     const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
     const { rows } = await pool.query(
-      `SELECT id, nombre, nota, texto, foto, likes, fecha
+      `SELECT id, nombre, nota, texto, foto,
+              COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
        FROM resenas ORDER BY fecha DESC LIMIT $1 OFFSET $2`,
       [limit + 1, offset]
     );
@@ -590,21 +593,23 @@ app.get('/api/resenas', async (req, res) => {
     res.status(500).json({ error: 'No se pudieron cargar las reseñas' });
   }
 });
-
-// Crear reseña: SOLO con sesión de Google. El nombre sale de la cuenta, no del formulario.
 app.post('/api/resenas', requireGoogle, async (req, res) => {
   try {
     const texto = String(req.body.texto || '').trim().slice(0, 300);
     const nota = parseInt(req.body.nota, 10);
-    const foto = String(req.body.foto || '');
+    let fotos = Array.isArray(req.body.fotos) ? req.body.fotos
+              : (req.body.foto ? [req.body.foto] : []);
+    fotos = fotos.map(String).slice(0, MAX_FOTOS);
 
     if (!texto) return res.status(400).json({ error: 'Escribe tu reseña.' });
     if (!(nota >= 1 && nota <= 5)) return res.status(400).json({ error: 'Calificación inválida.' });
-    if (!foto.startsWith('data:image/jpeg;base64,')) {
-      return res.status(400).json({ error: 'Debes subir una foto.' });
+    if (!fotos.length || !fotos.every(f => f.startsWith('data:image/jpeg;base64,'))) {
+      return res.status(400).json({ error: 'Debes subir al menos una foto.' });
     }
-    if (foto.length > 1500000) return res.status(413).json({ error: 'La foto es demasiado pesada.' });
-    // Solo clientes con una compra aprobada, y una reseña por cliente
+    if (fotos.some(f => f.length > 700000) || fotos.join('').length > 2500000) {
+      return res.status(413).json({ error: 'Las fotos son demasiado pesadas.' });
+    }
+
     const compro = await pool.query(
       `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
       [req.usuario.sub]
@@ -622,9 +627,10 @@ app.post('/api/resenas', requireGoogle, async (req, res) => {
     ultimaResenaPorUsuario.set(req.usuario.sub, Date.now());
 
     const { rows } = await pool.query(
-      `INSERT INTO resenas (nombre, nota, texto, foto, google_sub) VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, nombre, nota, texto, foto, likes, fecha`,
-      [req.usuario.nombre, nota, texto, foto, req.usuario.sub]
+      `INSERT INTO resenas (nombre, nota, texto, foto, fotos, google_sub)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, nombre, nota, texto, foto, fotos, likes, fecha`,
+      [req.usuario.nombre, nota, texto, fotos[0], JSON.stringify(fotos), req.usuario.sub]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -684,7 +690,13 @@ app.get('/api/resenas/:id/compras', async (req, res) => {
     res.status(500).json({ error: 'No se pudieron cargar las compras' });
   }
 });
-
+app.get('/api/admin/resenas', requireAdmin, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id, nombre, nota, texto, COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
+     FROM resenas ORDER BY fecha DESC LIMIT 200`
+  );
+  res.json(rows);
+});
 // ADMIN: borrar una reseña (con tu ADMIN_KEY)
 app.delete('/api/admin/resenas/:id', requireAdmin, async (req, res) => {
   const { rows } = await pool.query('DELETE FROM resenas WHERE id = $1 RETURNING id', [parseInt(req.params.id, 10)]);
@@ -830,8 +842,9 @@ app.delete('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
 app.get('/api/mi-resena', requireGoogle, async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT id, nombre, nota, texto, foto, likes, fecha
-       FROM resenas WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 1`,
+      `SELECT id, nombre, nota, texto, foto,
+        COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
+ FROM resenas WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 1`,
       [req.usuario.sub]
     );
     const p = await pool.query(
