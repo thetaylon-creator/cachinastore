@@ -2187,6 +2187,15 @@ body .modal-bots-card.oculto:not(.mostrar) {
   backdrop-filter: blur(4px);
 }
 .btn-subir .material-symbols-rounded { font-size: 24px; }
+.catalogo { padding-bottom: 90px; }
+.btn-subir {
+  width: 40px;
+  height: 40px;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(124, 58, 237, .85);
+}
+.btn-subir .material-symbols-rounded { font-size: 24px; }
 
 /* Cada tarjeta mantiene su propia altura en la sección Crew */
 #seccion-crew-dlc-packs .grid-productos { align-items: start; }
