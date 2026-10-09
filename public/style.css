@@ -2174,6 +2174,20 @@ body .modal-bots-card.oculto:not(.mostrar) {
 }
 .btn-subir:hover { background: #6d28d9; }
 .btn-subir .material-symbols-rounded { font-size: 28px; line-height: 1; }
+/* Espacio al final para que el botón de subir no tape el último "+" */
+.catalogo { padding-bottom: 90px; }
+
+/* Botón de subir más pequeño y semitransparente */
+.btn-subir {
+  width: 40px;
+  height: 40px;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(124, 58, 237, .85);
+  backdrop-filter: blur(4px);
+}
+.btn-subir .material-symbols-rounded { font-size: 24px; }
 
 /* Cada tarjeta mantiene su propia altura en la sección Crew */
 #seccion-crew-dlc-packs .grid-productos { align-items: start; }
+
