@@ -17,6 +17,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="confirmar-pedido.css">
+  
 <style>
 /* ===== BIENVENIDA NUEVA (acotada a #pantalla-bienvenida para no tocar la tienda) ===== */
 @property --w-bg{syntax:'<color>';inherits:true;initial-value:#100a26}
@@ -537,6 +538,27 @@ html.claro #id-cliente-header:hover{color:#2e1065}
 
 /* Logo clicable */
 #pantalla-tienda .logo-header{ cursor:pointer; }
+.lx-visor,.lx-compras{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(5,3,12,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lx-visor.abierto,.lx-compras.abierto{display:flex}
+.lx-visor img{max-width:min(92vw,1000px);max-height:80vh;border-radius:14px;border:1px solid rgba(255,255,255,.12)}
+.lx-visor-x{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(167,139,250,.5);background:#1c1340;color:#fff;font-size:26px;cursor:pointer}
+.lx-visor-nav{position:absolute;top:50%;transform:translateY(-50%);width:50px;height:50px;border-radius:50%;border:1px solid rgba(167,139,250,.55);background:#1c1340;color:#fff;font-size:30px;line-height:1;cursor:pointer}
+.lx-visor-nav:hover{background:#3d2d78}
+.lx-visor-nav:disabled{opacity:.3;cursor:default}
+.lx-visor-nav.izq{left:16px}.lx-visor-nav.der{right:16px}
+.lx-visor-cont{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#cfc6ee;font-weight:700;font-size:14px}
+.lx-rinfo b.lx-nombre-click{cursor:pointer}
+.lx-rinfo b.lx-nombre-click:hover{color:#a78bfa;text-decoration:underline}
+.lx-rimg{cursor:zoom-in}
+.lx-compras-box{position:relative;width:100%;max-width:420px;max-height:85dvh;overflow:auto;background:#150f2b;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px}
+.lx-compras-box h3{margin:0 40px 14px 0;font-size:1.1rem}
+.lx-compras-x{position:absolute;top:12px;right:14px;background:none;border:0;color:#cfc6ee;font-size:28px;cursor:pointer}
+.lx-compra-fila{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
+.lx-compra-fila:first-of-type{border-top:0}
+.lx-compra-fila img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#0d0819}
+.lx-compra-fila b{display:block;font-size:.9rem}
+.lx-compra-fila small{color:#a99fc9}
+.lx-compras-msg{color:#a99fc9;text-align:center;padding:18px 0;font-size:.9rem}
 </style>
 
 </head>
@@ -1201,8 +1223,97 @@ html.claro #id-cliente-header:hover{color:#2e1065}
     v.className = 'lx-rempty';
     return v;
   }
+  let resenasActuales = [];
 
-  function crearTarjeta(r) {
+  // ----- Visor de imágenes con flechas -----
+  let visorIdx = 0;
+  const visor = document.createElement('div');
+  visor.className = 'lx-visor';
+  visor.innerHTML = '<button class="lx-visor-x" type="button" aria-label="Cerrar">&times;</button><button class="lx-visor-nav izq" type="button" aria-label="Anterior">&#8249;</button><img alt=""><button class="lx-visor-nav der" type="button" aria-label="Siguiente">&#8250;</button><div class="lx-visor-cont"></div>';
+  document.body.appendChild(visor);
+  const visorImg = visor.querySelector('img');
+  const visorIzq = visor.querySelector('.izq');
+  const visorDer = visor.querySelector('.der');
+
+  function pintarVisor() {
+    const r = resenasActuales[visorIdx];
+    if (!r) return;
+    visorImg.src = r.foto;
+    visorImg.alt = 'Captura de ' + r.nombre;
+    visor.querySelector('.lx-visor-cont').textContent = (visorIdx + 1) + ' / ' + resenasActuales.length + ' · ' + r.nombre;
+    visorIzq.disabled = visorIdx === 0;
+    visorDer.disabled = visorIdx === resenasActuales.length - 1;
+  }
+  function abrirVisor(i) { visorIdx = i; pintarVisor(); visor.classList.add('abierto'); }
+  function cerrarVisor() { visor.classList.remove('abierto'); }
+  function moverVisor(d) {
+    const n = visorIdx + d;
+    if (n < 0 || n >= resenasActuales.length) return;
+    visorIdx = n; pintarVisor();
+  }
+  visorIzq.addEventListener('click', (e) => { e.stopPropagation(); moverVisor(-1); });
+  visorDer.addEventListener('click', (e) => { e.stopPropagation(); moverVisor(1); });
+  visor.querySelector('.lx-visor-x').addEventListener('click', cerrarVisor);
+  visor.addEventListener('click', (e) => { if (e.target === visor) cerrarVisor(); });
+  document.addEventListener('keydown', (e) => {
+    if (!visor.classList.contains('abierto')) return;
+    if (e.key === 'Escape') cerrarVisor();
+    if (e.key === 'ArrowLeft') moverVisor(-1);
+    if (e.key === 'ArrowRight') moverVisor(1);
+  });
+
+  // ----- Ventana "Lo que compró" -----
+  const vCompras = document.createElement('div');
+  vCompras.className = 'lx-compras';
+  vCompras.innerHTML = '<div class="lx-compras-box"><button class="lx-compras-x" type="button" aria-label="Cerrar">&times;</button><h3></h3><div class="lx-compras-lista"></div></div>';
+  document.body.appendChild(vCompras);
+  const comprasLista = vCompras.querySelector('.lx-compras-lista');
+  const cerrarCompras = () => vCompras.classList.remove('abierto');
+  vCompras.querySelector('.lx-compras-x').addEventListener('click', cerrarCompras);
+  vCompras.addEventListener('click', (e) => { if (e.target === vCompras) cerrarCompras(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarCompras(); });
+
+  function mensajeCompras(txt) {
+    comprasLista.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'lx-compras-msg';
+    p.textContent = txt;
+    comprasLista.appendChild(p);
+  }
+
+  async function abrirCompras(r) {
+    vCompras.querySelector('h3').textContent = 'Compras de ' + r.nombre;
+    mensajeCompras('Cargando...');
+    vCompras.classList.add('abierto');
+    try {
+      const resp = await fetch('/api/resenas/' + r.id + '/compras');
+      if (!resp.ok) throw new Error();
+      const d = await resp.json();
+      const lista = d.compras || [];
+      if (!lista.length) { mensajeCompras('Sin compras para mostrar.'); return; }
+      comprasLista.innerHTML = '';
+      lista.forEach(c => {
+        const fila = document.createElement('div');
+        fila.className = 'lx-compra-fila';
+        if (c.imagen) {
+          const im = document.createElement('img');
+          im.src = c.imagen; im.alt = ''; im.loading = 'lazy';
+          fila.appendChild(im);
+        }
+        const info = document.createElement('div');
+        const b = document.createElement('b');
+        b.textContent = c.nombre;
+        const s = document.createElement('small');
+        s.textContent = [c.precio ? c.precio + ' PEN' : '', c.fecha ? hace(c.fecha) : ''].filter(Boolean).join(' · ');
+        info.append(b, s);
+        fila.appendChild(info);
+        comprasLista.appendChild(fila);
+      });
+    } catch (e) {
+      mensajeCompras('No se pudieron cargar las compras.');
+    }
+  }
+function crearTarjeta(r, idx) {
     const card = document.createElement('article');
     card.className = 'lx-rcard';
 
@@ -1260,7 +1371,10 @@ html.claro #id-cliente-header:hover{color:#2e1065}
       } catch (e) { /* sin conexión: no cambia nada */ }
       btn.disabled = false;
     });
-
+    img.addEventListener('click', () => abrirVisor(idx));
+    const nombreEl = foot.querySelector('b');
+    nombreEl.classList.add('lx-nombre-click');
+    nombreEl.addEventListener('click', () => abrirCompras(r));
     card.append(est, q, img, foot);
     return card;
   }
@@ -1286,7 +1400,8 @@ html.claro #id-cliente-header:hover{color:#2e1065}
       pagina = p;
       hayMas = d.hayMas;
       grid.innerHTML = '';
-      d.resenas.forEach(r => grid.appendChild(crearTarjeta(r)));
+     resenasActuales = d.resenas;
+d.resenas.forEach((r, i) => grid.appendChild(crearTarjeta(r, i)));
 
       if (p === 0) for (let k = d.resenas.length; k < PAGINA; k++) grid.appendChild(crearVacio());
     } catch (e) {
