@@ -1268,7 +1268,116 @@ function agregarAlCarrito(nombre, precio, imagen) {
   // FIX: ya no se abre el carrito automáticamente al agregar un producto.
   // Solo se abre cuando el usuario toca el ícono del carrito.
 }
+// ==========================================
+// AGREGAR BOTS: carrito + opción manual en el modal
+// ==========================================
+const CUENTAS_BOTS = ['cachina001', 'cachina002', 'cachina003', 'cachina004', 'cachina005'];
 
+function esProductoDeTienda(nombre) {
+  if (/^Club - \d+ Mes(es)? \(Xbox\)$/.test(nombre)) return false;
+  const manuales = [...obtenerProductosVBucks(), ...obtenerProductosCrew()].map(p => p.nombre);
+  return !manuales.includes(nombre);
+}
+
+function copiarTexto(texto) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(texto);
+  return new Promise((ok) => {
+    const t = document.createElement('textarea');
+    t.value = texto;
+    t.style.position = 'fixed';
+    t.style.opacity = '0';
+    document.body.appendChild(t);
+    t.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    t.remove();
+    ok();
+  });
+}
+
+function inyectarEstilosAvisoCuentas() {
+  if (document.getElementById('estilos-aviso-cuentas')) return;
+  const st = document.createElement('style');
+  st.id = 'estilos-aviso-cuentas';
+  st.textContent = `
+    .aviso-cuentas{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+    .aviso-cuentas .btn-agregar-bots{width:100%;justify-content:center}
+    .aviso-cuentas-nota{margin:0;font-size:.8rem;line-height:1.4;font-weight:600;color:#f87171;text-align:center}
+    .bots-manual{margin-top:14px}
+    .btn-bots-manual{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1px solid rgba(167,139,250,.35);background:none;color:#cfc6ee;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
+    .btn-bots-manual:hover{border-color:#a78bfa;color:#fff}
+    .bots-manual-lista{display:none;margin-top:10px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    .bots-manual-lista.abierta{display:block}
+    .bots-manual-fila{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
+    .bots-manual-fila:first-child{border-top:0}
+    .bots-manual-nombre{font-family:ui-monospace,Consolas,monospace;font-size:.95rem;font-weight:700;color:#fff}
+    .btn-copiar-cuenta{border:1px solid rgba(167,139,250,.5);background:none;color:#c4b5fd;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-copiar-cuenta:hover{background:rgba(167,139,250,.18)}
+    .btn-copiar-cuenta.copiado{background:#a78bfa;color:#120c26}
+  `;
+  document.head.appendChild(st);
+}
+
+// Carrito: botón "Agregar bots" + nota
+function crearAvisoCuentas() {
+  inyectarEstilosAvisoCuentas();
+  const caja = document.createElement('div');
+  caja.className = 'aviso-cuentas';
+  caja.innerHTML = `
+    <button type="button" class="btn-agregar-bots trigger-agregar-bots">
+      <span class="texto-btn-bots">Agregar Bots</span>
+    </button>
+    <p class="aviso-cuentas-nota">Si quieres este producto tienes que agregar los bots primero, y para recibirlo esperar las 48 horas.</p>
+  `;
+  return caja;
+}
+
+// Modal "Agregar amigo": botón "Agregarlo manualmente" + cuentas con copiar
+function insertarOpcionManualBots() {
+  if (document.getElementById('bots-manual')) return;
+  const ancla = document.getElementById('mensaje-bots') || document.getElementById('btn-enviar-bots');
+  if (!ancla) return;
+  inyectarEstilosAvisoCuentas();
+
+  const cont = document.createElement('div');
+  cont.id = 'bots-manual';
+  cont.className = 'bots-manual';
+
+  const btnToggle = document.createElement('button');
+  btnToggle.type = 'button';
+  btnToggle.className = 'btn-bots-manual';
+  btnToggle.textContent = 'Agregarlo manualmente';
+
+  const lista = document.createElement('div');
+  lista.className = 'bots-manual-lista';
+
+  CUENTAS_BOTS.forEach(cuenta => {
+    const fila = document.createElement('div');
+    fila.className = 'bots-manual-fila';
+
+    const nombre = document.createElement('span');
+    nombre.className = 'bots-manual-nombre';
+    nombre.textContent = cuenta;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-copiar-cuenta';
+    btn.textContent = 'Copiar';
+    btn.addEventListener('click', async () => {
+      await copiarTexto(cuenta);
+      btn.textContent = '¡Copiado!';
+      btn.classList.add('copiado');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado'); }, 1500);
+    });
+
+    fila.append(nombre, btn);
+    lista.appendChild(fila);
+  });
+
+  btnToggle.addEventListener('click', () => lista.classList.toggle('abierta'));
+
+  cont.append(btnToggle, lista);
+  ancla.insertAdjacentElement('afterend', cont);
+}
 function actualizarVistaCarrito() {
   const contenedorItems = document.getElementById('items-carrito');
   const totalTexto = document.getElementById('total-precio-carrito');
@@ -1300,6 +1409,11 @@ function actualizarVistaCarrito() {
       `;
       contenedorItems.appendChild(itemElement);
     });
+
+    // Aviso + botón Agregar Bots (solo si hay objetos de la tienda)
+    if (carritoItems.some(i => esProductoDeTienda(i.nombre))) {
+      contenedorItems.appendChild(crearAvisoCuentas());
+    }
   }
 
   if (totalTexto) totalTexto.innerText = `${sumaTotal.toFixed(2)} PEN`;
@@ -1704,6 +1818,8 @@ const placeholdersPlataforma = {
 };
 
 function abrirModalBots() {
+  if (panelCarrito && !panelCarrito.classList.contains('oculto')) cerrarCarrito();
+  insertarOpcionManualBots();
   overlayBots?.classList.remove('oculto');
   modalBots?.classList.remove('oculto');
   modalBots?.classList.add('mostrar');
