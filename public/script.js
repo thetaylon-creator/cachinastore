@@ -2082,3 +2082,14 @@ document.querySelector('#pantalla-tienda .logo-header')?.addEventListener('click
   mostrarPantalla('pantalla-bienvenida');
   window.scrollTo(0, 0);
 });
+// Botón flotante "volver arriba": aparece al bajar y sube suave
+(function () {
+  const btn = document.getElementById('btn-subir');
+  if (!btn) return;
+  function revisar() {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }
+  window.addEventListener('scroll', revisar, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  revisar();
+})();
