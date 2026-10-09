@@ -2146,6 +2146,34 @@ body .modal-bots-card.oculto:not(.mostrar) {
   place-items: center;
   pointer-events: none;
 }
+/* Botón flotante: volver arriba */
+.btn-subir {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 900;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(167, 139, 250, .55);
+  border-radius: 50%;
+  background: #7c3aed;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .4);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity .25s, transform .25s, background .15s;
+}
+.btn-subir.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.btn-subir:hover { background: #6d28d9; }
+.btn-subir .material-symbols-rounded { font-size: 28px; line-height: 1; }
 
 /* Cada tarjeta mantiene su propia altura en la sección Crew */
 #seccion-crew-dlc-packs .grid-productos { align-items: start; }
