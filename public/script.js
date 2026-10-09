@@ -1249,7 +1249,38 @@ function obtenerProductosCrew() {
   ];
 }
 
+// Animación: el carrito vibra de lado a lado al agregar un producto
+function inyectarEstilosVibracionCarrito() {
+  if (document.getElementById('estilos-vibra-carrito')) return;
+  const st = document.createElement('style');
+  st.id = 'estilos-vibra-carrito';
+  st.textContent = `
+    @keyframes carritoVibra {
+      0%   { transform: translateX(0) rotate(0); }
+      15%  { transform: translateX(-5px) rotate(-10deg); }
+      30%  { transform: translateX(5px) rotate(10deg); }
+      45%  { transform: translateX(-4px) rotate(-7deg); }
+      60%  { transform: translateX(4px) rotate(7deg); }
+      75%  { transform: translateX(-2px) rotate(-3deg); }
+      100% { transform: translateX(0) rotate(0); }
+    }
+    .carrito-vibra { animation: carritoVibra .5s ease-in-out; }
+    @media (prefers-reduced-motion: reduce) {
+      .carrito-vibra { animation: none; }
+    }
+  `;
+  document.head.appendChild(st);
+}
 
+function vibrarCarrito() {
+  const btn = document.getElementById('btn-carrito');
+  if (!btn) return;
+  inyectarEstilosVibracionCarrito();
+  btn.classList.remove('carrito-vibra');
+  void btn.offsetWidth; // reinicia la animación si se agrega otro producto rápido
+  btn.classList.add('carrito-vibra');
+  btn.addEventListener('animationend', () => btn.classList.remove('carrito-vibra'), { once: true });
+}
 // ==========================================
 // 10. LÓGICA DEL CARRITO
 // FIX: ya no se permite aumentar la cantidad de un producto que
@@ -1265,6 +1296,7 @@ function agregarAlCarrito(nombre, precio, imagen) {
   }
   carritoItems.push({ nombre, precio: parseFloat(precio), imagen, cantidad: 1 });
   actualizarVistaCarrito();
+  vibrarCarrito();
   // FIX: ya no se abre el carrito automáticamente al agregar un producto.
   // Solo se abre cuando el usuario toca el ícono del carrito.
 }
