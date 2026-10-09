@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reseñas - Admin</title>
+<style>
+body{background:#1d1540;color:#fff;font-family:system-ui,sans-serif;margin:0;padding:20px}
+h1{font-size:20px}
+.r{background:#2a1e55;border-radius:14px;padding:16px;margin:14px 0;max-width:720px}
+.st{color:#fbbf24;letter-spacing:2px}
+.f{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.f img{width:110px;height:110px;object-fit:cover;border-radius:8px;cursor:zoom-in}
+.f img.big{width:100%;height:auto;max-height:80vh;object-fit:contain;cursor:zoom-out}
+small{color:#a99fc9}
+button{background:#dc2626;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
+</style></head><body>
+<h1>Reseñas (<span id="n">0</span>)</h1>
+<div id="lista"></div>
+<script>
+let KEY = sessionStorage.getItem('admin_key') || prompt('Clave de admin:') || '';
+const H = () => ({ 'x-admin-key': KEY });
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x !== undefined) e.textContent = x; return e; };
+
+async function cargar() {
+  const r = await fetch('/api/admin/resenas', { headers: H() });
+  if (r.status === 401) { sessionStorage.removeItem('admin_key'); alert('Clave incorrecta'); return; }
+  sessionStorage.setItem('admin_key', KEY);
+  const datos = await r.json();
+  document.getElementById('n').textContent = datos.length;
+  const cont = document.getElementById('lista');
+  cont.textContent = '';
+  datos.forEach(x => {
+    const c = el('div', 'r');
+    c.append(el('b', '', x.nombre + ' '), el('span', 'st', '★'.repeat(x.nota) + '☆'.repeat(5 - x.nota)));
+    c.append(el('p', '', x.texto));
+    const f = el('div', 'f');
+    (x.fotos || []).forEach(src => {
+      if (!/^data:image\/jpeg;base64,/.test(src)) return;
+      const im = document.createElement('img'); im.src = src;
+      im.onclick = () => im.classList.toggle('big');
+      f.append(im);
+    });
+    c.append(f, el('small', '', new Date(x.fecha).toLocaleString('es-PE') + ' · ♥ ' + x.likes + ' · #' + x.id), document.createElement('br'));
+    const b = el('button', '', '🗑 Borrar');
+    b.onclick = async () => {
+      if (!confirm('¿Borrar la reseña de ' + x.nombre + '?')) return;
+      const d = await fetch('/api/admin/resenas/' + x.id, { method: 'DELETE', headers: H() });
+      if (d.ok) c.remove(); else alert('No se pudo borrar');
+    };
+    c.append(b);
+    cont.append(c);
+  });
+}
+cargar();
+</script></body></html>
