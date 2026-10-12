@@ -80,7 +80,16 @@ html.claro #pantalla-bienvenida{--w-bg:#d8cbee;--w-card:#efe8fa;--w-border:rgba(
 .lx-rcard{display:flex;flex-direction:column;gap:16px;background:#1c1340;border:1px solid rgba(167,139,250,.2);border-radius:20px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .lx-stars{color:#fbbf24;font-size:20px;letter-spacing:2px}
 .lx-quote{font-style:italic;color:#e6e0f7;line-height:1.55;font-size:16px;flex:1}
-.lx-rimg{width:100%;border-radius:12px;border:1px solid var(--w-border);display:block}
+.lx-rimg{
+  width:100%;
+  height:140px;            /* chico y horizontal, igual para todas */
+  object-fit:cover;        /* recorta en vez de deformar */
+  object-position:center;
+  border-radius:12px;
+  border:1px solid var(--w-border);
+  display:block;
+  cursor:zoom-in;
+}
 .lx-rfoot{display:flex;align-items:center;gap:12px}
 .lx-avatar{width:40px;height:40px;border-radius:50%;background:#3d2d78;color:#a78bfa;display:grid;place-items:center;font-weight:700;flex-shrink:0}
 .lx-rinfo{flex:1;min-width:0}
@@ -93,7 +102,7 @@ html.claro #pantalla-bienvenida{--w-bg:#d8cbee;--w-card:#efe8fa;--w-border:rgba(
 .lx-like.activo{color:#f472b6;border-color:rgba(244,114,182,.5)}
 .lx-like.activo .material-symbols-rounded{font-variation-settings:'FILL' 1}
 
-.lx-rempty{min-height:300px;border:1.5px dashed rgba(167,139,250,.28);border-radius:20px;background:rgba(28,19,64,.55)}
+.lx-rempty{min-height:260px;border:1.5px dashed rgba(167,139,250,.28);border-radius:20px;background:rgba(28,19,64,.55)}
 .lx-subir{margin-top:36px}
 .lx-modal{position:fixed;inset:0;z-index:100;background:rgba(5,3,12,.75);display:none;align-items:center;justify-content:center;padding:16px}
 .lx-modal.abierto{display:flex}
