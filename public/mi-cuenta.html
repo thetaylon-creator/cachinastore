@@ -227,6 +227,18 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   .ct-redes,.ct-redes div{text-align:left;justify-content:flex-start}
   .ct-foto{flex-direction:column;align-items:flex-start}
 }
+/* Recorte de foto de perfil */
+.cr-ov{position:fixed;inset:0;z-index:100;background:rgba(5,3,12,.8);display:none;align-items:center;justify-content:center;padding:16px}
+.cr-ov.abierto{display:flex}
+.cr-box{width:100%;max-width:340px;background:#150f2b;border:1px solid var(--border-color);border-radius:20px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:16px;color:#fff}
+.cr-box h3{font-size:17px}
+.cr-box p{font-size:12px;color:#a99fc9;margin-top:-8px}
+.cr-vista{position:relative;width:260px;height:260px;border-radius:50%;overflow:hidden;background:#000;touch-action:none;cursor:grab;border:3px solid var(--gold)}
+.cr-vista:active{cursor:grabbing}
+.cr-vista img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.cr-zoom{width:100%;accent-color:#7c3aed}
+.cr-acc{display:flex;gap:10px;width:100%;justify-content:flex-end}
+.cr-acc .ct-btn-pri{border:0;cursor:pointer;height:40px}
 </style>
 </head>
 <body>
@@ -272,7 +284,7 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
       <div class="ct-av l" id="av-main"></div>
       <div>
         <div class="ct-lab">Foto de perfil</div>
-        <p>Se muestra en tu panel de cuenta. Usa el enlace https de una imagen.</p>
+        <p>Se muestra en tu panel de cuenta. Elige una imagen de tu dispositivo.</p>
         <div class="ct-acc">
           <button class="ct-btn bord" id="btn-foto" type="button"><span class="material-symbols-rounded">photo_camera</span>Cambiar foto</button>
           <button class="ct-btn" id="btn-quitar" type="button"><span class="material-symbols-rounded">delete</span>Quitar</button>
@@ -419,6 +431,20 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     </div>
   </div>
 </footer>
+<input type="file" id="input-foto-perfil" accept="image/*" hidden>
+
+<div class="cr-ov" id="cr-ov" role="dialog" aria-modal="true" aria-labelledby="cr-titulo">
+  <div class="cr-box">
+    <h3 id="cr-titulo">Ajusta tu foto</h3>
+    <p>Arrastra para mover y usa la barra para acercar.</p>
+    <div class="cr-vista" id="cr-vista"><img id="cr-img" alt=""></div>
+    <input class="cr-zoom" id="cr-zoom" type="range" min="1" max="3" step="0.01" value="1" aria-label="Zoom">
+    <div class="cr-acc">
+      <button class="ct-btn" id="cr-cancelar" type="button">Cancelar</button>
+      <button class="ct-btn-pri" id="cr-guardar" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -479,14 +505,80 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
   }
   pintarTodo();
 
-  // Foto
-  $('btn-foto').addEventListener('click', () => {
-    const url = prompt('Pega el enlace https de tu imagen:');
-    if (!url) return;
-    if (!/^https:\/\/\S+$/i.test(url.trim())) { alert('El enlace debe empezar con https://'); return; }
-    guardar(KF, url.trim());
+  // Foto: elegir archivo y encuadrar en círculo (como WhatsApp)
+  const crOv = $('cr-ov'), crVista = $('cr-vista'), crImg = $('cr-img');
+  const crZoom = $('cr-zoom'), inFotoPerfil = $('input-foto-perfil');
+  const VP = 260;
+  let crX = 0, crY = 0, crMin = 1, crEsc = 1, crUrl = '', crDrag = null;
+
+  function crAplicar() {
+    const w = crImg.naturalWidth * crEsc, h = crImg.naturalHeight * crEsc;
+    crX = Math.min(0, Math.max(VP - w, crX));
+    crY = Math.min(0, Math.max(VP - h, crY));
+    crImg.style.transform = 'translate(' + crX + 'px,' + crY + 'px) scale(' + crEsc + ')';
+  }
+  function crCerrar() {
+    crOv.classList.remove('abierto');
+    if (crUrl) { URL.revokeObjectURL(crUrl); crUrl = ''; }
+    crImg.removeAttribute('src');
+  }
+
+  $('btn-foto').addEventListener('click', () => inFotoPerfil.click());
+
+  inFotoPerfil.addEventListener('change', () => {
+    const f = inFotoPerfil.files[0];
+    inFotoPerfil.value = '';
+    if (!f) return;
+    if (!f.type.startsWith('image/')) { alert('El archivo debe ser una imagen.'); return; }
+    crUrl = URL.createObjectURL(f);
+    crImg.onload = () => {
+      crMin = VP / Math.min(crImg.naturalWidth, crImg.naturalHeight);
+      crEsc = crMin;
+      crX = (VP - crImg.naturalWidth * crEsc) / 2;
+      crY = (VP - crImg.naturalHeight * crEsc) / 2;
+      crZoom.value = 1;
+      crAplicar();
+      crOv.classList.add('abierto');
+    };
+    crImg.onerror = () => { crCerrar(); alert('No se pudo leer esa imagen. Prueba con JPG o PNG.'); };
+    crImg.src = crUrl;
+  });
+
+  crZoom.addEventListener('input', () => {
+    const cx = (VP / 2 - crX) / crEsc, cy = (VP / 2 - crY) / crEsc;
+    crEsc = crMin * Number(crZoom.value);
+    crX = VP / 2 - cx * crEsc;
+    crY = VP / 2 - cy * crEsc;
+    crAplicar();
+  });
+
+  crVista.addEventListener('pointerdown', (e) => {
+    crDrag = { x: e.clientX, y: e.clientY, ox: crX, oy: crY };
+    crVista.setPointerCapture(e.pointerId);
+  });
+  crVista.addEventListener('pointermove', (e) => {
+    if (!crDrag) return;
+    crX = crDrag.ox + (e.clientX - crDrag.x);
+    crY = crDrag.oy + (e.clientY - crDrag.y);
+    crAplicar();
+  });
+  crVista.addEventListener('pointerup', () => { crDrag = null; });
+  crVista.addEventListener('pointercancel', () => { crDrag = null; });
+
+  $('cr-cancelar').addEventListener('click', crCerrar);
+  crOv.addEventListener('click', (e) => { if (e.target === crOv) crCerrar(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && crOv.classList.contains('abierto')) crCerrar(); });
+
+  $('cr-guardar').addEventListener('click', () => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const sw = VP / crEsc;
+    c.getContext('2d').drawImage(crImg, -crX / crEsc, -crY / crEsc, sw, sw, 0, 0, 256, 256);
+    guardar(KF, c.toDataURL('image/jpeg', 0.85));
+    crCerrar();
     pintarTodo();
   });
+
   $('btn-quitar').addEventListener('click', () => { borrar(KF); pintarTodo(); });
 
   // Copiar código
