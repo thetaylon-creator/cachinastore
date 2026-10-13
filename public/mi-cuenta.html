@@ -289,6 +289,8 @@ input,textarea{
 .lx-menu-it .material-symbols-rounded{font-size:22px;color:#a78bfa}
 .lx-menu-salir{margin-top:6px;border-top:1px solid var(--border-color);border-radius:0 0 10px 10px;padding-top:14px}
 @media (max-width:820px){ .lx-cuenta-nom{display:none} }
+#res-mia .rs-card{margin-top:16px}
+#res-mia .pd-msg{padding:16px 0 0}
 </style>
 </head>
 <body>
@@ -883,12 +885,12 @@ if (lista.length) {
     foot.append(el('div', 'rs-av', (r.nombre || '?')[0].toUpperCase()), info, el('span', 'rs-likes', '♥ ' + r.likes));
     card.append(foot);
 
-    const del = el('button', 'ct-btn', 'Eliminar mi reseña');
+    const del = el('button', 'ct-btn', 'Eliminar reseña');
     del.type = 'button';
     del.addEventListener('click', async () => {
       if (!confirm('¿Eliminar tu reseña? Podrás escribir otra después.')) return;
       try {
-        await fetch('/api/mi-resena', { method: 'DELETE', headers: { Authorization: 'Bearer ' + sesion.token } });
+        await fetch('/api/mi-resena/' + r.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + sesion.token } });
       } catch (e) {}
       cargarResena();
     });
@@ -909,10 +911,12 @@ if (lista.length) {
       })
       .then(d => {
         mia.textContent = '';
+        const lista = d.resenas || [];
         bloq.hidden = true; form.hidden = true;
-        if (d.resena) mia.append(rsTarjeta(d.resena));
-        else if (d.puede) { form.hidden = false; rsPintarEstrellas(); }
-        else bloq.hidden = false;
+        if (d.disponibles > 0) { form.hidden = false; rsPintarEstrellas(); }
+        else if (!lista.length) bloq.hidden = false;
+        else mia.append(el('p', 'pd-msg', 'Podrás dejar otra reseña cuando tu próximo pedido sea confirmado.'));
+        lista.forEach(r => mia.append(rsTarjeta(r)));
       })
       .catch(e => {
         if (e.message === 'sesion') return;
