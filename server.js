@@ -497,6 +497,7 @@ async function ensureGoogleYResenasTables() {
     );
   `);
   await pool.query(`
+    await pool.query(`ALTER TABLE google_users ADD COLUMN IF NOT EXISTS foto TEXT;`);
     CREATE TABLE IF NOT EXISTS resenas (
       id SERIAL PRIMARY KEY,
       nombre VARCHAR(30) NOT NULL,
@@ -534,16 +535,17 @@ app.post('/api/auth/google', async (req, res) => {
 
     const nombre = String(p.name || p.given_name || 'Cliente').trim().slice(0, 30) || 'Cliente';
 
-    await pool.query(
+    const up = await pool.query(
       `INSERT INTO google_users (sub, email, nombre) VALUES ($1, $2, $3)
-       ON CONFLICT (sub) DO UPDATE SET email = $2, nombre = $3, ultimo_acceso = now()`,
+       ON CONFLICT (sub) DO UPDATE SET email = $2, nombre = $3, ultimo_acceso = now()
+       RETURNING foto`,
       [p.sub, p.email, nombre]
     );
 
     const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
     const token = firmar({ sub: p.sub, nombre, exp });
     guardarCookieSesion(res, token);
-    res.json({ token, nombre, email: p.email, exp });
+    res.json({ token, nombre, email: p.email, exp, foto: up.rows[0]?.foto || '' });
   } catch (err) {
     console.error('[google] Error verificando token:', err.message);
     res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google.' });
@@ -555,11 +557,11 @@ app.get('/api/auth/me', async (req, res) => {
   const s = sesionDeRequest(req);
   if (!s) return res.status(401).json({ error: 'Sin sesión' });
   try {
-    const u = await pool.query('SELECT email FROM google_users WHERE sub = $1', [s.sub]);
+    const u = await pool.query('SELECT email, foto FROM google_users WHERE sub = $1', [s.sub]);
     const exp = Math.floor(Date.now() / 1000) + SESION_DIAS * 24 * 60 * 60;
     const token = firmar({ sub: s.sub, nombre: s.nombre, exp });
     guardarCookieSesion(res, token);
-    res.json({ token, nombre: s.nombre, email: u.rows[0]?.email || '', exp });
+    res.json({ token, nombre: s.nombre, email: u.rows[0]?.email || '', exp, foto: u.rows[0]?.foto || '' });
   } catch (e) {
     console.error('[auth/me]', e.message);
     res.status(500).json({ error: 'Error del servidor' });
@@ -571,7 +573,33 @@ app.post('/api/auth/logout', (req, res) => {
   res.clearCookie('cachina_token', { path: '/' });
   res.json({ success: true });
 });
+// ---------- Foto de perfil ----------
+app.put('/api/mi-foto', requireGoogle, async (req, res) => {
+  try {
+    const foto = String(req.body.foto || '');
+    if (!foto.startsWith('data:image/jpeg;base64,')) {
+      return res.status(400).json({ error: 'La foto debe ser una imagen.' });
+    }
+    if (foto.length > 200000) {
+      return res.status(413).json({ error: 'La foto es demasiado pesada.' });
+    }
+    await pool.query('UPDATE google_users SET foto = $1 WHERE sub = $2', [foto, req.usuario.sub]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[foto] Error guardando:', err);
+    res.status(500).json({ error: 'No se pudo guardar la foto.' });
+  }
+});
 
+app.delete('/api/mi-foto', requireGoogle, async (req, res) => {
+  try {
+    await pool.query('UPDATE google_users SET foto = NULL WHERE sub = $1', [req.usuario.sub]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[foto] Error borrando:', err);
+    res.status(500).json({ error: 'No se pudo quitar la foto.' });
+  }
+});
 // ---------- Reseñas ----------
 const ultimaResenaPorUsuario = new Map();
 
