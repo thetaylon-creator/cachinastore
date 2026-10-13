@@ -938,6 +938,12 @@ app.post('/api/mis-avisos/vistos', requireGoogle, async (req, res) => {
     res.status(500).json({ error: 'No se pudo actualizar.' });
   }
 });
+// Identificador de la versión publicada (cambia en cada deploy de Render)
+const BUILD_ID = process.env.RENDER_GIT_COMMIT || String(Date.now());
+app.get('/api/version', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ v: BUILD_ID });
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
