@@ -591,6 +591,77 @@ html.claro #pantalla-tienda .lx-nav .btn-carrito{color:#4c1d95}
 html.claro #pantalla-tienda .lx-nav .btn-carrito:hover{color:#2e1065}
 html.claro #pantalla-tienda .lx-nav .lx-moneda{background:none;border-color:var(--w-border);color:#1b1238}
 @media (max-width:820px){ #pantalla-tienda .lx-nav .nav-links{display:none} }
+  /* ===== Tienda ordenada (estilo referencia) ===== */
+#pantalla-tienda .contenedor-tienda *:not(.material-symbols-rounded),
+#pantalla-tienda .buscador-tienda input{font-family:Inter,'Segoe UI',system-ui,sans-serif !important}
+
+/* Franja de abajo: el ID/User queda a la derecha, como el "Código creador" de la referencia */
+#pantalla-tienda .subbar-moneda{padding:6px 0 !important}
+#pantalla-tienda .subbar-moneda .header-interno{
+  max-width:1070px;margin:0 auto;padding:0 16px;display:flex;justify-content:flex-end;
+}
+#pantalla-tienda .subbar-moneda-texto{display:none !important}
+#pantalla-tienda .id-cliente-header{
+  background:rgba(124,58,237,.25) !important;border:1px solid #7c3aed !important;border-radius:999px !important;
+  padding:5px 16px !important;font-size:11px !important;font-weight:800 !important;
+  letter-spacing:.04em;text-transform:uppercase;color:#fff !important;
+}
+html.claro #pantalla-tienda .id-cliente-header{color:#2e1065 !important;background:rgba(124,58,237,.18) !important}
+
+@media (min-width:901px){
+  /* Mismo ancho que la barra de arriba: la lista queda alineada con el logo */
+  #pantalla-tienda .contenedor-tienda{
+    max-width:1070px !important;margin:0 auto !important;padding:0 16px !important;
+    display:grid !important;grid-template-columns:200px minmax(0,1fr) !important;gap:34px !important;
+  }
+
+  /* Lista lateral sin cabecera ni caja */
+  #pantalla-tienda .panel-filtros-header{display:none !important}
+  #pantalla-tienda .panel-filtros{
+    background:transparent !important;border:0 !important;box-shadow:none !important;
+    padding:0 6px 0 0 !important;
+    max-height:calc(100vh - var(--cab-h,118px) - 24px) !important;
+  }
+  #pantalla-tienda .panel-filtros .item-filtro{
+    font-size:14px !important;font-weight:500 !important;padding:10px 14px !important;margin:2px 0 !important;
+    border-radius:0 8px 8px 0 !important;border-left:3px solid transparent !important;
+    color:#cfc6ee !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #pantalla-tienda .panel-filtros .item-filtro:hover{background:rgba(167,139,250,.1) !important;color:#fff !important}
+  #pantalla-tienda .panel-filtros .item-filtro.activo{
+    background:rgba(124,58,237,.22) !important;color:#a78bfa !important;
+    border-left-color:#7c3aed !important;font-weight:700 !important;
+  }
+  html.claro #pantalla-tienda .panel-filtros .item-filtro{color:#3b2a6b !important}
+  html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{color:#2e1065 !important}
+
+  /* Tarjetas más chicas: 4 por fila; el lote ocupa 2 */
+  #pantalla-tienda .grid-productos{
+    display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:16px !important;
+  }
+  #pantalla-tienda .grid-productos .tarjeta-producto{height:auto !important;min-height:0 !important;border-radius:16px}
+  #pantalla-tienda .grid-productos .tarjeta-producto .tarjeta-fondo{aspect-ratio:5/6;height:auto !important;border-radius:16px}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote{grid-column:span 2 !important}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote .tarjeta-fondo{aspect-ratio:5/3}
+  #pantalla-tienda .grid-productos .tarjeta-nombre{font-size:13px !important;font-weight:800 !important}
+  #pantalla-tienda .grid-productos .tarjeta-precio-pen{font-size:14px !important}
+  #pantalla-tienda .grid-productos .btn-agregar-icono{width:32px !important;height:32px !important;font-size:18px !important}
+}
+@media (min-width:901px) and (max-width:1100px){
+  #pantalla-tienda .grid-productos{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+}
+
+/* Título de sección */
+#pantalla-tienda .seccion-titulo{
+  position:relative;border-left:0 !important;padding:0 0 16px 16px !important;margin:0 0 20px !important;
+  font-size:22px !important;font-weight:800 !important;text-transform:uppercase;letter-spacing:.01em;
+  border-bottom:1px solid var(--w-border) !important;
+}
+#pantalla-tienda .seccion-titulo::before{
+  content:"";position:absolute;left:0;top:2px;width:4px;height:26px;border-radius:2px;
+  background:linear-gradient(180deg,#f0b429,#7c3aed);
+}
+#pantalla-tienda .seccion-tienda{margin-bottom:40px}
 </style>
 
 </head>
