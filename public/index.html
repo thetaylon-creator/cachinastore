@@ -1743,7 +1743,15 @@ if (tBtn && tCuenta) {
     }
   }
 
-  function guardarSesion(s) { sesion = s; try { localStorage.setItem(LS, JSON.stringify(s)); } catch (e) {} sincronizar(); }
+  function guardarSesion(s) {
+    sesion = s;
+    try { localStorage.setItem(LS, JSON.stringify(s)); } catch (e) {}
+    try {
+      const k = 'cachina_foto_' + (s.email || s.nombre || 'x').toLowerCase();
+      if (s.foto) localStorage.setItem(k, s.foto); else localStorage.removeItem(k);
+    } catch (e) {}
+    sincronizar();
+  }
   function salir() {
     sesion = null;
     try { localStorage.removeItem(LS); } catch (e) {}
@@ -1777,7 +1785,7 @@ if (tBtn && tCuenta) {
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || 'No se pudo iniciar sesión con Google.');
-      guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp });
+guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp, foto: d.foto || '' });
       const f = alLoguear;
       cerrarLogin();
       if (f) f();
@@ -2011,7 +2019,7 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
       });
       if (r.ok) {
         const d = await r.json();
-        guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp });
+guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp, foto: d.foto || '' });
       } else if (r.status === 401 && sesion) {
         sesion = null;
         try { localStorage.removeItem(LS); } catch (e) {}
