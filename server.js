@@ -610,9 +610,12 @@ app.get('/api/resenas', async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 12);
     const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
     const { rows } = await pool.query(
-      `SELECT id, nombre, nota, texto, foto,
-              COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
-       FROM resenas ORDER BY fecha DESC LIMIT $1 OFFSET $2`,
+      `SELECT r.id, r.nombre, r.nota, r.texto, r.foto,
+              COALESCE(r.fotos, jsonb_build_array(r.foto)) AS fotos,
+              r.likes, r.fecha, u.foto AS avatar
+       FROM resenas r
+       LEFT JOIN google_users u ON u.sub = r.google_sub
+       ORDER BY r.fecha DESC LIMIT $1 OFFSET $2`,
       [limit + 1, offset]
     );
     res.json({ resenas: rows.slice(0, limit), hayMas: rows.length > limit });
