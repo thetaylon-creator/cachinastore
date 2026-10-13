@@ -757,6 +757,7 @@ async function ensurePedidosTable() {
     );
   `);
   await pool.query(`ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS motivo VARCHAR(200);`);
+  await pool.query(`ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS entrega_vista BOOLEAN NOT NULL DEFAULT TRUE;`);
 }
 ensurePedidosTable().catch(err => console.error('Error creando tabla pedidos:', err));
 
@@ -851,9 +852,10 @@ app.put('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   const motivo = estado === 'no_confirmado'
     ? (String(req.body.motivo || '').trim().slice(0, 200) || 'No llegó el pago')
     : null;
+  const entregaVista = estado !== 'entregado';
   const { rows } = await pool.query(
-    'UPDATE pedidos SET estado = $1, motivo = $2 WHERE id = $3 RETURNING id',
-    [estado, motivo, parseInt(req.params.id, 10)]
+    'UPDATE pedidos SET estado = $1, motivo = $2, entrega_vista = $4 WHERE id = $3 RETURNING id',
+    [estado, motivo, parseInt(req.params.id, 10), entregaVista]
   );
   if (!rows.length) return res.status(404).json({ error: 'Pedido no encontrado' });
   res.json({ success: true });
@@ -908,7 +910,34 @@ app.delete('/api/mi-resena/:id', requireGoogle, async (req, res) => {
     res.status(500).json({ error: 'No se pudo eliminar tu reseña.' });
   }
 });
+// Avisos: pedidos entregados que el cliente aún no ha visto
+app.get('/api/mis-avisos', requireGoogle, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id FROM pedidos
+       WHERE google_sub = $1 AND estado = 'entregado' AND entrega_vista = false
+       ORDER BY fecha DESC LIMIT 10`,
+      [req.usuario.sub]
+    );
+    res.json({ entregados: rows.map(p => ({ id: p.id, ticket: ticketDe(p.id) })) });
+  } catch (err) {
+    console.error('[avisos] Error listando:', err);
+    res.status(500).json({ error: 'No se pudieron cargar los avisos.' });
+  }
+});
 
+app.post('/api/mis-avisos/vistos', requireGoogle, async (req, res) => {
+  try {
+    await pool.query(
+      `UPDATE pedidos SET entrega_vista = true WHERE google_sub = $1 AND estado = 'entregado'`,
+      [req.usuario.sub]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[avisos] Error marcando:', err);
+    res.status(500).json({ error: 'No se pudo actualizar.' });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
