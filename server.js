@@ -641,15 +641,19 @@ app.post('/api/resenas', requireGoogle, async (req, res) => {
       return res.status(413).json({ error: 'Las fotos son demasiado pesadas.' });
     }
 
-    const compro = await pool.query(
-      `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
+    const cupo = await pool.query(
+      `SELECT
+         (SELECT COUNT(*) FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado'))::int AS pedidos,
+         (SELECT COUNT(*) FROM resenas WHERE google_sub = $1)::int AS resenas`,
       [req.usuario.sub]
     );
-    if (!compro.rows.length) {
+    const { pedidos, resenas } = cupo.rows[0];
+    if (pedidos === 0) {
       return res.status(403).json({ error: 'Podrás dejar tu reseña cuando tu compra sea aprobada.' });
     }
-    const ya = await pool.query('SELECT 1 FROM resenas WHERE google_sub = $1 LIMIT 1', [req.usuario.sub]);
-    if (ya.rows.length) return res.status(409).json({ error: 'Ya dejaste tu reseña.' });
+    if (resenas >= pedidos) {
+      return res.status(409).json({ error: 'Ya dejaste una reseña por cada pedido confirmado. Podrás dejar otra con tu próxima compra.' });
+    }
 
     const ultima = ultimaResenaPorUsuario.get(req.usuario.sub) || 0;
     if (Date.now() - ultima < 60000) {
@@ -869,29 +873,35 @@ app.delete('/api/admin/pedidos/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// Mi reseña: ¿puede reseñar? ¿ya tiene una?
 app.get('/api/mi-resena', requireGoogle, async (req, res) => {
   try {
     const r = await pool.query(
       `SELECT id, nombre, nota, texto, foto,
-        COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
- FROM resenas WHERE google_sub = $1 ORDER BY fecha DESC LIMIT 1`,
+              COALESCE(fotos, jsonb_build_array(foto)) AS fotos, likes, fecha
+       FROM resenas WHERE google_sub = $1 ORDER BY fecha DESC`,
       [req.usuario.sub]
     );
     const p = await pool.query(
-      `SELECT 1 FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado') LIMIT 1`,
+      `SELECT COUNT(*)::int AS n FROM pedidos WHERE google_sub = $1 AND estado IN ('aprobado','entregado')`,
       [req.usuario.sub]
     );
-    res.json({ resena: r.rows[0] || null, puede: p.rows.length > 0 });
+    const pedidos = p.rows[0].n;
+    res.json({ resenas: r.rows, pedidos, disponibles: Math.max(pedidos - r.rows.length, 0) });
   } catch (err) {
     console.error('[resenas] Error en mi-resena:', err);
-    res.status(500).json({ error: 'No se pudo cargar tu reseña.' });
+    res.status(500).json({ error: 'No se pudo cargar tus reseñas.' });
   }
 });
 
-app.delete('/api/mi-resena', requireGoogle, async (req, res) => {
+app.delete('/api/mi-resena/:id', requireGoogle, async (req, res) => {
   try {
-    await pool.query('DELETE FROM resenas WHERE google_sub = $1', [req.usuario.sub]);
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'ID inválido' });
+    const { rows } = await pool.query(
+      'DELETE FROM resenas WHERE id = $1 AND google_sub = $2 RETURNING id',
+      [id, req.usuario.sub]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Reseña no encontrada' });
     res.json({ success: true });
   } catch (err) {
     console.error('[resenas] Error borrando la propia:', err);
