@@ -663,6 +663,16 @@ html.claro #pantalla-tienda .id-cliente-header{color:#2e1065 !important;backgrou
   background:linear-gradient(180deg,#f0b429,#7c3aed);
 }
 #pantalla-tienda .seccion-tienda{margin-bottom:40px}
+/* Aviso de pedido entregado */
+.aviso-entrega{position:fixed;top:78px;right:16px;z-index:5000;width:min(360px,calc(100vw - 32px));display:flex;gap:12px;align-items:flex-start;padding:16px;background:#150f2b;color:#fff;border:1px solid rgba(74,222,128,.55);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);animation:avisoEntra .35s ease}
+@keyframes avisoEntra{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.aviso-entrega-ico{width:40px;height:40px;border-radius:12px;background:rgba(74,222,128,.15);color:#4ade80;display:grid;place-items:center;flex-shrink:0}
+.aviso-entrega-txt{flex:1;min-width:0}
+.aviso-entrega-txt b{display:block;font-size:15px;margin-bottom:4px}
+.aviso-entrega-txt span{display:block;font-size:13px;color:#a99fc9;line-height:1.4}
+.aviso-entrega-txt a{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#4ade80;text-decoration:none}
+.aviso-entrega-txt a:hover{text-decoration:underline}
+.aviso-entrega-x{background:none;border:0;color:#cfc6ee;font-size:24px;line-height:1;cursor:pointer;padding:0}
 </style>
 
 </head>
@@ -1861,7 +1871,53 @@ if (tBtn && tCuenta) {
     salir,
     pedirLogin: (cb, mensaje) => pedirLogin(mensaje || 'Inicia sesión con Google para continuar.', cb)
   };
+  // ---------- Aviso de pedido entregado ----------
+  async function revisarAvisos() {
+    if (!sesion || !sesion.token) return;
+    try {
+      const r = await fetch('/api/mis-avisos', { headers: { Authorization: 'Bearer ' + sesion.token } });
+      if (!r.ok) return;
+      const d = await r.json();
+      const lista = d.entregados || [];
+      if (!lista.length) return;
 
+      const tickets = lista.map(p => p.ticket).join(', ');
+      document.getElementById('aviso-entrega')?.remove();
+
+      const box = document.createElement('div');
+      box.id = 'aviso-entrega';
+      box.className = 'aviso-entrega';
+      box.setAttribute('role', 'status');
+
+      const ico = document.createElement('div');
+      ico.className = 'aviso-entrega-ico';
+      ico.innerHTML = '<span class="material-symbols-rounded">check_circle</span>';
+
+      const txt = document.createElement('div');
+      txt.className = 'aviso-entrega-txt';
+      const t = document.createElement('b');
+      t.textContent = lista.length === 1 ? '¡Tu pedido fue entregado!' : '¡Tus pedidos fueron entregados!';
+      const s = document.createElement('span');
+      s.textContent = (lista.length === 1 ? 'Ticket ' : 'Tickets ') + tickets + '. Gracias por tu compra.';
+      const a = document.createElement('a');
+      a.href = 'mi-cuenta.html#pedidos';
+      a.textContent = 'Ver mis pedidos →';
+      txt.append(t, s, a);
+
+      const x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'aviso-entrega-x';
+      x.setAttribute('aria-label', 'Cerrar');
+      x.innerHTML = '&times;';
+      x.addEventListener('click', () => box.remove());
+
+      box.append(ico, txt, x);
+      document.body.appendChild(box);
+
+      // Se muestra una sola vez por pedido
+      fetch('/api/mis-avisos/vistos', { method: 'POST', headers: { Authorization: 'Bearer ' + sesion.token } }).catch(() => {});
+    } catch (e) {}
+  }
   // ---------- Google ----------
   let gsiListo = false;
 
@@ -1875,6 +1931,7 @@ if (tBtn && tCuenta) {
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || 'No se pudo iniciar sesión con Google.');
 guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp, foto: d.foto || '' });
+      revisarAvisos();
       const f = alLoguear;
       cerrarLogin();
       if (f) f();
@@ -2109,6 +2166,7 @@ $('t-salir')?.addEventListener('click', () => { tMenu(false); salir(); });
       if (r.ok) {
         const d = await r.json();
 guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.exp, foto: d.foto || '' });
+        revisarAvisos();
       } else if (r.status === 401 && sesion) {
         sesion = null;
         try { localStorage.removeItem(LS); } catch (e) {}
