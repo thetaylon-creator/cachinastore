@@ -673,6 +673,39 @@ html.claro #pantalla-tienda .id-cliente-header{color:#2e1065 !important;backgrou
 .aviso-entrega-txt a{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#4ade80;text-decoration:none}
 .aviso-entrega-txt a:hover{text-decoration:underline}
 .aviso-entrega-x{background:none;border:0;color:#cfc6ee;font-size:24px;line-height:1;cursor:pointer;padding:0}
+/* Panel morado semi transparente para la lista de secciones */
+#pantalla-tienda .panel-filtros{
+  background:rgba(76,29,149,.38) !important;
+  border:1px solid rgba(167,139,250,.28) !important;
+  border-radius:14px !important;
+  padding:8px !important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25) !important;
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+}
+#pantalla-tienda .panel-filtros .item-filtro.activo{
+  background:rgba(124,58,237,.55) !important;
+  color:#fff !important;
+}
+html.claro #pantalla-tienda .panel-filtros{
+  background:rgba(124,58,237,.18) !important;
+  border-color:rgba(76,29,149,.25) !important;
+}
+html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
+  background:rgba(124,58,237,.35) !important;
+  color:#2e1065 !important;
+}
+/* Tarjetas con pie (V-Bucks y Crew): imagen de alto fijo y el pie con el precio visible */
+#pantalla-tienda .grid-productos .tarjeta-estilo-pie{
+  height:auto !important;
+  min-height:0 !important;
+  overflow:hidden;
+}
+#pantalla-tienda .grid-productos .tarjeta-estilo-pie .tarjeta-fondo{
+  height:190px !important;
+  min-height:0 !important;
+  aspect-ratio:auto !important;
+}
 </style>
 
 </head>
