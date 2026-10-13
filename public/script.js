@@ -469,6 +469,11 @@ const fondosTematicosManual = {
   'Overwatch': 'https://cdn2.unrealengine.com/sk-Billboard_Venison_SectionBG-ac632d75.png?resize=1&w=1720&h=1325&quality=high',
   'No te preocupes': 'https://cdn2.unrealengine.com/sk-Default_BG_0003_Heavenly-Rays-3231768e.png?resize=1&w=1720&h=1325&quality=high',
   'Estilo superior': 'https://cdn2.unrealengine.com/sk-Default_BG_0008_Gray-Rays-1d00dd56.png?resize=1&w=1498&h=1772&quality=high',
+  "Five Nights at Freddy's": 'https://cdn2.unrealengine.com/sk-FNMares2026_Diner-34c130e5.png?resize=1&w=793&h=1311&quality=high',
+  'Hollow Knight': 'https://cdn2.unrealengine.com/sk-FNMares_Neighborhood-1d820744.png?resize=1&w=793&h=1311&quality=high',
+  'Street Fighter': 'https://cdn2.unrealengine.com/default-sparks-sectionbg-v1-1920x1080-9b27879ce008.jpg?resize=1&w=1720&h=1325&quality=high',
+  'Marvel': 'https://cdn2.unrealengine.com/billboard-31-10-sweetletter-sectionbg-v1-1920x1081-67731dae0411.jpg?resize=1&w=2344&h=1774&quality=high',
+  'V-Bucks': 'linear-gradient(135deg, #085164 0%, #056a7d 50%, #097c8f 100%)',
 };
 
 function obtenerFondoTematico(nombreSeccion) {
