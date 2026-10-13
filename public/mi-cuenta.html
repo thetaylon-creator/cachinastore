@@ -576,13 +576,37 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
     c.width = c.height = 256;
     const sw = VP / crEsc;
     c.getContext('2d').drawImage(crImg, -crX / crEsc, -crY / crEsc, sw, sw, 0, 0, 256, 256);
-    guardar(KF, c.toDataURL('image/jpeg', 0.85));
+    const dataUrl = c.toDataURL('image/jpeg', 0.85);
+    guardar(KF, dataUrl);
     crCerrar();
     pintarTodo();
+    if (sesion.token) {
+      fetch('/api/mi-foto', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sesion.token },
+        body: JSON.stringify({ foto: dataUrl })
+      }).catch(() => {});
+    }
   });
 
-  $('btn-quitar').addEventListener('click', () => { borrar(KF); pintarTodo(); });
-
+  $('btn-quitar').addEventListener('click', () => {
+    borrar(KF);
+    pintarTodo();
+    if (sesion.token) {
+      fetch('/api/mi-foto', { method: 'DELETE', headers: { Authorization: 'Bearer ' + sesion.token } }).catch(() => {});
+    }
+  });
+  // Sincroniza la foto con el servidor (así se ve igual en todos tus dispositivos)
+  if (sesion.token) {
+    fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + sesion.token } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d) return;
+        if (d.foto) guardar(KF, d.foto); else borrar(KF);
+        pintarTodo();
+      })
+      .catch(() => {});
+  }
   // Copiar código
   $('btn-copiar').addEventListener('click', () => {
     const ico = $('btn-copiar').firstElementChild;
