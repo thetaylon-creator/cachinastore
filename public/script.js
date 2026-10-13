@@ -1545,7 +1545,7 @@ function actualizarFondoDinamico(nombreSeccion) {
   const imagen = window._fondosSecciones?.[nombreSeccion];
 
   if (imagen) {
-    fondo.style.backgroundImage = `url('${imagen}')`;
+    fondo.style.backgroundImage = /^(linear|radial)-gradient/.test(imagen) ? imagen : `url('${imagen}')`;
     fondo.classList.add('visible');
   } else {
     fondo.classList.remove('visible');
