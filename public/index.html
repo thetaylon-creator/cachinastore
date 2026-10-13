@@ -640,9 +640,10 @@ html.claro #pantalla-tienda .id-cliente-header{color:#2e1065 !important;backgrou
     display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:16px !important;
   }
   #pantalla-tienda .grid-productos .tarjeta-producto{height:auto !important;min-height:0 !important;border-radius:16px}
-  #pantalla-tienda .grid-productos .tarjeta-producto .tarjeta-fondo{aspect-ratio:5/6;height:auto !important;border-radius:16px}
+  #pantalla-tienda .grid-productos .tarjeta-producto .tarjeta-fondo{aspect-ratio:auto !important;height:auto !important;min-height:225px !important;border-radius:16px}
   #pantalla-tienda .grid-productos .tarjeta-producto-lote{grid-column:span 2 !important}
-  #pantalla-tienda .grid-productos .tarjeta-producto-lote .tarjeta-fondo{aspect-ratio:5/3}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote .tarjeta-fondo{min-height:250px !important}
+  #pantalla-tienda .grid-productos .tarjeta-info{padding-bottom:14px !important}
   #pantalla-tienda .grid-productos .tarjeta-nombre{font-size:13px !important;font-weight:800 !important}
   #pantalla-tienda .grid-productos .tarjeta-precio-pen{font-size:14px !important}
   #pantalla-tienda .grid-productos .btn-agregar-icono{width:32px !important;height:32px !important;font-size:18px !important}
