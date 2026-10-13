@@ -578,6 +578,8 @@ html.claro #id-cliente-header:hover{color:#2e1065}
 }
 .lx-av{overflow:hidden}
 .lx-av img{width:100%;height:100%;object-fit:cover;display:block}
+.lx-avatar{overflow:hidden}
+.lx-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 
 </head>
@@ -1358,7 +1360,16 @@ function crearTarjeta(r, idx) {
       <button class="lx-like" type="button">
         <span class="material-symbols-rounded">favorite</span><span class="n"></span>
       </button>`;
-    foot.querySelector('.lx-avatar').textContent = r.nombre[0].toUpperCase();
+    const av = foot.querySelector('.lx-avatar');
+    if (r.avatar && /^data:image\/jpeg;base64,/.test(r.avatar)) {
+      const im = document.createElement('img');
+      im.src = r.avatar;
+      im.alt = '';
+      im.onerror = () => { av.textContent = r.nombre[0].toUpperCase(); };
+      av.appendChild(im);
+    } else {
+      av.textContent = r.nombre[0].toUpperCase();
+    }
     foot.querySelector('b').textContent = r.nombre;
     foot.querySelector('.lx-time').textContent = hace(r.fecha);
 
