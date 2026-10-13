@@ -640,9 +640,10 @@ html.claro #pantalla-tienda .id-cliente-header{color:#2e1065 !important;backgrou
     display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:16px !important;
   }
   #pantalla-tienda .grid-productos .tarjeta-producto{height:auto !important;min-height:0 !important;border-radius:16px}
-  #pantalla-tienda .grid-productos .tarjeta-producto{aspect-ratio:auto !important;height:240px !important;min-height:0 !important;max-height:none !important;border-radius:16px;overflow:hidden}
-  #pantalla-tienda .grid-productos .tarjeta-producto .tarjeta-fondo{aspect-ratio:auto !important;height:100% !important;min-height:0 !important;border-radius:16px}
-  #pantalla-tienda .grid-productos .tarjeta-producto-lote{grid-column:span 2 !important;height:264px !important}
+  #pantalla-tienda .grid-productos .tarjeta-producto:not(.tarjeta-estilo-pie){aspect-ratio:auto !important;height:240px !important;min-height:0 !important;max-height:none !important;border-radius:16px;overflow:hidden}
+  #pantalla-tienda .grid-productos .tarjeta-producto:not(.tarjeta-estilo-pie) .tarjeta-fondo{aspect-ratio:auto !important;height:100% !important;min-height:0 !important;border-radius:16px}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote{grid-column:span 2 !important}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote:not(.tarjeta-estilo-pie){height:264px !important}
   #pantalla-tienda .grid-productos .tarjeta-info{padding-bottom:14px !important}
   #pantalla-tienda .grid-productos .tarjeta-nombre{font-size:13px !important;font-weight:800 !important}
   #pantalla-tienda .grid-productos .tarjeta-precio-pen{font-size:14px !important}
@@ -695,17 +696,7 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
   background:rgba(124,58,237,.35) !important;
   color:#2e1065 !important;
 }
-/* Tarjetas con pie (V-Bucks y Crew): imagen de alto fijo y el pie con el precio visible */
-#pantalla-tienda .grid-productos .tarjeta-estilo-pie{
-  height:auto !important;
-  min-height:0 !important;
-  overflow:hidden;
-}
-#pantalla-tienda .grid-productos .tarjeta-estilo-pie .tarjeta-fondo{
-  height:190px !important;
-  min-height:0 !important;
-  aspect-ratio:auto !important;
-}
+
 </style>
 
 </head>
