@@ -1680,7 +1680,20 @@ if (sesion && sesion.exp && sesion.exp * 1000 < Date.now()) {
     } catch (e) {}
     pintar();
   }
-
+  function pintarAvatar(el) {
+    const letra = (sesion.nombre || '?')[0].toUpperCase();
+    let f = '';
+    try { f = localStorage.getItem('cachina_foto_' + (sesion.email || sesion.nombre || 'x').toLowerCase()) || ''; } catch (e) {}
+    el.textContent = '';
+    if (f && /^(data:image\/|https:\/\/)/.test(f)) {
+      const im = document.createElement('img');
+      im.src = f; im.alt = '';
+      im.onerror = () => { el.textContent = letra; };
+      el.appendChild(im);
+    } else {
+      el.textContent = letra;
+    }
+  }
   // ---------- Pintar interfaz ----------
   function pintar() {
     // Barra de la bienvenida
@@ -1688,7 +1701,7 @@ if (sesion && sesion.exp && sesion.exp * 1000 < Date.now()) {
       if (sesion) {
         btnEntrar.style.display = 'none';
         cuentaEl.hidden = false;
-        $('lx-av').textContent = (sesion.nombre || '?')[0].toUpperCase();
+        pintarAvatar($('lx-av'));
         $('lx-nom').textContent = sesion.nombre || '';
         $('lx-menu-nombre').textContent = sesion.nombre || '';
         $('lx-menu-email').textContent = sesion.email || '';
@@ -1704,7 +1717,7 @@ if (tBtn && tCuenta) {
   if (sesion) {
     tBtn.style.display = 'none';
     tCuenta.hidden = false;
-    $('t-av').textContent = (sesion.nombre || '?')[0].toUpperCase();
+    pintarAvatar($('t-av'));
     $('t-nom').textContent = sesion.nombre || '';
     $('t-menu-nombre').textContent = sesion.nombre || '';
     $('t-menu-email').textContent = sesion.email || '';
