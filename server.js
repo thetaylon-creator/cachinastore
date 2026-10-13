@@ -496,8 +496,8 @@ async function ensureGoogleYResenasTables() {
       ultimo_acceso TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
+  await pool.query(`ALTER TABLE google_users ADD COLUMN IF NOT EXISTS foto TEXT;`);
   await pool.query(`
-    await pool.query(`ALTER TABLE google_users ADD COLUMN IF NOT EXISTS foto TEXT;`);
     CREATE TABLE IF NOT EXISTS resenas (
       id SERIAL PRIMARY KEY,
       nombre VARCHAR(30) NOT NULL,
