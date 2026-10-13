@@ -241,6 +241,22 @@ html.claro{--bg-main:#d8cbee;--card:#efe8fa;--border-color:rgba(76,29,149,.22);-
 .cr-zoom{width:100%;accent-color:#7c3aed}
 .cr-acc{display:flex;gap:10px;width:100%;justify-content:flex-end}
 .cr-acc .ct-btn-pri{border:0;cursor:pointer;height:40px}
+/* Sin selección azul ni resaltado al tocar */
+html,body{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+*{-webkit-tap-highlight-color:transparent}
+img{-webkit-user-drag:none;user-drag:none}
+button,a,summary,[role=button]{outline:none}
+
+/* El campo para editar el nombre y las cajas de texto sí deben poder seleccionarse */
+input,textarea{
+  -webkit-user-select:text;
+  user-select:text;
+}
 </style>
 </head>
 <body>
