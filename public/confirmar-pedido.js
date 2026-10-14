@@ -220,19 +220,36 @@ el.inputArchivo.addEventListener('change', async () => {
   }
   window.mostrarPedidoCreado = mostrarExito;
 
-  // ---------- Crear pedido en el servidor ----------
   function comprimirImagen(archivo) {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(archivo);
       const im = new Image();
       im.onload = () => {
-        const escala = Math.min(1, 1000 / Math.max(im.width, im.height));
-        const c = document.createElement('canvas');
-        c.width = Math.round(im.width * escala);
-        c.height = Math.round(im.height * escala);
-        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-        URL.revokeObjectURL(url);
-        resolve(c.toDataURL('image/jpeg', 0.75));
+        try {
+          const escala = Math.min(1, 1000 / Math.max(im.width, im.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(im.width * escala);
+          c.height = Math.round(im.height * escala);
+          const ctx = c.getContext('2d');
+          // Fondo blanco: sin esto, lo transparente se guarda como negro
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(im, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+
+          // Si la imagen salió completamente negra, se rechaza para no enviar un comprobante vacío
+          const px = ctx.getImageData(0, 0, c.width, c.height).data;
+          let hayLuz = false;
+          for (let i = 0; i < px.length; i += 200) {
+            if (px[i] + px[i + 1] + px[i + 2] > 60) { hayLuz = true; break; }
+          }
+          if (!hayLuz) { reject(new Error('negra')); return; }
+
+          resolve(c.toDataURL('image/jpeg', 0.75));
+        } catch (e) {
+          URL.revokeObjectURL(url);
+          reject(e);
+        }
       };
       im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagen')); };
       im.src = url;
