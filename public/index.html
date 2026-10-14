@@ -2273,8 +2273,38 @@ guardarSesion({ token: d.token, nombre: d.nombre, email: d.email || '', exp: d.e
   <span class="material-symbols-rounded">keyboard_arrow_up</span>
 </button>
 <!-- EL JS SIEMPRE DEBE IR AL FINAL DE TODO DEBAJO DE LOS MODALES -->
-<script src="script.js"></script>
-<script src="confirmar-pedido.js"></script>
+<script>
+// Nunca abrir WhatsApp automáticamente: solo con el botón "Abrir WhatsApp con mi pedido"
+(function () {
+  const abrirOriginal = window.open;
+  window.open = function (url) {
+    if (String(url || '').includes('wa.me')) return null;
+    return abrirOriginal.apply(this, arguments);
+  };
+})();
+</script>
+<script>
+// Si publicas una versión nueva, la pestaña se actualiza sola al volver a ella
+(function () {
+  let actual = null;
+  async function version() {
+    try {
+      const r = await fetch('/api/version', { cache: 'no-store' });
+      const d = await r.json();
+      return d.v;
+    } catch (e) { return null; }
+  }
+  version().then(v => { actual = v; });
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden || !actual) return;
+    if (document.getElementById('modal-pago')?.classList.contains('mostrar')) return;
+    const nueva = await version();
+    if (nueva && nueva !== actual) location.reload();
+  });
+})();
+</script>
+<script src="script.js?v=2"></script>
+<script src="confirmar-pedido.js?v=2"></script>
 
   
 </body>
