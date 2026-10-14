@@ -944,6 +944,12 @@ app.get('/api/version', (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   res.json({ v: BUILD_ID });
 });
+// Evita que un error en la base de datos tumbe todo el servidor
+process.on('unhandledRejection', (err) => console.error('[unhandledRejection]', err));
+process.on('uncaughtException', (err) => console.error('[uncaughtException]', err));
+
+// Ruta liviana para mantener el servicio despierto
+app.get('/health', (req, res) => res.send('ok'));
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Panel admin en http://localhost:${PORT}/admin.html`);
