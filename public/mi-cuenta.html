@@ -824,7 +824,7 @@ const RS_MAX = 4;
         const c = document.createElement('canvas');
         c.width = Math.round(im.width * escala);
         c.height = Math.round(im.height * escala);
-        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(im, 0, 0, c.width, c.height);
         URL.revokeObjectURL(url);
         resolve(c.toDataURL('image/jpeg', 0.7));
       };
