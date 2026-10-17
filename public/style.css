@@ -2275,3 +2275,18 @@ body .lx-title {
   color: #f8f1e3 !important;
   -webkit-text-fill-color: #f8f1e3 !important;
 }
+
+/* Modo claro: el carrito del header pasa a morado oscuro para que se vea */
+html.claro body #btn-carrito,
+html.claro body .btn-carrito {
+  color: #4c1d95 !important;
+}
+html.claro body #btn-carrito:hover,
+html.claro body .btn-carrito:hover {
+  background: rgba(76, 29, 149, 0.12) !important;
+}
+html.claro body #btn-carrito .material-symbols-rounded,
+html.claro body .btn-carrito .material-symbols-rounded {
+  color: #4c1d95 !important;
+  text-shadow: none;
+}
