@@ -293,7 +293,7 @@ style.textContent = `
     .panel-filtros::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,0.5); }
     .panel-filtros .item-filtro{
       list-style:none; padding:6px 12px; margin:2px 0;
-      color:var(--text-muted); font-family:'Orbitron','Segoe UI',sans-serif;
+color:var(--text-muted); font-family:'Poppins',system-ui,sans-serif;
       font-weight:500; font-size:0.76rem;
       letter-spacing:0.2px; text-transform:none;
       border-radius:8px; cursor:pointer; transition:color .15s, background .15s, font-weight .15s;
