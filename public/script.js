@@ -2098,3 +2098,13 @@ document.querySelector('#pantalla-tienda .logo-header')?.addEventListener('click
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   revisar();
 })();
+// Evita que la dirección termine en "#" al tocar enlaces con href="#"
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href="#"]');
+  if (a) e.preventDefault();
+});
+
+// Si ya llegó con "#" al cargar, lo quita de la dirección
+if (location.hash === '#' || location.href.endsWith('#')) {
+  history.replaceState(null, '', location.pathname + location.search);
+}
