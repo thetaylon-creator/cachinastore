@@ -2266,3 +2266,12 @@ body .btn-carrito .material-symbols-rounded {
 
 /* Precio del cosmético en el carrito: blanco */
 .panel-carrito .item-info .precio-item { color: #ffffff; }
+
+/* Título de bienvenida "CACHINA STORE": blanco cremoso */
+body .lx-title {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  color: #f8f1e3 !important;
+  -webkit-text-fill-color: #f8f1e3 !important;
+}
