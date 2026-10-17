@@ -114,7 +114,7 @@ function construirMensajePedido() {
 }
 
 function enviarPedidoWhatsApp() {
-  const numeroTelefono = '51969639154';
+const numeroTelefono = '51916236634';
   const mensaje = construirMensajePedido();
   const url = `https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
