@@ -2204,3 +2204,9 @@ body .modal-bots-card.oculto:not(.mostrar) {
 html, body, button, input, textarea, select {
   font-family: 'Poppins', system-ui, sans-serif;
 }
+
+/* Carrito: fondo violeta eléctrico */
+.panel-carrito { background: linear-gradient(180deg, #5b21b6 0%, #33126b 100%); }
+#items-carrito { background: rgba(255,255,255,0.07); }
+.item-cart { background: rgba(255,255,255,0.10); }
+.carrito-header, .moneda-info, .carrito-footer { border-color: rgba(255,255,255,0.13); }
