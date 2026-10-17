@@ -200,7 +200,7 @@ el.inputArchivo.addEventListener('change', async () => {
     el.btnFinalizar.disabled = false;
   } catch (e) {
     limpiarComprobante();
-    alert('No pudimos leer esa imagen. Toma una captura de pantalla del comprobante y súbela.');
+    alert('No pudimos leer esa imagen (puede pasar en algunos navegadores como Opera). Toma una captura de pantalla del comprobante y súbela, o prueba con otro navegador como Chrome.');
   }
 });
 
@@ -220,40 +220,57 @@ el.inputArchivo.addEventListener('change', async () => {
   }
   window.mostrarPedidoCreado = mostrarExito;
 
-  function comprimirImagen(archivo) {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(archivo);
+  // Dibuja la imagen en un canvas y devuelve { c, ctx }
+  function dibujarEnCanvas(fuente, ancho, alto) {
+    const escala = Math.min(1, 1000 / Math.max(ancho, alto));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(ancho * escala));
+    c.height = Math.max(1, Math.round(alto * escala));
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    // Fondo blanco: sin esto, lo transparente se guarda como negro
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(fuente, 0, 0, c.width, c.height);
+    return { c, ctx };
+  }
+
+  // Revisa si el canvas quedó TODO blanco o TODO negro (imagen vacía).
+  // Pasa en algunos navegadores (ej. Opera) cuando el dibujo falla sin dar error.
+  function canvasVacio(c, ctx) {
+    const px = ctx.getImageData(0, 0, c.width, c.height).data;
+    let hayClaro = false, hayOscuro = false;
+    for (let i = 0; i < px.length; i += 16) {
+      const suma = px[i] + px[i + 1] + px[i + 2];
+      if (suma < 720) hayOscuro = true;   // algo que no es blanco puro
+      if (suma > 60) hayClaro = true;     // algo que no es negro puro
+      if (hayOscuro && hayClaro) return false;
+    }
+    return true;
+  }
+
+  async function comprimirImagen(archivo) {
+    const url = URL.createObjectURL(archivo);
+    try {
+      // Intento 1: con <img>, esperando a que termine de decodificar
       const im = new Image();
-      im.onload = () => {
-        try {
-          const escala = Math.min(1, 1000 / Math.max(im.width, im.height));
-          const c = document.createElement('canvas');
-          c.width = Math.round(im.width * escala);
-          c.height = Math.round(im.height * escala);
-          const ctx = c.getContext('2d');
-          // Fondo blanco: sin esto, lo transparente se guarda como negro
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, c.width, c.height);
-          ctx.drawImage(im, 0, 0, c.width, c.height);
-          URL.revokeObjectURL(url);
+      await new Promise((ok, mal) => { im.onload = ok; im.onerror = () => mal(new Error('imagen')); im.src = url; });
+      if (im.decode) { try { await im.decode(); } catch (_) {} }
+      let r = dibujarEnCanvas(im, im.naturalWidth || im.width, im.naturalHeight || im.height);
+      if (!canvasVacio(r.c, r.ctx)) return r.c.toDataURL('image/jpeg', 0.75);
 
-          // Si la imagen salió completamente negra, se rechaza para no enviar un comprobante vacío
-          const px = ctx.getImageData(0, 0, c.width, c.height).data;
-          let hayLuz = false;
-          for (let i = 0; i < px.length; i += 200) {
-            if (px[i] + px[i + 1] + px[i + 2] > 60) { hayLuz = true; break; }
-          }
-          if (!hayLuz) { reject(new Error('negra')); return; }
+      // Intento 2: con createImageBitmap (otro método de decodificación)
+      if (window.createImageBitmap) {
+        const bmp = await createImageBitmap(archivo);
+        r = dibujarEnCanvas(bmp, bmp.width, bmp.height);
+        if (bmp.close) bmp.close();
+        if (!canvasVacio(r.c, r.ctx)) return r.c.toDataURL('image/jpeg', 0.75);
+      }
 
-          resolve(c.toDataURL('image/jpeg', 0.75));
-        } catch (e) {
-          URL.revokeObjectURL(url);
-          reject(e);
-        }
-      };
-      im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagen')); };
-      im.src = url;
-    });
+      // Sigue vacía: se rechaza para no enviar un comprobante en blanco
+      throw new Error('vacia');
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   }
 
   // Si la sesión se perdió, abre el login de Google y reintenta el pedido solo.
