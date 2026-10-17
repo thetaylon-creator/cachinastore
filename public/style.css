@@ -2244,3 +2244,25 @@ body .btn-carrito .material-symbols-rounded {
 }
 .panel-carrito .carrito-body label { color: #e2d9fa; }
 .panel-carrito .btn-cerrar-modal { background: rgba(255,255,255,0.14); }
+
+/* Ícono del título "Carrito" con el mismo dibujo del botón del header */
+.carrito-titulo > :not(h2) { display: none !important; }
+.carrito-titulo::before {
+  content: 'shopping_cart';
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  color: #c4b5fd;
+  text-shadow: -1px 0 rgba(255, 70, 200, 0.55), 1px 0 rgba(70, 150, 255, 0.55);
+}
+
+/* Precio del cosmético en el carrito: blanco */
+.panel-carrito .item-info .precio-item { color: #ffffff; }
