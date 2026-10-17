@@ -312,7 +312,7 @@ const comprobante = sinComp ? null : comprobanteListo;
       if (!resp.ok) throw new Error(d.error || 'No se pudo crear el pedido.');
 
       window.ticketPedidoActual = d.ticket;
-      const urlWA = 'https://wa.me/51969639154?text=' +
+      const urlWA = 'https://wa.me/51916236634?text=' +
         encodeURIComponent(window.construirMensajePedido());
       window.urlWhatsAppPedido = urlWA;
 
