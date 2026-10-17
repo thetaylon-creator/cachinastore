@@ -25,6 +25,10 @@ button.ok{background:#16a34a}button.ent{background:#2563eb}button.no{background:
 button.del{background:none;border:1px solid rgba(248,113,113,.45);color:#f87171;padding:6px 8px;line-height:0;border-radius:8px}
 button.del:hover{background:#dc2626;color:#fff}
 button.del svg{width:18px;height:18px}
+button.cop{background:none;border:1px solid rgba(167,139,250,.5);color:#c4b5fd;padding:5px 7px;line-height:0;border-radius:8px;margin-left:8px;vertical-align:middle}
+button.cop:hover{background:rgba(167,139,250,.2);color:#fff}
+button.cop.copiado{background:#16a34a;border-color:#16a34a;color:#fff}
+button.cop svg{width:16px;height:16px}
 #visor{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
 #visor img{max-width:100%;max-height:100%;border-radius:10px}
 </style>
@@ -54,12 +58,29 @@ button.del svg{width:18px;height:18px}
   let pedidos = [];
   $('clave').value = clave;
   const ET = { verificando: 'VERIFICANDO', aprobado: 'APROBADO', entregado: 'ENTREGADO', no_confirmado: 'NO CONFIRMADO' };
+  const ICONO_COPIAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+  const ICONO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   function el(tag, cls, texto) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
     if (texto !== undefined) e.textContent = texto;
     return e;
+  }
+
+  async function copiarTexto(texto) {
+    try {
+      await navigator.clipboard.writeText(texto);
+    } catch (e) {
+      const t = document.createElement('textarea');
+      t.value = texto;
+      t.style.position = 'fixed';
+      t.style.opacity = '0';
+      document.body.appendChild(t);
+      t.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      t.remove();
+    }
   }
 
   async function api(url, opts) {
@@ -117,7 +138,18 @@ button.del svg{width:18px;height:18px}
 
       const top = el('div', 'top');
       const izq = el('div');
-      izq.append(el('span', 'tk', p.ticket), el('span', 'est ' + p.estado, ET[p.estado] || p.estado));
+      const bCop = el('button', 'cop');
+      bCop.type = 'button';
+      bCop.title = 'Copiar ' + p.ticket;
+      bCop.setAttribute('aria-label', 'Copiar ' + p.ticket);
+      bCop.innerHTML = ICONO_COPIAR;
+      bCop.addEventListener('click', async () => {
+        await copiarTexto(String(p.ticket));
+        bCop.classList.add('copiado');
+        bCop.innerHTML = ICONO_OK;
+        setTimeout(() => { bCop.classList.remove('copiado'); bCop.innerHTML = ICONO_COPIAR; }, 1200);
+      });
+      izq.append(el('span', 'tk', p.ticket), bCop, el('span', 'est ' + p.estado, ET[p.estado] || p.estado));
       const der = el('div', 'der');
       const bDel = el('button', 'del');
       bDel.type = 'button';
