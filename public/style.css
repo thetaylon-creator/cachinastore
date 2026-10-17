@@ -2232,3 +2232,15 @@ body .btn-carrito .material-symbols-rounded {
   color: #c4b5fd !important;
   text-shadow: -1px 0 rgba(255, 70, 200, 0.55), 1px 0 rgba(70, 150, 255, 0.55);
 }
+
+/* Carrito violeta: que todo combine y se lea mejor */
+.panel-carrito .moneda-info { color: #d4c8f5; }
+.panel-carrito .usuario-seccion { background: rgba(255,255,255,0.07); color: #e2d9fa; }
+.panel-carrito .carrito-body input,
+.panel-carrito .cupo-box input {
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  color: #fff !important;
+}
+.panel-carrito .carrito-body label { color: #e2d9fa; }
+.panel-carrito .btn-cerrar-modal { background: rgba(255,255,255,0.14); }
