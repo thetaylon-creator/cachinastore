@@ -897,7 +897,9 @@ const INFO_PRODUCTOS = {
   "Pack de inicio Ruptura de la computadora central": "ⓘ Necesitamos acceso a tu cuenta.\n\nZoe Clash y el Sargento Shiba están dispuestos a cambiar los protocolos a su favor. ¡Asegúrate de tenerlos de tu parte con el pack de Ruptura de la computadora central! Incluye:\n• 800 paVos\n• Traje de Zoe Clash (con estilo LEGO®)\n• Accesorio mochilero Sargento Shiba\n• Pico Bip y Bop\n• Envoltorio Locura de calcomanía",
   "Pack de misiones de Conejita momia": "ⓘ Necesitamos acceso a tu cuenta.",
   "Paquete Día del Juicio": "ⓘ Necesitamos acceso a tu cuenta."
+  "Paquete Leyendas de anime": "ⓘ Necesitamos acceso a tu cuenta."
 };
+
 
 function inyectarEstilosInfoProducto() {
   if (document.getElementById('estilos-info-producto')) return;
@@ -1250,8 +1252,8 @@ function obtenerProductosCrew() {
     { nombre: "Paquete de inicio Operación brillante", pavos: 0, precioSoles: "12.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202402/2900/956432d0b4111afdb63eb5a14fe11ad7bd315574991d888e.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pack de inicio Ruptura de la computadora central", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/0519/d32425b9677f8c27d8ec373b562c32be36b436f0a425165b.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pack de misiones de Conejita momia", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202609/1617/7a20d96cae58427e03fe0c57de32f5197a5958c8bad3181a.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "Paquete Día del Juicio", pavos: 0, precioSoles: "42.90", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/2115/560872b7c22311dc2b073c0713635343d8e78a2660d8756f.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
-  ];
+{ nombre: "Paquete Día del Juicio", pavos: 0, precioSoles: "39.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/2115/560872b7c22311dc2b073c0713635343d8e78a2660d8756f.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
+    { nombre: "Paquete Leyendas de anime", pavos: 0, precioSoles: "43.00", imagen: "anime-legends.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
 }
 
 // Animación: el carrito vibra de lado a lado al agregar un producto
