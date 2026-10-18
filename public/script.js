@@ -173,6 +173,7 @@ async function obtenerTiendaFortnite(silencioso = false) {
       renderizarProductos(productosGlobales);
       generarMenuFiltros(window._ordenSeccionesActual || []);
       inicializarBuscador();
+      cargarMasVendidos();
       requestAnimationFrame(() => {
         actualizarAlturaCabecera();
         if (silencioso) window.scrollTo(0, scrollPrevio);
@@ -2122,4 +2123,61 @@ document.addEventListener('click', (e) => {
 // Si ya llegó con "#" al cargar, lo quita de la dirección
 if (location.hash === '#' || location.href.endsWith('#')) {
   history.replaceState(null, '', location.pathname + location.search);
+}
+const ICONO_FUEGO = '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.5c.6 3.2-1.6 4.6-3.2 6.7C7.3 11 6.5 12.6 6.5 14.5a5.5 5.5 0 0 0 11 0c0-1.9-.8-3.4-1.9-4.7-.3 1.2-.9 2-1.8 2.4.5-3-.5-6.6-1.8-9.7z"/><path d="M12 18.5a2.2 2.2 0 0 0 2.2-2.2c0-1.2-.8-1.9-1.4-2.7-.3.6-.7.9-1.2 1.1-.6.5-1.8 1-1.8 1.6A2.2 2.2 0 0 0 12 18.5z"/></svg>';
+
+async function cargarMasVendidos() {
+  const caja = document.getElementById('mas-vendidos');
+  const lista = document.getElementById('mv-lista');
+  if (!caja || !lista) return;
+  try {
+    const r = await fetch(`${API_URL}/api/mas-vendidos`, { cache: 'no-store' });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const botones = Array.from(document.querySelectorAll('#contenedor-productos .btn-agregar'))
+      .filter(b => !b.closest('.tarjeta-estilo-pie'));
+    console.log('Más vendidos:', (d.items || []).map(i => i.nombre), '| tarjetas en tienda:', botones.length);
+    lista.innerHTML = '';
+    let n = 0;
+    for (const it of (d.items || [])) {
+      const btn = botones.find(b => b.getAttribute('data-nombre') === it.nombre);
+      if (!btn) continue;
+      const precio = btn.getAttribute('data-precio');
+      const imagen = btn.getAttribute('data-imagen');
+
+      const card = document.createElement('article');
+      card.className = 'mv-card';
+      const art = document.createElement('div');
+      art.className = 'mv-art';
+      const img = document.createElement('img');
+      img.src = imagen; img.alt = it.nombre; img.loading = 'lazy';
+      art.appendChild(img);
+      if (n === 0) {
+        const f = document.createElement('span');
+        f.className = 'mv-fire';
+        f.innerHTML = ICONO_FUEGO;
+        art.appendChild(f);
+      }
+      const nom = document.createElement('div');
+      nom.className = 'mv-nom';
+      nom.textContent = it.nombre;
+      const pie = document.createElement('div');
+      pie.className = 'mv-pie';
+      const pr = document.createElement('span');
+      pr.className = 'mv-precio';
+      pr.textContent = 'S/ ' + parseFloat(precio).toFixed(2);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mv-btn';
+      b.textContent = 'Comprar';
+      b.addEventListener('click', () => agregarAlCarrito(it.nombre, precio, imagen));
+      pie.append(pr, b);
+      card.append(art, nom, pie);
+      lista.appendChild(card);
+      if (++n >= 4) break;
+    }
+    caja.hidden = n === 0;
+  } catch (e) {
+    caja.hidden = true;
+  }
 }
