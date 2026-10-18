@@ -977,7 +977,7 @@ app.get('/api/mas-vendidos', async (req, res) => {
          AND i->>'nombre' NOT LIKE 'Club - %'
        GROUP BY i->>'nombre'
        ORDER BY cantidad DESC, nombre ASC
-       LIMIT 12`,
+       LIMIT 40`,
       [String(DIAS_MAS_VENDIDOS)]
     );
     res.setHeader('Cache-Control', 'public, max-age=300');
