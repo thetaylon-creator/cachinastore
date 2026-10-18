@@ -2301,3 +2301,22 @@ html.claro body .btn-carrito .material-symbols-rounded {
 .seccion-titulo {
   border-left-color: transparent !important;
 }
+/* ===== LO MÁS VENDIDO (morado neón) ===== */
+.mv-seccion[hidden]{display:none}
+.mv-seccion{margin-bottom:40px;padding:20px;border-radius:22px;border:1px solid rgba(180,76,255,.6);background:linear-gradient(160deg,rgba(60,20,110,.45),rgba(15,8,35,.9));box-shadow:0 0 22px rgba(168,85,247,.35),0 0 60px rgba(124,58,237,.25),inset 0 0 30px rgba(168,85,247,.12)}
+.mv-head{display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid rgba(180,76,255,.45);margin-bottom:18px}
+.mv-bar{width:5px;height:28px;border-radius:3px;background:#b44cff;box-shadow:0 0 12px #b44cff}
+.mv-fl{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(180,76,255,.18);box-shadow:0 0 14px rgba(180,76,255,.7)}
+.mv-fl svg,.mv-fire svg{fill:none;stroke:#c084fc;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;transform:scaleX(1.18);filter:drop-shadow(0 0 3px #a855f7) drop-shadow(0 0 8px #7c3aed)}
+.mv-titulo{margin:0;font-size:22px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#e9d5ff;text-shadow:0 0 6px #c084fc,0 0 16px #a855f7,0 0 34px #7c3aed}
+.mv-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.mv-card{border-radius:18px;overflow:hidden;background:#120a28;border:1.5px solid #b44cff;box-shadow:0 0 14px rgba(180,76,255,.7),0 0 38px rgba(124,58,237,.5)}
+.mv-art{position:relative;height:170px;background:linear-gradient(160deg,#4c1d95,#1a0b38);display:grid;place-items:center}
+.mv-art img{max-width:100%;max-height:100%;object-fit:contain}
+.mv-fire{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(20,8,40,.85);border:1px solid #b44cff}
+.mv-fire svg{width:18px;height:18px}
+.mv-nom{padding:10px 12px 0;font-weight:700;font-size:14px;color:#fff}
+.mv-pie{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 12px}
+.mv-precio{color:#d8b4fe;font-weight:800;font-size:17px;text-shadow:0 0 10px rgba(192,132,252,.7)}
+.mv-btn{border:0;cursor:pointer;color:#fff;font-weight:700;font-size:13px;padding:9px 14px;border-radius:10px;background:linear-gradient(135deg,#a855f7,#6d28d9);box-shadow:0 0 14px rgba(168,85,247,.8);font-family:inherit}
+.mv-btn:hover{box-shadow:0 0 22px rgba(192,132,252,1)}
