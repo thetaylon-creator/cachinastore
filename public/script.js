@@ -577,10 +577,18 @@ function renderizarProductos(entries) {
 console.log('Entradas marcadas como redundantes:', 
   Array.from(bundlesRedundantes).map(e => obtenerNombreTemporal(e))
 );
-
+// Detecta productos "nuevos": los que entraron en la última actualización de la tienda (7 pm)
+const fechasIn = entries.map(e => e.inDate ? new Date(e.inDate).getTime() : 0).filter(Boolean);
+const maxIn = fechasIn.length ? Math.max(...fechasIn) : 0;
+const VENTANA_NUEVO_MS = 12 * 60 * 60 * 1000; // 12 horas
+function esEntryNuevo(entry) {
+  return !!(maxIn && entry.inDate && new Date(entry.inDate).getTime() >= maxIn - VENTANA_NUEVO_MS);
+}
 entries.forEach(entry => {
   if (bundlesRedundantes.has(entry)) return; // <-- AQUÍ, en este forEach
+  
     const seccionNombre = obtenerNombreSeccion(entry).trim();
+  if (seccionNombre === 'Más artículos') return;
     const item = (entry.brItems && entry.brItems[0]) ||
                  (entry.tracks && entry.tracks[0]) ||
                  (entry.instruments && entry.instruments[0]) ||
@@ -653,7 +661,7 @@ const esLote = /^lote\b/i.test(nombre);
 
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, esSkin, artistaProducto, fondoReal });
+    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, esSkin, artistaProducto, fondoReal, nuevo: esEntryNuevo(entry) });
   });
   // ==========================================
   // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
@@ -702,7 +710,11 @@ cajonesGenericos.forEach(cajon => {
   const normales = todasLasSecciones.filter(n => !esPistas(n) && !esMasArticulos(n));
   const masArticulos = todasLasSecciones.filter(esMasArticulos);
   const pistas = todasLasSecciones.filter(esPistas);
-    const ordenSecciones = [...normales, ...masArticulos, ...pistas];
+// Las secciones con productos nuevos van primero; el resto queda en su orden normal
+const nuevas = normales.filter(n => (seccionesMapa.get(n) || []).some(p => p.nuevo));
+const resto = normales.filter(n => !nuevas.includes(n));
+console.log('Secciones nuevas:', nuevas);
+const ordenSecciones = [...nuevas, ...resto, ...masArticulos, ...pistas];
 
   // Se agregan al final, igual que en la tienda de referencia.
   seccionesMapa.set('V-Bucks', obtenerProductosVBucks());
@@ -896,7 +908,7 @@ const INFO_PRODUCTOS = {
   "Paquete de inicio Operación brillante": "ⓘ Necesitamos acceso a tu cuenta.",
   "Pack de inicio Ruptura de la computadora central": "ⓘ Necesitamos acceso a tu cuenta.\n\nZoe Clash y el Sargento Shiba están dispuestos a cambiar los protocolos a su favor. ¡Asegúrate de tenerlos de tu parte con el pack de Ruptura de la computadora central! Incluye:\n• 800 paVos\n• Traje de Zoe Clash (con estilo LEGO®)\n• Accesorio mochilero Sargento Shiba\n• Pico Bip y Bop\n• Envoltorio Locura de calcomanía",
   "Pack de misiones de Conejita momia": "ⓘ Necesitamos acceso a tu cuenta.",
-  "Paquete Día del Juicio": "ⓘ Necesitamos acceso a tu cuenta."
+  "Paquete Día del Juicio": "ⓘ Necesitamos acceso a tu cuenta.",
   "Paquete Leyendas de anime": "ⓘ Necesitamos acceso a tu cuenta."
 };
 
@@ -1254,6 +1266,7 @@ function obtenerProductosCrew() {
     { nombre: "Pack de misiones de Conejita momia", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202609/1617/7a20d96cae58427e03fe0c57de32f5197a5958c8bad3181a.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
 { nombre: "Paquete Día del Juicio", pavos: 0, precioSoles: "39.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/2115/560872b7c22311dc2b073c0713635343d8e78a2660d8756f.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Paquete Leyendas de anime", pavos: 0, precioSoles: "43.00", imagen: "anime-legends.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+      ];
 }
 
 // Animación: el carrito vibra de lado a lado al agregar un producto
