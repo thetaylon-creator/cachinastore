@@ -963,6 +963,30 @@ app.post('/api/mis-avisos/vistos', requireGoogle, async (req, res) => {
     res.status(500).json({ error: 'No se pudo actualizar.' });
   }
 });
+// ============ LO MÁS VENDIDO (según pedidos de los clientes) ============
+const DIAS_MAS_VENDIDOS = 14; // cuántos días hacia atrás se cuentan los pedidos
+
+app.get('/api/mas-vendidos', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT i->>'nombre' AS nombre, COUNT(*)::int AS cantidad
+       FROM pedidos p, jsonb_array_elements(p.items) AS i
+       WHERE p.estado IN ('aprobado', 'entregado')
+         AND p.fecha > now() - ($1 || ' days')::interval
+         AND COALESCE(i->>'nombre', '') <> ''
+         AND i->>'nombre' NOT LIKE 'Club - %'
+       GROUP BY i->>'nombre'
+       ORDER BY cantidad DESC, nombre ASC
+       LIMIT 12`,
+      [String(DIAS_MAS_VENDIDOS)]
+    );
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.json({ items: rows });
+  } catch (err) {
+    console.error('[mas-vendidos] Error:', err);
+    res.status(500).json({ error: 'No se pudo cargar lo más vendido.' });
+  }
+});
 // Identificador de la versión publicada (cambia en cada deploy de Render)
 const BUILD_ID = process.env.RENDER_GIT_COMMIT || String(Date.now());
 app.get('/api/version', (req, res) => {
