@@ -20,7 +20,24 @@ const STATE_FILE = path.join(__dirname, 'data', 'shop-state.json');
 app.set('trust proxy', 1); // para detectar la IP real detrás de Render
 app.use(cors());
 app.use(express.json({ limit: '6mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+// Compresión de respuestas (ahorra ancho de banda). Si el paquete no está instalado, el servidor sigue funcionando.
+try {
+  const compression = require('compression');
+  app.use(compression());
+} catch (e) {
+  console.warn('[compression] Paquete no instalado: ejecuta "npm install compression" para ahorrar ancho de banda.');
+}
+
+// Archivos estáticos: las imágenes se guardan 7 días en el navegador; HTML/JS/CSS se revalidan (llegan solo si cambiaron)
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (/\.(png|jpe?g|webp|gif|svg|ico|woff2?)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // Rutas de login/registro con ID + PIN
 const authRoutes = require('./auth');
@@ -382,7 +399,12 @@ async function actualizarTienda() {
     // Solo reemplaza el caché si la respuesta trae productos de verdad
     if (!json?.data?.entries?.length) throw new Error('Respuesta sin productos');
 
+    // Si la tienda no cambió (mismo hash), no se vuelve a guardar en la base de datos: ahorra ancho de banda
+    const hashNuevo = json.data.hash;
+    const sinCambios = !!hashNuevo && hashNuevo === tiendaCache?.data?.hash;
     tiendaCache = json;
+    if (sinCambios) return;
+
     await pool.query(
       `INSERT INTO shop_cache (id, data, updated_at) VALUES (1, $1, now())
        ON CONFLICT (id) DO UPDATE SET data = $1, updated_at = now()`,
@@ -403,6 +425,8 @@ ensureShopTable()
 
 app.get('/api/shop', (req, res) => {
   if (!tiendaCache) return res.status(503).json({ error: 'Tienda no disponible aún' });
+  // no-cache = el navegador revisa con ETag y, si no cambió, recibe un 304 casi vacío
+  res.setHeader('Cache-Control', 'no-cache');
   res.json(tiendaCache);
 });
 
@@ -618,6 +642,7 @@ app.get('/api/resenas', async (req, res) => {
        ORDER BY r.fecha DESC LIMIT $1 OFFSET $2`,
       [limit + 1, offset]
     );
+    res.setHeader('Cache-Control', 'public, max-age=60');
     res.json({ resenas: rows.slice(0, limit), hayMas: rows.length > limit });
   } catch (err) {
     console.error('[resenas] Error listando:', err);
