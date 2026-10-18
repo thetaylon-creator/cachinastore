@@ -2311,8 +2311,8 @@ html.claro body .btn-carrito .material-symbols-rounded {
 .mv-titulo{margin:0;font-size:22px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#e9d5ff;text-shadow:0 0 6px #c084fc,0 0 16px #a855f7,0 0 34px #7c3aed}
 .mv-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
 .mv-card{border-radius:18px;overflow:hidden;background:#120a28;border:1.5px solid #b44cff;box-shadow:0 0 14px rgba(180,76,255,.7),0 0 38px rgba(124,58,237,.5)}
-.mv-art{position:relative;height:170px;background:linear-gradient(160deg,#4c1d95,#1a0b38);display:grid;place-items:center}
-.mv-art img{max-width:100%;max-height:100%;object-fit:contain}
+.mv-art{position:relative;height:170px;overflow:hidden;background:linear-gradient(160deg,#4c1d95,#1a0b38)}
+.mv-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom}
 .mv-fire{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(20,8,40,.85);border:1px solid #b44cff}
 .mv-fire svg{width:18px;height:18px}
 .mv-nom{padding:10px 12px 0;font-weight:700;font-size:14px;color:#fff}
