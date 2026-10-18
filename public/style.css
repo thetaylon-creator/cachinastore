@@ -2290,3 +2290,14 @@ html.claro body .btn-carrito .material-symbols-rounded {
   color: #4c1d95 !important;
   text-shadow: none;
 }
+
+/* Barra de color al lado del título de cada sección: mismo color en todas (malva) */
+#pantalla-tienda .seccion-titulo::before,
+.seccion-titulo::before {
+  background: #655778 !important;
+  box-shadow: 0 0 1px 1px #473172;
+}
+#pantalla-tienda .seccion-titulo,
+.seccion-titulo {
+  border-left-color: transparent !important;
+}
