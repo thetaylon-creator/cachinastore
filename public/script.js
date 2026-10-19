@@ -2253,5 +2253,15 @@ ic.src = 'https://epiclim.com/img/vbucks-96.webp';
     caja.hidden = true;
     quitarFiltro();
   }
+// Al recargar, siempre empieza arriba
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+  setTimeout(() => window.scrollTo(0, 0), 50);
+});
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) window.scrollTo(0, 0);
+});
   window.dispatchEvent(new Event('scroll'));
 }
