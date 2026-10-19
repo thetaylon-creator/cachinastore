@@ -1499,8 +1499,19 @@ function topTituloSeccion(sec) {
 function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
-  const posicion = topTituloSeccion(destino) + window.scrollY - offsetSecciones();
-  window.scrollTo({ top: Math.max(0, posicion), behavior: 'smooth' });
+
+  const calcular = () => topTituloSeccion(destino) + window.scrollY - offsetSecciones();
+  window.scrollTo({ top: Math.max(0, calcular()), behavior: 'smooth' });
+
+  // Cuando termina el scroll suave, corrige la diferencia por si algo cambió de tamaño
+  [700, 1300].forEach(ms => {
+    setTimeout(() => {
+      const error = topTituloSeccion(destino) - offsetSecciones();
+      if (Math.abs(error) > 3) {
+        window.scrollTo({ top: Math.max(0, window.scrollY + error), behavior: 'auto' });
+      }
+    }, ms);
+  });
 }
 
 function activarFiltroEnMenu(nombreSeccion) {
@@ -1574,7 +1585,9 @@ function iniciarScrollSpySecciones() {
     const visibles = secciones.filter(s => !s.hidden && s.offsetParent !== null);
     if (!visibles.length) return;
 
-    const linea = offsetSecciones() + 8;
+    // La sección pasa a activa cuando su título está a unos 60px debajo del header,
+    // así el nombre todavía se ve cuando el filtro cambia
+    const linea = offsetSecciones() + 60;
 
     let seccionActiva = visibles[0];
     for (const sec of visibles) {
@@ -1582,7 +1595,6 @@ function iniciarScrollSpySecciones() {
       else break;
     }
 
-    // Al llegar al final de la página, marca la última sección
     const alFinal = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
     if (alFinal) seccionActiva = visibles[visibles.length - 1];
 
