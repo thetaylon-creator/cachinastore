@@ -1628,9 +1628,9 @@ function iniciarScrollSpySecciones() {
     const visibles = secciones.filter(s => !s.hidden && s.offsetParent !== null);
     if (!visibles.length) return;
 
-    // La sección pasa a activa cuando su título está a unos 60px debajo del header,
-    // así el nombre todavía se ve cuando el filtro cambia
-    const linea = offsetSecciones() + 60;
+
+    // Cambia el filtro cuando el título ya llegó arriba, no antes
+    const linea = offsetSecciones() - 10;
 
     let seccionActiva = visibles[0];
     for (const sec of visibles) {
