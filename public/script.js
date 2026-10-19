@@ -839,6 +839,12 @@ function inicializarBuscador() {
     const buscando = palabras.length > 0;
     contenedor.classList.toggle('buscando', buscando);
 
+    // Oculta "Lo más vendido" mientras se busca
+    const mv = document.getElementById('seccion-lo-mas-vendido');
+    if (mv) mv.classList.toggle('busqueda-oculta', buscando);
+    const itemMv = document.querySelector('.item-filtro[data-seccion="Lo más vendido"]');
+    if (itemMv) itemMv.style.display = buscando ? 'none' : '';
+
     let hayResultados = false;
 
     contenedor.querySelectorAll('.seccion-tienda').forEach(seccion => {
