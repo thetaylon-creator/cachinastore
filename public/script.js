@@ -1533,6 +1533,7 @@ function irASeccion(nombreSeccion) {
   cancelarSalto();
   const miId = _saltoId;
   bloqueoScrollSpy = true;
+    actualizarFondoDinamico(nombreSeccion);
 
   const ir = () => {
     if (miId !== _saltoId) return;   // ya hay un salto más nuevo
