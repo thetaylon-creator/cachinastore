@@ -662,7 +662,7 @@ const esLote = /^lote\b/i.test(nombre);
 
 
     if (!seccionesMapa.has(seccionNombre)) seccionesMapa.set(seccionNombre, []);
-    seccionesMapa.get(seccionNombre).push({ nombre, pavos, precioSoles, imagen, expira, esLote, esSkin, artistaProducto, fondoReal, nuevo: esEntryNuevo(entry) });
+seccionesMapa.get(seccionNombre).push({ nombre, pavos, pavosRegular: entry.regularPrice || 0, precioSoles, imagen, expira, esLote, esSkin, artistaProducto, fondoReal, nuevo: esEntryNuevo(entry) });
   });
   // ==========================================
   // AGRUPAR ITEMS RELACIONADOS CON CADA ARTISTA/COLABORACIÓN
@@ -1007,6 +1007,11 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarMenu
 // Tarjeta normal + ícono "i" (si tiene descripción) + selector de meses (solo el Club)
 function crearTarjetaProducto(p, seccion) {
   const tarjeta = crearTarjetaHTML(p.nombre, p.pavos, p.precioSoles, p.imagen, seccion, p.expira, p.esLote, p.fondoReal);
+    const btnDatos = tarjeta.querySelector('.btn-agregar');
+  if (btnDatos) {
+    btnDatos.dataset.pavos = p.pavos || '';
+    btnDatos.dataset.pavosRegular = p.pavosRegular || '';
+  }
   const info = p.clubMeses ? INFO_CLUB : INFO_PRODUCTOS[p.nombre];
   if (!info && !p.clubMeses) return tarjeta;
 
@@ -2139,14 +2144,17 @@ async function cargarMasVendidos() {
     const d = await r.json();
     const botones = Array.from(document.querySelectorAll('#contenedor-productos .btn-agregar'))
       .filter(b => !b.closest('.tarjeta-estilo-pie'));
-    console.log('Más vendidos:', (d.items || []).map(i => i.nombre), '| tarjetas en tienda:', botones.length);
     lista.innerHTML = '';
     let n = 0;
     for (const it of (d.items || [])) {
       const btn = botones.find(b => b.getAttribute('data-nombre') === it.nombre);
       if (!btn) continue;
-      const precio = btn.getAttribute('data-precio');
+      const precio = parseFloat(btn.getAttribute('data-precio'));
       const imagen = btn.getAttribute('data-imagen');
+      const pavos = parseInt(btn.dataset.pavos) || 0;
+      const pavosReg = parseInt(btn.dataset.pavosRegular) || 0;
+      const hayDescuento = pavos > 0 && pavosReg > pavos;
+      const precioReg = hayDescuento ? (pavosReg / 100) * TASA_CONVERSION : 0;
 
       const card = document.createElement('article');
       card.className = 'mv-card';
@@ -2164,17 +2172,50 @@ async function cargarMasVendidos() {
       const nom = document.createElement('div');
       nom.className = 'mv-nom';
       nom.textContent = it.nombre;
+
+      // Precio en pavos (con el original tachado si hay descuento)
+      const filaPavos = document.createElement('div');
+      filaPavos.className = 'mv-pavos';
+      if (pavos > 0) {
+        const ic = document.createElement('img');
+        ic.src = 'https://fortnite-api.com/images/vbuck.png';
+        ic.alt = 'V-Bucks';
+        const pv = document.createElement('b');
+        pv.textContent = pavos;
+        filaPavos.append(ic, pv);
+        if (hayDescuento) {
+          const t = document.createElement('s');
+          t.textContent = pavosReg;
+          filaPavos.appendChild(t);
+        }
+      }
+
+      // Precio en soles (con el original tachado si hay descuento)
+      const pr = document.createElement('div');
+      pr.className = 'mv-precio';
+      pr.textContent = 'S/ ' + precio.toFixed(2);
+      if (hayDescuento) {
+        const t = document.createElement('s');
+        t.className = 'mv-tachado';
+        t.textContent = 'S/ ' + precioReg.toFixed(2);
+        pr.appendChild(t);
+      }
+
       const pie = document.createElement('div');
       pie.className = 'mv-pie';
-      const pr = document.createElement('span');
-      pr.className = 'mv-precio';
-      pr.textContent = 'S/ ' + parseFloat(precio).toFixed(2);
+      const precios = document.createElement('div');
+      precios.className = 'mv-precios';
+      if (pavos > 0) precios.appendChild(filaPavos);
+      precios.appendChild(pr);
+
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'mv-btn';
-      b.textContent = 'Comprar';
+      b.className = 'mv-mas';
+      b.setAttribute('aria-label', 'Agregar ' + it.nombre);
+      b.textContent = '+';
       b.addEventListener('click', () => agregarAlCarrito(it.nombre, precio, imagen));
-      pie.append(pr, b);
+
+      pie.append(precios, b);
       card.append(art, nom, pie);
       lista.appendChild(card);
       if (++n >= 4) break;
@@ -2185,6 +2226,5 @@ async function cargarMasVendidos() {
     caja.hidden = true;
     quitarFiltro();
   }
-  // Recalcula el resaltado del filtro ahora que la sección cambió de visibilidad
   window.dispatchEvent(new Event('scroll'));
 }
