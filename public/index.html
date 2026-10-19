@@ -745,6 +745,16 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
 }
 /* Que "Lo más vendido" oculto no se muestre */
 .mv-seccion[hidden]{display:none !important}
+/* Lo más vendido: precio en pavos, tachado y botón + */
+.mv-pie{align-items:flex-end}
+.mv-precios{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mv-pavos{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
+.mv-pavos img{width:16px;height:16px}
+.mv-pavos b{color:#fbbf24}
+.mv-pavos s{color:#8f86ad;font-weight:500;font-size:12px}
+.mv-precio s.mv-tachado{display:block;color:#8f86ad;font-size:12px;font-weight:500;text-decoration:line-through}
+.mv-mas{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:0;background:#6c5ce7;color:#fff;font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.mv-mas:hover{background:#7c6df0}
 </style>
 
 </head>
