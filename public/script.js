@@ -1507,15 +1507,35 @@ function topTituloSeccion(sec) {
   const t = sec.querySelector('.seccion-titulo, .mv-head') || sec;
   return t.getBoundingClientRect().top;
 }
+let _saltoId = 0;
+let _saltoTimers = [];
+
+function cancelarSalto() {
+  _saltoId++;
+  _saltoTimers.forEach(clearTimeout);
+  _saltoTimers = [];
+}
+
+['wheel', 'touchstart', 'keydown'].forEach(ev =>
+  window.addEventListener(ev, () => {
+    if (bloqueoScrollSpy) {
+      cancelarSalto();
+      bloqueoScrollSpy = false;
+    }
+  }, { passive: true })
+);
+
 function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
 
-  // Bloquea el scroll-spy mientras dura el salto
+  // Cancela cualquier salto anterior (clics rápidos)
+  cancelarSalto();
+  const miId = _saltoId;
   bloqueoScrollSpy = true;
-  window.clearTimeout(window._timeoutScrollSpy);
 
   const ir = () => {
+    if (miId !== _saltoId) return;   // ya hay un salto más nuevo
     const error = topTituloSeccion(destino) - offsetSecciones();
     if (Math.abs(error) > 2) {
       window.scrollTo({ top: Math.max(0, window.scrollY + error), behavior: 'auto' });
@@ -1523,14 +1543,14 @@ function irASeccion(nombreSeccion) {
   };
 
   ir();
-  requestAnimationFrame(ir);
-  setTimeout(ir, 120);
-  setTimeout(ir, 350);
+  [60, 150, 300, 500].forEach(ms => _saltoTimers.push(setTimeout(ir, ms)));
 
-  window._timeoutScrollSpy = setTimeout(() => {
+  // Suelta el scroll-spy solo cuando ya terminó el último salto
+  _saltoTimers.push(setTimeout(() => {
+    if (miId !== _saltoId) return;
     bloqueoScrollSpy = false;
-    window.dispatchEvent(new Event('scroll'));
-  }, 600);
+    activarFiltroEnMenu(nombreSeccion);   // deja marcado el filtro que tocaste
+  }, 700));
 }
 
 function activarFiltroEnMenu(nombreSeccion) {
