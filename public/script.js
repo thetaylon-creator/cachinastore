@@ -171,7 +171,7 @@ async function obtenerTiendaFortnite(silencioso = false) {
 
       const scrollPrevio = window.scrollY; // para no mandar al usuario arriba
       renderizarProductos(productosGlobales);
-      generarMenuFiltros(window._ordenSeccionesActual || []);
+generarMenuFiltros(['Lo más vendido', ...(window._ordenSeccionesActual || [])]);
       inicializarBuscador();
       cargarMasVendidos();
       requestAnimationFrame(() => {
