@@ -1796,6 +1796,7 @@ document.addEventListener('click', (e) => {
 
     irASeccion(seccion);
     return;
+  }
 
   // Botón "Agregar" de las tarjetas
   const btnAgregar = e.target.closest('.btn-agregar');
