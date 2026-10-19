@@ -766,6 +766,11 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
 }
 /* Evita saltos de layout al bajar a una sección */
 .tarjeta-producto{content-visibility:visible !important}
+/* La rueda sobre el filtro solo mueve el filtro, no la página */
+#pantalla-tienda .panel-filtros,
+.panel-filtros{
+  overscroll-behavior: contain;
+}
 </style>
 
 </head>
