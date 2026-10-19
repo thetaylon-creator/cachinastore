@@ -1550,6 +1550,7 @@ function irASeccion(nombreSeccion) {
     if (miId !== _saltoId) return;
     bloqueoScrollSpy = false;
     activarFiltroEnMenu(nombreSeccion);   // deja marcado el filtro que tocaste
+        actualizarFondoDinamico(nombreSeccion);
   }, 700));
 }
 
