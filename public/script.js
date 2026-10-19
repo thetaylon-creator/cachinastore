@@ -1478,37 +1478,29 @@ function eliminarDelCarrito(index) {
   actualizarVistaCarrito();
 }
 
-// ==========================================
-// 10.4 IR A UNA SECCIÓN (clic en el menú de filtros)
-// Ya no se filtra/reemplaza el catálogo: como ahora todas las
-// secciones están renderizadas seguidas, un clic en el filtro
-// simplemente hace scroll suave hasta el bloque de esa sección.
-// ==========================================
+// Distancia desde arriba de la pantalla hasta donde debe quedar el título de la sección
+function offsetSecciones() {
+  const cabecera = document.querySelector('.cabecera-fija');
+  const altoCab = cabecera ? cabecera.getBoundingClientRect().height : 70;
+  if (window.innerWidth <= 900) {
+    // En móvil el filtro también queda pegado debajo del header
+    const sidebar = document.querySelector('.sidebar');
+    const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
+    return altoCab + altoSidebar + 12;
+  }
+  return altoCab + 12;
+}
+
+// Posición vertical del título de la sección (no del bloque completo)
+function topTituloSeccion(sec) {
+  const t = sec.querySelector('.seccion-titulo, .mv-head') || sec;
+  return t.getBoundingClientRect().top;
+}
 function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
-  const esMovil = window.innerWidth <= 900;
-  let offset;
-if (esMovil) {
-    // En móvil el header (cabecera-fija) Y el sidebar (filtros) quedan
-    // sticky, uno debajo del otro. Hay que restar la altura de AMBOS
-    // para que el título de la sección no quede tapado.
-    const cabecera = document.querySelector('.cabecera-fija');
-    const sidebar = document.querySelector('.sidebar');
-    const altoCabecera = cabecera ? cabecera.getBoundingClientRect().height : 0;
-    const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
-    offset = altoCabecera + altoSidebar + 34;
-  } else {
-    // En escritorio el sidebar va AL COSTADO del catálogo (dos columnas),
-    // no lo tapa verticalmente. Solo hay que restar el header sticky.
-    const header = document.querySelector('.cabecera-fija');
-    offset = (header ? header.getBoundingClientRect().height : 70) + 55;
-  }
-  const posicionDestino = destino.getBoundingClientRect().top + window.scrollY - offset;
-  window.scrollTo({
-    top: Math.max(0, posicionDestino),
-    behavior: 'smooth'
-  });
+  const posicion = topTituloSeccion(destino) + window.scrollY - offsetSecciones();
+  window.scrollTo({ top: Math.max(0, posicion), behavior: 'smooth' });
 }
 
 function activarFiltroEnMenu(nombreSeccion) {
@@ -1579,34 +1571,21 @@ function iniciarScrollSpySecciones() {
   function calcularSeccionActiva() {
     if (bloqueoScrollSpy) return;
 
-    // Ignora secciones ocultas (por ejemplo "Lo más vendido" sin datos)
     const visibles = secciones.filter(s => !s.hidden && s.offsetParent !== null);
     if (!visibles.length) return;
 
-    const cabH = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue('--cab-h')
-    ) || 118;
-
-    const esMovil = window.innerWidth <= 900;
-    let lineaReferencia;
-
-    if (esMovil) {
-      const sidebar = document.querySelector('.sidebar');
-      const altoSidebar = sidebar ? sidebar.getBoundingClientRect().height : 0;
-      lineaReferencia = cabH + altoSidebar + 34;
-    } else {
-      lineaReferencia = cabH + 55;
-    }
+    const linea = offsetSecciones() + 8;
 
     let seccionActiva = visibles[0];
     for (const sec of visibles) {
-      const top = sec.getBoundingClientRect().top;
-      if (top - lineaReferencia <= 0) {
-        seccionActiva = sec;
-      } else {
-        break;
-      }
+      if (topTituloSeccion(sec) - linea <= 0) seccionActiva = sec;
+      else break;
     }
+
+    // Al llegar al final de la página, marca la última sección
+    const alFinal = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (alFinal) seccionActiva = visibles[visibles.length - 1];
+
     const nombreSeccion = seccionActiva.getAttribute('data-seccion-nombre');
     if (nombreSeccion) {
       activarFiltroEnMenu(nombreSeccion);
