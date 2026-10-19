@@ -2171,99 +2171,30 @@ async function cargarMasVendidos() {
     const r = await fetch(`${API_URL}/api/mas-vendidos`, { cache: 'no-store' });
     if (!r.ok) throw new Error();
     const d = await r.json();
+
     const botones = Array.from(document.querySelectorAll('#contenedor-productos .btn-agregar'))
       .filter(b => !b.closest('.tarjeta-estilo-pie'));
+
+    // Usa la misma cuadrícula que la tienda
+    lista.className = 'grid-productos';
     lista.innerHTML = '';
+
     let n = 0;
     for (const it of (d.items || [])) {
       const btn = botones.find(b => b.getAttribute('data-nombre') === it.nombre);
-      if (!btn) continue;
-      const precio = parseFloat(btn.getAttribute('data-precio'));
-      const imagen = btn.getAttribute('data-imagen');
-      const pavos = parseInt(btn.dataset.pavos) || 0;
-      const pavosReg = parseInt(btn.dataset.pavosRegular) || 0;
-      const hayDescuento = pavos > 0 && pavosReg > pavos;
-      const precioReg = hayDescuento ? (pavosReg / 100) * TASA_CONVERSION : 0;
+      const original = btn?.closest('.tarjeta-producto');
+      if (!original) continue;
 
-      const card = document.createElement('article');
-      card.className = 'mv-card';
-      const art = document.createElement('div');
-      art.className = 'mv-art';
-      const img = document.createElement('img');
-      img.src = imagen; img.alt = it.nombre; img.loading = 'lazy';
-      art.appendChild(img);
-      if (n === 0) {
-        const f = document.createElement('span');
-        f.className = 'mv-fire';
-        f.innerHTML = ICONO_FUEGO;
-        art.appendChild(f);
-      }
-      const nom = document.createElement('div');
-      nom.className = 'mv-nom';
-      nom.textContent = it.nombre;
-
-      // Precio en pavos (con el original tachado si hay descuento)
-      const filaPavos = document.createElement('div');
-      filaPavos.className = 'mv-pavos';
-      if (pavos > 0) {
-        const ic = document.createElement('img');
-ic.src = 'https://epiclim.com/img/vbucks-96.webp';
-        ic.alt = 'V-Bucks';
-        const pv = document.createElement('b');
-        pv.textContent = pavos;
-        filaPavos.append(ic, pv);
-        if (hayDescuento) {
-          const t = document.createElement('s');
-          t.textContent = pavosReg;
-          filaPavos.appendChild(t);
-        }
-      }
-
-      // Precio en soles (con el original tachado si hay descuento)
-      const pr = document.createElement('div');
-      pr.className = 'mv-precio';
-      pr.textContent = 'S/ ' + precio.toFixed(2);
-      if (hayDescuento) {
-        const t = document.createElement('s');
-        t.className = 'mv-tachado';
-        t.textContent = 'S/ ' + precioReg.toFixed(2);
-        pr.appendChild(t);
-      }
-
-      const pie = document.createElement('div');
-      pie.className = 'mv-pie';
-      const precios = document.createElement('div');
-      precios.className = 'mv-precios';
-      if (pavos > 0) precios.appendChild(filaPavos);
-      precios.appendChild(pr);
-
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'mv-mas';
-      b.setAttribute('aria-label', 'Agregar ' + it.nombre);
-      b.textContent = '+';
-      b.addEventListener('click', () => agregarAlCarrito(it.nombre, precio, imagen));
-
-      pie.append(precios, b);
-      card.append(art, nom, pie);
-      lista.appendChild(card);
+      // Recicla la tarjeta de la tienda
+      lista.appendChild(original.cloneNode(true));
       if (++n >= 4) break;
     }
+
     caja.hidden = n === 0;
     if (n === 0) quitarFiltro();
   } catch (e) {
     caja.hidden = true;
     quitarFiltro();
   }
-// Al recargar, siempre empieza arriba
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.scrollTo(0, 0);
-window.addEventListener('load', () => {
-  window.scrollTo(0, 0);
-  setTimeout(() => window.scrollTo(0, 0), 50);
-});
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) window.scrollTo(0, 0);
-});
   window.dispatchEvent(new Event('scroll'));
 }
