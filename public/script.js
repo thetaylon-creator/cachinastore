@@ -1066,7 +1066,7 @@ function crearTarjetaProducto(p, seccion) {
         meses = m;
         txtSel.textContent = op.textContent;
         menu.querySelectorAll('.club-op').forEach(x => x.classList.toggle('sel', x === op));
-        precioEl.textContent = precioClub(meses, precioMes).toFixed(2) + ' PEN';
+        precioEl.textContent = 'S/ ' + precioClub(meses, precioMes).toFixed(2);
         cerrarMenusClub();
       });
       menu.appendChild(op);
@@ -1142,7 +1142,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
         <div class="tarjeta-pie-fila">
           <div class="tarjeta-precios">
             ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
-            <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+            <p class="tarjeta-precio-pen">S/ ${precioSoles}</p>
           </div>
           <button class="btn-agregar btn-agregar-icono"
                   data-nombre="${nombreLimpio}"
@@ -1165,7 +1165,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
         ${badgeExpira}
         <h4 class="tarjeta-nombre">${nombre}</h4>
         ${pavos ? `<p class="tarjeta-precio"><img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">${pavos}</p>` : ''}
-        <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+        <p class="tarjeta-precio-pen">S/ ${precioSoles}</p>
       </div>
       <button class="btn-agregar btn-agregar-icono"
               data-nombre="${nombreLimpio}"
@@ -1194,7 +1194,7 @@ function crearTarjetaGrandeHTML(nombre, pavos, precioSoles, imagen) {
           <img src="${iconoPavos}" alt="V-Bucks" class="icono-pavos" loading="lazy" decoding="async">
           ${pavos}
         </p>
-        <p class="tarjeta-precio-pen">${precioSoles} PEN</p>
+        <p class="tarjeta-precio-pen">S/ ${precioSoles}</p>
       </div>
       <button class="btn-agregar btn-agregar-icono"
               data-nombre="${nombreLimpio}"
@@ -2178,7 +2178,7 @@ async function cargarMasVendidos() {
       filaPavos.className = 'mv-pavos';
       if (pavos > 0) {
         const ic = document.createElement('img');
-        ic.src = 'https://fortnite-api.com/images/vbuck.png';
+ic.src = 'https://epiclim.com/img/vbucks-96.webp';
         ic.alt = 'V-Bucks';
         const pv = document.createElement('b');
         pv.textContent = pavos;
