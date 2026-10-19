@@ -2127,9 +2127,13 @@ if (location.hash === '#' || location.href.endsWith('#')) {
 const ICONO_FUEGO = '<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.5c.6 3.2-1.6 4.6-3.2 6.7C7.3 11 6.5 12.6 6.5 14.5a5.5 5.5 0 0 0 11 0c0-1.9-.8-3.4-1.9-4.7-.3 1.2-.9 2-1.8 2.4.5-3-.5-6.6-1.8-9.7z"/><path d="M12 18.5a2.2 2.2 0 0 0 2.2-2.2c0-1.2-.8-1.9-1.4-2.7-.3.6-.7.9-1.2 1.1-.6.5-1.8 1-1.8 1.6A2.2 2.2 0 0 0 12 18.5z"/></svg>';
 
 async function cargarMasVendidos() {
-  const caja = document.getElementById('mas-vendidos');
+  const caja = document.getElementById('seccion-lo-mas-vendido');
   const lista = document.getElementById('mv-lista');
   if (!caja || !lista) return;
+
+  const quitarFiltro = () =>
+    document.querySelector('.item-filtro[data-seccion="Lo más vendido"]')?.remove();
+
   try {
     const r = await fetch(`${API_URL}/api/mas-vendidos`, { cache: 'no-store' });
     if (!r.ok) throw new Error();
@@ -2177,7 +2181,11 @@ async function cargarMasVendidos() {
       if (++n >= 4) break;
     }
     caja.hidden = n === 0;
+    if (n === 0) quitarFiltro();
   } catch (e) {
     caja.hidden = true;
+    quitarFiltro();
   }
+  // Recalcula el resaltado del filtro ahora que la sección cambió de visibilidad
+  window.dispatchEvent(new Event('scroll'));
 }
