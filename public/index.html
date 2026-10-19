@@ -696,11 +696,11 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
   background:rgba(124,58,237,.35) !important;
   color:#2e1065 !important;
 }
-/* ===== Catálogo más grande y filtro pegado a los productos ===== */
+/* ===== Catálogo: lote (2 columnas) + 2 skins al costado, y baja ===== */
 @media (min-width:901px){
   #pantalla-tienda .contenedor-tienda{
-    max-width:1240px !important;
-    grid-template-columns:200px minmax(0,1fr) !important;
+    max-width:1160px !important;
+    grid-template-columns:190px minmax(0,1fr) !important;
     gap:10px !important;
   }
 
@@ -714,20 +714,33 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
     width:100% !important;
   }
 
+  /* Siempre 4 columnas: lote = 2, skin/baile/etc = 1 */
   #pantalla-tienda .grid-productos{
-    gap:16px !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    grid-auto-flow:row dense;
+    gap:14px !important;
   }
-  #pantalla-tienda .grid-productos .tarjeta-producto:not(.tarjeta-estilo-pie){
-    height:290px !important;
-  }
+  /* Todas las tarjetas con la misma altura, así el lote queda alineado con las skins */
+  #pantalla-tienda .grid-productos .tarjeta-producto:not(.tarjeta-estilo-pie),
   #pantalla-tienda .grid-productos .tarjeta-producto-lote:not(.tarjeta-estilo-pie){
-    height:316px !important;
+    height:260px !important;
   }
-  #pantalla-tienda .grid-productos .tarjeta-nombre{font-size:14px !important}
-  #pantalla-tienda .grid-productos .tarjeta-precio{font-size:13px !important}
-  #pantalla-tienda .grid-productos .tarjeta-precio-pen{font-size:15px !important}
+  #pantalla-tienda .grid-productos .tarjeta-producto-lote{
+    grid-column:span 2 !important;
+  }
+
+  #pantalla-tienda .grid-productos .tarjeta-nombre{font-size:13px !important}
+  #pantalla-tienda .grid-productos .tarjeta-precio{font-size:12px !important}
+  #pantalla-tienda .grid-productos .tarjeta-precio-pen{font-size:14px !important}
   #pantalla-tienda .grid-productos .btn-agregar-icono{
-    width:34px !important;height:34px !important;font-size:19px !important;
+    width:32px !important;height:32px !important;font-size:18px !important;
+  }
+}
+
+/* Cancela la regla de 3 columnas del bloque anterior (901px a 1100px) */
+@media (min-width:901px) and (max-width:1100px){
+  #pantalla-tienda .grid-productos{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
   }
 }
 </style>
