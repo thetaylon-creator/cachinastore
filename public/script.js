@@ -1179,7 +1179,7 @@ function crearTarjetaGrandeHTML(nombre, pavos, precioSoles, imagen) {
   const tarjeta = document.createElement('div');
   tarjeta.classList.add('tarjeta-producto-grande');
 
-  const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
+const iconoPavos = "https://epiclim.com/img/vbucks-96.webp";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
 
   tarjeta.innerHTML = `
