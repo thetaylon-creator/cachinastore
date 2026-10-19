@@ -1511,33 +1511,43 @@ function irASeccion(nombreSeccion) {
   const destino = document.getElementById(slugificarSeccion(nombreSeccion));
   if (!destino) return;
 
-  const calcular = () => topTituloSeccion(destino) + window.scrollY - offsetSecciones();
-  window.scrollTo({ top: Math.max(0, calcular()), behavior: 'smooth' });
+  // Bloquea el scroll-spy mientras dura el salto
+  bloqueoScrollSpy = true;
+  window.clearTimeout(window._timeoutScrollSpy);
 
-  // Cuando termina el scroll suave, corrige la diferencia por si algo cambió de tamaño
-  [700, 1300].forEach(ms => {
-    setTimeout(() => {
-      const error = topTituloSeccion(destino) - offsetSecciones();
-      if (Math.abs(error) > 3) {
-        window.scrollTo({ top: Math.max(0, window.scrollY + error), behavior: 'auto' });
-      }
-    }, ms);
-  });
+  const ir = () => {
+    const error = topTituloSeccion(destino) - offsetSecciones();
+    if (Math.abs(error) > 2) {
+      window.scrollTo({ top: Math.max(0, window.scrollY + error), behavior: 'auto' });
+    }
+  };
+
+  ir();
+  requestAnimationFrame(ir);
+  setTimeout(ir, 120);
+  setTimeout(ir, 350);
+
+  window._timeoutScrollSpy = setTimeout(() => {
+    bloqueoScrollSpy = false;
+    window.dispatchEvent(new Event('scroll'));
+  }, 600);
 }
 
 function activarFiltroEnMenu(nombreSeccion) {
   document.querySelectorAll('.item-filtro').forEach(el => el.classList.remove('activo'));
-  const itemCorrespondiente = Array.from(document.querySelectorAll('.item-filtro'))
+  const item = Array.from(document.querySelectorAll('.item-filtro'))
     .find(el => el.getAttribute('data-seccion') === nombreSeccion);
-  itemCorrespondiente?.classList.add('activo');
+  if (!item) return;
+  item.classList.add('activo');
 
-  // Mantiene el filtro activo visible dentro del propio scroll de
-  // la lista de filtros, por si quedó fuera de vista.
-  itemCorrespondiente?.scrollIntoView({ block: 'nearest' });
-
-  // El botón "FILTROS" se queda siempre con el texto fijo "FILTROS".
-  // La sección activa se ve directamente en el catálogo (el título
-  // de la sección, ej. "Spider-Man", que ya trae su propio color).
+  // Mueve solo el panel del filtro, nunca la página
+  const panel = document.getElementById('panel-filtros');
+  if (panel && panel.scrollHeight > panel.clientHeight) {
+    const arriba = item.offsetTop;
+    const abajo = arriba + item.offsetHeight;
+    if (arriba < panel.scrollTop) panel.scrollTop = arriba - 8;
+    else if (abajo > panel.scrollTop + panel.clientHeight) panel.scrollTop = abajo - panel.clientHeight + 8;
+  }
 }
 
 // ==========================================
@@ -1784,12 +1794,8 @@ document.addEventListener('click', (e) => {
       document.getElementById('panel-filtros')?.classList.add('oculto');
     }
 
-    bloqueoScrollSpy = true;
     irASeccion(seccion);
-    window.clearTimeout(window._timeoutScrollSpy);
-    window._timeoutScrollSpy = window.setTimeout(() => { bloqueoScrollSpy = false; }, 900);
     return;
-  }
 
   // Botón "Agregar" de las tarjetas
   const btnAgregar = e.target.closest('.btn-agregar');
