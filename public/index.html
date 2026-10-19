@@ -771,6 +771,24 @@ html.claro #pantalla-tienda .panel-filtros .item-filtro.activo{
 .panel-filtros{
   overscroll-behavior: contain;
 }
+/* Más separación entre el filtro y los productos */
+@media (min-width:901px){
+  #pantalla-tienda .contenedor-tienda{
+    gap:36px !important;
+  }
+}
+/* "SE VA HOY" en morado neón */
+.badge-se-va-hoy{
+  background:#1a0b38 !important;
+  color:#e9d5ff !important;
+  border:1px solid #b44cff !important;
+  box-shadow:0 0 10px rgba(180,76,255,.7), 0 0 22px rgba(124,58,237,.45) !important;
+  text-shadow:0 0 6px rgba(192,132,252,.9);
+}
+.badge-se-va-hoy .punto-pulso{
+  background:#c084fc !important;
+  box-shadow:0 0 8px #c084fc, 0 0 14px #a855f7 !important;
+}
 </style>
 
 </head>
