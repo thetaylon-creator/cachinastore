@@ -1114,7 +1114,7 @@ function crearTarjetaHTML(nombre, pavos, precioSoles, imagen, seccion, expira, e
   tarjeta.classList.add('tarjeta-producto');
   if (esLote) tarjeta.classList.add('tarjeta-producto-lote');
   if (seccion === 'V-Bucks') tarjeta.setAttribute('data-vbucks', '1');
-  const iconoPavos = "https://fortnite-api.com/images/vbuck.png";
+  const iconoPavos = "https://epiclim.com/img/vbucks-96.webp";
   const nombreLimpio = nombre.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
   const badgeExpira = expira
     ? `<span class="badge-se-va-hoy"><span class="punto-pulso"></span>SE VA HOY</span>`
