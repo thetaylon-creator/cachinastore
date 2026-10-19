@@ -1569,18 +1569,20 @@ function actualizarFondoDinamico(nombreSeccion) {
 
   seccionFondoActual = nombreSeccion;
 }
-// Ahora se usa un cálculo directo en cada scroll: se recorren TODAS
-// las secciones en orden y se elige la ÚLTIMA cuyo borde superior ya
-// cruzó la línea de referencia (justo debajo del header). Esa es,
-// sin ambigüedad, la sección que está siendo vista en ese momento.
+
 function iniciarScrollSpySecciones() {
-  const secciones = Array.from(document.querySelectorAll('.seccion-tienda'));
+  const secciones = Array.from(document.querySelectorAll('.mv-seccion, .seccion-tienda'));
   if (!secciones.length) return;
   if (_handlerScrollSpy) {
     window.removeEventListener('scroll', _handlerScrollSpy);
   }
   function calcularSeccionActiva() {
     if (bloqueoScrollSpy) return;
+
+    // Ignora secciones ocultas (por ejemplo "Lo más vendido" sin datos)
+    const visibles = secciones.filter(s => !s.hidden && s.offsetParent !== null);
+    if (!visibles.length) return;
+
     const cabH = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--cab-h')
     ) || 118;
@@ -1596,8 +1598,8 @@ function iniciarScrollSpySecciones() {
       lineaReferencia = cabH + 55;
     }
 
-    let seccionActiva = secciones[0];
-    for (const sec of secciones) {
+    let seccionActiva = visibles[0];
+    for (const sec of visibles) {
       const top = sec.getBoundingClientRect().top;
       if (top - lineaReferencia <= 0) {
         seccionActiva = sec;
