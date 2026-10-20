@@ -2179,16 +2179,26 @@ async function cargarMasVendidos() {
     lista.className = 'grid-productos';
     lista.innerHTML = '';
 
+    const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/\s+/g, ' ').trim();
+
+    const porNombre = new Map();
+    botones.forEach(b => {
+      const k = norm(b.getAttribute('data-nombre'));
+      if (!porNombre.has(k)) porNombre.set(k, b);
+    });
+
+    const sinTarjeta = [];
     let n = 0;
     for (const it of (d.items || [])) {
-      const btn = botones.find(b => b.getAttribute('data-nombre') === it.nombre);
+      const btn = porNombre.get(norm(it.nombre));
       const original = btn?.closest('.tarjeta-producto');
-      if (!original) continue;
+      if (!original) { sinTarjeta.push(it.nombre); continue; }
 
-      // Recicla la tarjeta de la tienda
       lista.appendChild(original.cloneNode(true));
-      if (++n >= 4) break;
+      if (++n >= 8) break;
     }
+    console.log('[mas-vendidos] sin tarjeta hoy:', sinTarjeta);
 
     caja.hidden = n === 0;
     if (n === 0) quitarFiltro();
