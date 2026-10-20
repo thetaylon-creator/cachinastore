@@ -1277,7 +1277,7 @@ function obtenerProductosCrew() {
     { nombre: "Pack de inicio Ruptura de la computadora central", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/0519/d32425b9677f8c27d8ec373b562c32be36b436f0a425165b.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
     { nombre: "Pack de misiones de Conejita momia", pavos: 0, precioSoles: "20.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202609/1617/7a20d96cae58427e03fe0c57de32f5197a5958c8bad3181a.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
 { nombre: "Paquete Día del Juicio", pavos: 0, precioSoles: "39.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202608/2115/560872b7c22311dc2b073c0713635343d8e78a2660d8756f.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null },
-    { nombre: "Paquete Leyendas de anime", pavos: 0, precioSoles: "43.00", imagen: "anime-legends.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
+    { nombre: "Paquete Leyendas de anime", pavos: 0, precioSoles: "43.00", imagen: "https://image.api.playstation.com/vulcan/ap/rnd/202609/2215/9e4834a06768b507698bbb1c21b9963f500dde258c9e6b87.png", expira: false, esLote: false, artistaProducto: '', fondoReal: null }
       ];
 }
 
