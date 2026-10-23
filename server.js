@@ -811,7 +811,8 @@ app.post('/api/pedidos', requireGoogle, async (req, res) => {
       nombre: String(i.nombre || '').slice(0, 120),
       precio: Number(i.precio) || 0,
       cantidad: Math.max(1, Math.min(parseInt(i.cantidad, 10) || 1, 99)),
-      imagen: String(i.imagen || '').slice(0, 500)
+      imagen: String(i.imagen || '').slice(0, 500),
+      seccion: String(i.seccion || '').slice(0, 120)
     }));
     const total = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
     if (!(total > 0)) return res.status(400).json({ error: 'Total inválido.' });
