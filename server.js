@@ -988,6 +988,138 @@ app.get('/api/mas-vendidos', async (req, res) => {
     res.status(500).json({ error: 'No se pudo cargar lo más vendido.' });
   }
 });
+// ============ PANEL DE ENVÍOS (control de regalos y cupo por cuenta) ============
+// Pegar en server.js, justo antes de la línea:
+//   // Identificador de la versión publicada (cambia en cada deploy de Render)
+
+const CUENTAS_ENVIO = ['cachina001', 'cachina002', 'cachina003', 'cachina004', 'cachina005'];
+const CUPO_DIARIO = 5;                       // regalos por cuenta cada 24 horas
+const NO_REGALABLE = /v-?bucks|club|crew/i;  // estos pedidos no se pueden enviar por regalo
+
+async function ensureEnviosTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS envios (
+      id SERIAL PRIMARY KEY,
+      pedido_id INT NOT NULL,
+      item VARCHAR(200) NOT NULL,
+      cuenta VARCHAR(60) NOT NULL,
+      fecha TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+}
+ensureEnviosTable().catch(err => console.error('Error creando tabla envios:', err));
+
+async function cuposActuales() {
+  const { rows } = await pool.query(
+    `SELECT cuenta, COUNT(*)::int AS usados, MIN(fecha) AS primera
+     FROM envios WHERE fecha > now() - interval '24 hours' GROUP BY cuenta`
+  );
+  const mapa = new Map(rows.map(r => [r.cuenta, r]));
+  return CUENTAS_ENVIO.map(cuenta => {
+    const r = mapa.get(cuenta);
+    const usados = r ? r.usados : 0;
+    const libreEn = usados >= CUPO_DIARIO && r
+      ? new Date(new Date(r.primera).getTime() + 24 * 60 * 60 * 1000)
+      : null;
+    return { cuenta, usados, libres: Math.max(CUPO_DIARIO - usados, 0), cupo: CUPO_DIARIO, libreEn };
+  });
+}
+
+// Pedidos aprobados pendientes + cupo de cada cuenta
+app.get('/api/admin/envios/panel', requireAdmin, async (req, res) => {
+  try {
+    const cupos = await cuposActuales();
+
+    const ped = await pool.query(
+      `SELECT id, nombre, email, id_fortnite AS "idFortnite", items, fecha
+       FROM pedidos WHERE estado = 'aprobado' ORDER BY fecha ASC LIMIT 100`
+    );
+    const ids = ped.rows.map(p => p.id);
+
+    const env = ids.length
+      ? await pool.query(`SELECT id, pedido_id, item, cuenta, fecha FROM envios WHERE pedido_id = ANY($1)`, [ids])
+      : { rows: [] };
+
+    // Cuándo pidió agregar los bots cada cliente (para la regla de 48 horas)
+    const bots = await pool.query(`SELECT LOWER(id_cliente) AS id, MIN(fecha) AS desde FROM bots_requests GROUP BY LOWER(id_cliente)`);
+    const amistad = new Map(bots.rows.map(b => [b.id, b.desde]));
+
+    const pedidos = ped.rows.map(p => {
+      const desde = amistad.get(String(p.idFortnite || '').toLowerCase()) || amistad.get(String(p.email || '').toLowerCase()) || null;
+      const items = (p.items || []).map(i => {
+        const e = env.rows.find(x => x.pedido_id === p.id && x.item === i.nombre);
+        return {
+          nombre: i.nombre,
+          imagen: i.imagen || '',
+          regalable: !NO_REGALABLE.test(i.nombre || ''),
+          envioId: e ? e.id : null,
+          enviadoPor: e ? e.cuenta : null
+        };
+      });
+      return {
+        id: p.id, ticket: ticketDe(p.id), nombre: p.nombre, idFortnite: p.idFortnite,
+        fecha: p.fecha, amistadDesde: desde, items
+      };
+    });
+
+    res.json({ cupos, pedidos });
+  } catch (err) {
+    console.error('[envios] panel:', err);
+    res.status(500).json({ error: 'No se pudo cargar el panel de envíos.' });
+  }
+});
+
+// Marcar un regalo como enviado desde una cuenta (descuenta cupo)
+app.post('/api/admin/envios/marcar', requireAdmin, async (req, res) => {
+  try {
+    const pedidoId = parseInt(req.body.pedidoId, 10);
+    const item = String(req.body.item || '');
+    const cuenta = String(req.body.cuenta || '');
+    if (!Number.isInteger(pedidoId) || !item) return res.status(400).json({ error: 'Datos inválidos.' });
+    if (!CUENTAS_ENVIO.includes(cuenta)) return res.status(400).json({ error: 'Cuenta desconocida.' });
+
+    const p = await pool.query(`SELECT items FROM pedidos WHERE id = $1 AND estado = 'aprobado'`, [pedidoId]);
+    if (!p.rows.length) return res.status(404).json({ error: 'Pedido no encontrado o ya no está aprobado.' });
+    const items = p.rows[0].items || [];
+    if (!items.some(i => i.nombre === item)) return res.status(404).json({ error: 'Ese objeto no está en el pedido.' });
+
+    const ya = await pool.query(`SELECT 1 FROM envios WHERE pedido_id = $1 AND item = $2`, [pedidoId, item]);
+    if (ya.rows.length) return res.status(409).json({ error: 'Ese regalo ya estaba marcado como enviado.' });
+
+    const cupo = (await cuposActuales()).find(c => c.cuenta === cuenta);
+    if (cupo.libres <= 0) return res.status(409).json({ error: `${cuenta} ya usó sus ${CUPO_DIARIO} regalos de hoy.` });
+
+    await pool.query(`INSERT INTO envios (pedido_id, item, cuenta) VALUES ($1, $2, $3)`, [pedidoId, item, cuenta]);
+
+    // Si ya se envió todo y no quedan objetos manuales, el pedido pasa a "entregado" solo
+    const regalables = items.filter(i => !NO_REGALABLE.test(i.nombre || ''));
+    const hechos = await pool.query(`SELECT item FROM envios WHERE pedido_id = $1`, [pedidoId]);
+    const enviados = new Set(hechos.rows.map(r => r.item));
+    const todoEnviado = regalables.every(i => enviados.has(i.nombre));
+    const sinManuales = regalables.length === items.length;
+    let entregado = false;
+    if (todoEnviado && sinManuales) {
+      await pool.query(`UPDATE pedidos SET estado = 'entregado', motivo = NULL, entrega_vista = false WHERE id = $1`, [pedidoId]);
+      entregado = true;
+    }
+    res.json({ success: true, entregado });
+  } catch (err) {
+    console.error('[envios] marcar:', err);
+    res.status(500).json({ error: 'No se pudo registrar el envío.' });
+  }
+});
+
+// Deshacer una marca hecha por error (devuelve el cupo)
+app.delete('/api/admin/envios/:id', requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`DELETE FROM envios WHERE id = $1 RETURNING id`, [parseInt(req.params.id, 10)]);
+    if (!rows.length) return res.status(404).json({ error: 'Envío no encontrado.' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[envios] deshacer:', err);
+    res.status(500).json({ error: 'No se pudo deshacer.' });
+  }
+});
 // Identificador de la versión publicada (cambia en cada deploy de Render)
 const BUILD_ID = process.env.RENDER_GIT_COMMIT || String(Date.now());
 app.get('/api/version', (req, res) => {
