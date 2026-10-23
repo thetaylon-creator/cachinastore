@@ -1011,6 +1011,7 @@ function crearTarjetaProducto(p, seccion) {
   if (btnDatos) {
     btnDatos.dataset.pavos = p.pavos || '';
     btnDatos.dataset.pavosRegular = p.pavosRegular || '';
+    btnDatos.dataset.seccion = seccion || '';
   }
   const info = p.clubMeses ? INFO_CLUB : INFO_PRODUCTOS[p.nombre];
   if (!info && !p.clubMeses) return tarjeta;
@@ -1103,7 +1104,7 @@ function crearTarjetaProducto(p, seccion) {
         for (let i = carritoItems.length - 1; i >= 0; i--) {
         if (/^Club - \d+ Mes(es)? \(Xbox\)$/.test(carritoItems[i].nombre)) carritoItems.splice(i, 1);
         }
-        agregarAlCarrito(nombre, precioClub(meses, precioMes).toFixed(2), p.imagen);
+        agregarAlCarrito(nombre, precioClub(meses, precioMes).toFixed(2), p.imagen, seccion);
       });
     }
   }
@@ -1320,13 +1321,13 @@ function vibrarCarrito() {
 // simplemente se abre el carrito (sin sumar cantidad). Cada producto
 // solo puede eliminarse por completo con el botón "×".
 // ==========================================
-function agregarAlCarrito(nombre, precio, imagen) {
+function agregarAlCarrito(nombre, precio, imagen, seccion) {
   const existe = carritoItems.find(prod => prod.nombre === nombre);
   if (existe) {
     // Ya está en el carrito: no se aumenta la cantidad ni se abre el carrito.
     return;
   }
-  carritoItems.push({ nombre, precio: parseFloat(precio), imagen, cantidad: 1 });
+  carritoItems.push({ nombre, precio: parseFloat(precio), imagen, seccion: seccion || '', cantidad: 1 });
   actualizarVistaCarrito();
   vibrarCarrito();
   // FIX: ya no se abre el carrito automáticamente al agregar un producto.
@@ -1826,7 +1827,12 @@ document.addEventListener('click', (e) => {
     const nombre = btnAgregar.getAttribute('data-nombre');
     const precio = btnAgregar.getAttribute('data-precio');
     const imagen = btnAgregar.getAttribute('data-imagen');
-    if (nombre && precio && imagen) agregarAlCarrito(nombre, precio, imagen);
+    // Sección del filtro de la tienda donde está el producto (también vale para "Lo más vendido":
+    // esas tarjetas son copias y conservan la sección real del botón)
+    const seccion = btnAgregar.getAttribute('data-seccion')
+      || btnAgregar.closest('.seccion-tienda')?.getAttribute('data-seccion-nombre')
+      || '';
+    if (nombre && precio && imagen) agregarAlCarrito(nombre, precio, imagen, seccion);
     return;
   }
 
