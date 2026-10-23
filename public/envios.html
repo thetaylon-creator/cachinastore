@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Envíos · CachinaStore</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0d0a1c; --card:#150f2b; --card2:#1c1340; --line:rgba(167,139,250,.25);
+  --txt:#f3eefc; --muted:#a99fc9; --pri:#7c3aed; --pri2:#6d28d9;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Poppins',system-ui,sans-serif;padding:20px 16px 60px;min-height:100dvh}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-size:22px;font-weight:800}
+h2{font-size:16px;font-weight:700;margin:28px 0 12px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:13px}
+button{font-family:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--card2);color:var(--txt);padding:9px 14px;border-radius:10px;font-weight:600;font-size:13px}
+.btn:hover{border-color:#a78bfa}
+.btn-pri{background:var(--pri);border-color:transparent}
+.btn-pri:hover{background:var(--pri2)}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Cuentas */
+.cuentas{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.cuenta{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.cuenta b{font-size:14px;display:block;margin-bottom:8px}
+.barra{display:flex;gap:4px;margin-bottom:8px}
+.barra i{flex:1;height:8px;border-radius:4px;background:#2d2350}
+.barra i.on{background:var(--pri)}
+.cuenta.llena .barra i.on{background:var(--bad)}
+.cuenta small{display:block;font-size:12px;color:var(--muted)}
+.cuenta .libres{font-weight:700;font-size:13px;color:var(--ok)}
+.cuenta.llena .libres{color:var(--bad)}
+
+/* Pedidos */
+.pedido{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.cab{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.ticket{font-weight:800;font-size:16px}
+.uid{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px;font-weight:600}
+.uid button{border:0;background:var(--pri);color:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid}
+.chip.ok{color:var(--ok);border-color:rgba(74,222,128,.5)}
+.chip.warn{color:var(--warn);border-color:rgba(251,191,36,.5)}
+.chip.gris{color:var(--muted);border-color:var(--line)}
+.item{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(167,139,250,.14)}
+.item img{width:44px;height:44px;object-fit:contain;border-radius:8px;background:#0d0819}
+.item .nom{flex:1;min-width:0;font-weight:600;font-size:14px}
+.item .nom small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.acc{display:flex;gap:8px;align-items:center}
+select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px;font-family:inherit;font-size:13px}
+.hecho{color:var(--ok);font-weight:600;font-size:13px}
+.manual{color:var(--warn);font-weight:600;font-size:13px}
+.pie{display:flex;justify-content:flex-end;margin-top:10px}
+.vacio{border:1.5px dashed var(--line);border-radius:16px;padding:32px;text-align:center;color:var(--muted)}
+
+/* Acceso */
+#acceso{max-width:380px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+#acceso h1{margin-bottom:6px}
+#acceso input{width:100%;margin:14px 0 10px;background:#0d0819;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--txt);font-family:inherit;font-size:15px}
+#acceso .btn{width:100%;padding:12px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+#aviso{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+#aviso.on{opacity:1}
+@media (max-width:560px){.item{flex-wrap:wrap}.acc{width:100%}.acc select{flex:1}}
+@media (prefers-reduced-motion:reduce){#aviso{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="acceso">
+  <h1>Envíos</h1>
+  <p class="muted">Escribe tu clave de administrador para entrar.</p>
+  <input type="password" id="clave" placeholder="Clave de administrador" autocomplete="off">
+  <button class="btn btn-pri" id="entrar" type="button">Entrar</button>
+  <div class="err" id="err-acceso"></div>
+</div>
+
+<div class="wrap" id="panel" hidden>
+  <div class="top">
+    <div>
+      <h1>Envíos de regalos</h1>
+      <p class="muted" id="resumen">Cargando...</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="recargar" type="button">Actualizar</button>
+      <button class="btn" id="salir" type="button">Salir</button>
+    </div>
+  </div>
+
+  <h2>Cupo de hoy por cuenta</h2>
+  <div class="cuentas" id="cuentas"></div>
+
+  <h2>Pedidos aprobados por enviar</h2>
+  <div id="pedidos"></div>
+</div>
+
+<div id="aviso" role="status"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let clave = '';
+  try { clave = sessionStorage.getItem('envios_clave') || ''; } catch (e) {}
+  let datos = { cupos: [], pedidos: [] };
+
+  function aviso(txt) {
+    const a = $('aviso');
+    a.textContent = txt; a.classList.add('on');
+    clearTimeout(aviso._t);
+    aviso._t = setTimeout(() => a.classList.remove('on'), 2600);
+  }
+
+  async function api(ruta, opts = {}) {
+    const r = await fetch(ruta, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': clave, ...(opts.headers || {}) }
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) { cerrarSesion(); throw new Error('Clave incorrecta.'); }
+    if (!r.ok) throw new Error(d.error || 'Algo salió mal.');
+    return d;
+  }
+
+  function cerrarSesion() {
+    clave = '';
+    try { sessionStorage.removeItem('envios_clave'); } catch (e) {}
+    $('panel').hidden = true;
+    $('acceso').hidden = false;
+  }
+
+  function hora(f) {
+    return new Date(f).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function pintarCuentas() {
+    const caja = $('cuentas');
+    caja.innerHTML = '';
+    datos.cupos.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'cuenta' + (c.libres === 0 ? ' llena' : '');
+      const b = document.createElement('b'); b.textContent = c.cuenta;
+      const barra = document.createElement('div'); barra.className = 'barra';
+      for (let i = 0; i < c.cupo; i++) { const s = document.createElement('i'); if (i < c.usados) s.className = 'on'; barra.appendChild(s); }
+      const lib = document.createElement('small'); lib.className = 'libres';
+      lib.textContent = c.libres === 0 ? 'Sin cupo' : c.libres + (c.libres === 1 ? ' libre' : ' libres');
+      const info = document.createElement('small');
+      info.textContent = c.libreEn ? 'Se libera a las ' + hora(c.libreEn) : c.usados + ' de ' + c.cupo + ' usados';
+      el.append(b, barra, lib, info);
+      caja.appendChild(el);
+    });
+  }
+
+  function chipAmistad(desde) {
+    const c = document.createElement('span');
+    if (!desde) { c.className = 'chip gris'; c.textContent = 'Sin registro de bots'; return c; }
+    const h = (Date.now() - new Date(desde).getTime()) / 3600000;
+    if (h >= 48) { c.className = 'chip ok'; c.textContent = 'Amigo hace +48 h'; }
+    else { c.className = 'chip warn'; c.textContent = 'Faltan ' + Math.ceil(48 - h) + ' h de amistad'; }
+    return c;
+  }
+
+  function opcionesCuentas() {
+    // La cuenta con más cupo libre queda elegida por defecto
+    const orden = [...datos.cupos].sort((a, b) => b.libres - a.libres);
+    return orden.map(c => {
+      const o = document.createElement('option');
+      o.value = c.cuenta;
+      o.textContent = c.cuenta + ' (' + c.libres + ' libres)';
+      o.disabled = c.libres === 0;
+      return o;
+    });
+  }
+
+  function pintarPedidos() {
+    const caja = $('pedidos');
+    caja.innerHTML = '';
+    if (!datos.pedidos.length) {
+      const v = document.createElement('div'); v.className = 'vacio';
+      v.textContent = 'No hay pedidos aprobados esperando envío.';
+      caja.appendChild(v); return;
+    }
+    datos.pedidos.forEach(p => {
+      const card = document.createElement('article'); card.className = 'pedido';
+
+      const cab = document.createElement('div'); cab.className = 'cab';
+      const t = document.createElement('span'); t.className = 'ticket'; t.textContent = p.ticket;
+      const uid = document.createElement('span'); uid.className = 'uid';
+      uid.append(document.createTextNode(p.idFortnite + ' '));
+      const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'Copiar';
+      cp.addEventListener('click', () => { navigator.clipboard?.writeText(p.idFortnite); aviso('ID copiado'); });
+      uid.appendChild(cp);
+      const quien = document.createElement('span'); quien.className = 'muted'; quien.textContent = p.nombre;
+      cab.append(t, uid, chipAmistad(p.amistadDesde), quien);
+      card.appendChild(cab);
+
+      p.items.forEach(i => {
+        const fila = document.createElement('div'); fila.className = 'item';
+        if (i.imagen) { const im = document.createElement('img'); im.src = i.imagen; im.alt = ''; im.loading = 'lazy'; fila.appendChild(im); }
+        const nom = document.createElement('div'); nom.className = 'nom'; nom.textContent = i.nombre;
+        fila.appendChild(nom);
+
+        if (i.enviadoPor) {
+          const h = document.createElement('span'); h.className = 'hecho'; h.textContent = 'Enviado desde ' + i.enviadoPor;
+          const und = document.createElement('button'); und.type = 'button'; und.className = 'btn'; und.textContent = 'Deshacer';
+          und.addEventListener('click', async () => {
+            try { await api('/api/admin/envios/' + i.envioId, { method: 'DELETE' }); aviso('Envío deshecho'); cargar(); }
+            catch (e) { aviso(e.message); }
+          });
+          const acc = document.createElement('div'); acc.className = 'acc'; acc.append(h, und);
+          fila.appendChild(acc);
+        } else if (!i.regalable) {
+          const m = document.createElement('span'); m.className = 'manual'; m.textContent = 'No se envía por regalo: hazlo a mano';
+          fila.appendChild(m);
+        } else {
+          const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Cuenta que envía');
+          opcionesCuentas().forEach(o => sel.appendChild(o));
+          const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'btn btn-pri'; ok.textContent = 'Marcar enviado';
+          if (datos.cupos.every(c => c.libres === 0)) ok.disabled = true;
+          ok.addEventListener('click', async () => {
+            ok.disabled = true;
+            try {
+              const r = await api('/api/admin/envios/marcar', { method: 'POST', body: JSON.stringify({ pedidoId: p.id, item: i.nombre, cuenta: sel.value }) });
+              aviso(r.entregado ? 'Pedido ' + p.ticket + ' entregado' : 'Envío registrado');
+              cargar();
+            } catch (e) { aviso(e.message); ok.disabled = false; }
+          });
+          const acc = document.createElement('div'); acc.className = 'acc'; acc.append(sel, ok);
+          fila.appendChild(acc);
+        }
+        card.appendChild(fila);
+      });
+
+      // Pedidos con objetos manuales (V-Bucks, Crew): se cierran con este botón
+      const quedan = p.items.some(i => !i.enviadoPor && !i.regalable);
+      const hayEnviados = p.items.some(i => i.enviadoPor);
+      if (quedan || hayEnviados) {
+        const pie = document.createElement('div'); pie.className = 'pie';
+        const fin = document.createElement('button'); fin.type = 'button'; fin.className = 'btn'; fin.textContent = 'Marcar pedido como entregado';
+        fin.addEventListener('click', async () => {
+          if (!confirm('¿Marcar ' + p.ticket + ' como entregado? El cliente verá el aviso.')) return;
+          try { await api('/api/admin/pedidos/' + p.id, { method: 'PUT', body: JSON.stringify({ estado: 'entregado' }) }); aviso('Pedido entregado'); cargar(); }
+          catch (e) { aviso(e.message); }
+        });
+        pie.appendChild(fin); card.appendChild(pie);
+      }
+      caja.appendChild(card);
+    });
+  }
+
+  async function cargar() {
+    try {
+      datos = await api('/api/admin/envios/panel');
+      const libres = datos.cupos.reduce((s, c) => s + c.libres, 0);
+      $('resumen').textContent = datos.pedidos.length + ' pedidos por enviar · ' + libres + ' regalos disponibles hoy';
+      pintarCuentas(); pintarPedidos();
+    } catch (e) { $('resumen').textContent = e.message; }
+  }
+
+  async function entrar() {
+    clave = $('clave').value.trim();
+    $('err-acceso').textContent = '';
+    if (!clave) { $('err-acceso').textContent = 'Escribe la clave.'; return; }
+    try {
+      await api('/api/admin/envios/panel');
+      try { sessionStorage.setItem('envios_clave', clave); } catch (e) {}
+      $('acceso').hidden = true; $('panel').hidden = false; cargar();
+    } catch (e) { $('err-acceso').textContent = e.message; }
+  }
+
+  $('entrar').addEventListener('click', entrar);
+  $('clave').addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
+  $('recargar').addEventListener('click', cargar);
+  $('salir').addEventListener('click', cerrarSesion);
+
+  if (clave) { $('acceso').hidden = true; $('panel').hidden = false; cargar(); }
+  setInterval(() => { if (!document.hidden && !$('panel').hidden) cargar(); }, 60000);
+})();
+</script>
+</body>
+</html>
