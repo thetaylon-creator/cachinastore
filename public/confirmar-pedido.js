@@ -315,7 +315,7 @@ const comprobante = sinComp ? null : comprobanteListo;
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token() },
         body: JSON.stringify({
           idFortnite: localStorage.getItem('usuarioLogueado') || '',
-          items: items.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.cantidad, imagen: i.imagen })),
+          items: items.map(i => ({ nombre: i.nombre, precio: i.precio, cantidad: i.cantidad, imagen: i.imagen, seccion: i.seccion || '' })),
           comprobante
         })
       });
