@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bots · Clientes por agregar</title>
+<style>
+  :root {
+    --bg: #f4f7f7; --card: #ffffff; --text: #14201f; --muted: #5d6d6b;
+    --line: #d5dfdd; --accent: #0f8f8a; --accent-text: #ffffff; --danger: #b3261e; --ok: #1b7a43;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101716; --card: #17211f; --text: #e6f0ee; --muted: #93a6a3;
+      --line: #2a3a37; --accent: #2cc4bc; --accent-text: #06201e; --danger: #ff8a80; --ok: #6fd69a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  p.sub { margin: 0 0 20px; color: var(--muted); }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px; }
+  label { display: block; font-size: .9rem; color: var(--muted); margin-bottom: 4px; }
+  .fila { display: flex; gap: 8px; flex-wrap: wrap; }
+  input { flex: 1 1 220px; min-width: 0; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button { padding: 10px 16px; border-radius: 8px; border: 0; cursor: pointer; font: inherit;
+    font-weight: 600; background: var(--accent); color: var(--accent-text); }
+  button.suave { background: transparent; color: var(--text); border: 1px solid var(--line); font-weight: 500; }
+  button.borrar { background: transparent; color: var(--danger); border: 1px solid var(--line);
+    padding: 4px 10px; font-weight: 500; }
+  button:disabled { opacity: .55; cursor: default; }
+  #msg { min-height: 1.4em; margin: 10px 0 0; font-size: .95rem; }
+  #msg.ok { color: var(--ok); } #msg.error { color: var(--danger); }
+  .tabla { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; }
+  .vacio { color: var(--muted); padding: 8px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Clientes para el bot</h1>
+  <p class="sub">Lo que agregues aquí lo toma el bot de tu PC y envía la solicitud de amistad desde tus cuentas.</p>
+
+  <section id="acceso">
+    <h2>Clave de administrador</h2>
+    <label for="clave">La misma ADMIN_KEY de tu servidor</label>
+    <div class="fila">
+      <input id="clave" type="password" autocomplete="off">
+      <button id="entrar" type="button">Entrar</button>
+    </div>
+  </section>
+
+  <div id="panel" hidden>
+    <section>
+      <h2>Agregar cliente</h2>
+      <label for="usuario">Nombre de Epic o ID de cuenta (32 caracteres)</label>
+      <div class="fila">
+        <input id="usuario" type="text" maxlength="40" autocomplete="off">
+        <button id="agregar" type="button">Agregar a la cola</button>
+      </div>
+      <p id="msg" role="status"></p>
+    </section>
+
+    <section>
+      <h2>Cola de solicitudes</h2>
+      <div class="fila" style="margin-bottom:8px">
+        <button id="recargar" class="suave" type="button">Actualizar lista</button>
+        <button id="salir" class="suave" type="button">Cerrar sesión</button>
+      </div>
+      <div class="tabla">
+        <table>
+          <thead><tr><th>Usuario</th><th>Plataforma</th><th>Cliente</th><th>Fecha</th><th></th></tr></thead>
+          <tbody id="filas"></tbody>
+        </table>
+      </div>
+      <p id="vacio" class="vacio" hidden>Todavía no hay solicitudes.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var clave = '';
+  try { clave = sessionStorage.getItem('botsAdminKey') || ''; } catch (e) {}
+
+  function mensaje(texto, tipo) {
+    var m = $('msg');
+    m.textContent = texto;
+    m.className = tipo || '';
+  }
+
+  function api(ruta, opciones) {
+    opciones = opciones || {};
+    opciones.headers = Object.assign({ 'Content-Type': 'application/json', 'x-admin-key': clave }, opciones.headers);
+    return fetch(ruta, opciones).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) {
+        if (!r.ok) { var err = new Error(data.error || ('Error ' + r.status)); err.status = r.status; throw err; }
+        return data;
+      });
+    });
+  }
+
+  function cerrarSesion() {
+    clave = '';
+    try { sessionStorage.removeItem('botsAdminKey'); } catch (e) {}
+    $('panel').hidden = true;
+    $('acceso').hidden = false;
+    $('clave').value = '';
+  }
+
+  function cargarLista() {
+    return api('/api/admin/bots-requests').then(function (lista) {
+      $('acceso').hidden = true;
+      $('panel').hidden = false;
+      var cuerpo = $('filas');
+      cuerpo.innerHTML = '';
+      lista.slice().reverse().forEach(function (s) {
+        var tr = document.createElement('tr');
+        [s.username, s.plataforma, s.idCliente, new Date(s.fecha).toLocaleString()].forEach(function (t) {
+          var td = document.createElement('td');
+          td.textContent = t;
+          tr.appendChild(td);
+        });
+        var td = document.createElement('td');
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'borrar'; b.textContent = 'Quitar';
+        b.addEventListener('click', function () {
+          api('/api/admin/bots-requests/' + s.id, { method: 'DELETE' })
+            .then(cargarLista)
+            .catch(function (e) { mensaje(e.message, 'error'); });
+        });
+        td.appendChild(b); tr.appendChild(td);
+        cuerpo.appendChild(tr);
+      });
+      $('vacio').hidden = lista.length > 0;
+    });
+  }
+
+  $('entrar').addEventListener('click', function () {
+    clave = $('clave').value.trim();
+    if (!clave) return;
+    cargarLista().then(function () {
+      try { sessionStorage.setItem('botsAdminKey', clave); } catch (e) {}
+    }).catch(function (e) {
+      clave = '';
+      alert(e.status === 401 ? 'La clave no es correcta.' : e.message);
+    });
+  });
+
+  $('agregar').addEventListener('click', function () {
+    var usuario = $('usuario').value.trim();
+    if (!usuario) { mensaje('Escribe un nombre de Epic o un ID.', 'error'); return; }
+    var esId = /^[0-9a-f]{32}$/i.test(usuario);
+    var boton = $('agregar');
+    boton.disabled = true;
+    mensaje('Verificando...', '');
+    api('/api/bots-request', {
+      method: 'POST',
+      body: JSON.stringify({ idCliente: 'admin', username: usuario, plataforma: esId ? 'iduser' : 'epic' })
+    }).then(function () {
+      $('usuario').value = '';
+      mensaje(usuario + ' quedó en la cola. El bot enviará la solicitud en su próxima revisión.', 'ok');
+      return cargarLista();
+    }).catch(function (e) {
+      mensaje(e.message, 'error');
+    }).then(function () { boton.disabled = false; });
+  });
+
+  $('usuario').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('agregar').click(); });
+  $('clave').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('entrar').click(); });
+  $('recargar').addEventListener('click', function () {
+    cargarLista().catch(function (e) { mensaje(e.message, 'error'); });
+  });
+  $('salir').addEventListener('click', cerrarSesion);
+
+  if (clave) {
+    cargarLista().catch(function () { cerrarSesion(); });
+  }
+})();
+</script>
+</body>
+</html>
