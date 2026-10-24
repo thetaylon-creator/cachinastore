@@ -337,7 +337,7 @@ function limitarBots(req, res, next) {
   next();
 }
 // ---- RUTA PÚBLICA: el cliente registra su solicitud (con verificación) ----
-app.post('/api/bots-request', async (req, res) => {
+app.post('/api/bots-request', limitarBots, async (req, res) => {
   const { idCliente, username, plataforma } = req.body;
   if (!idCliente || !username || !plataforma) {
     return res.status(400).json({ error: 'Faltan datos' });
