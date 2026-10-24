@@ -139,6 +139,11 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
   function hora(f) {
     return new Date(f).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
   }
+  function horaLibre(f) {
+  const d = new Date(f);
+  const mismoDia = d.toDateString() === new Date().toDateString();
+  return (mismoDia ? 'hoy ' : 'mañana ') + hora(d);
+}
 
   function pintarCuentas() {
     const caja = $('cuentas');
@@ -151,8 +156,9 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
       for (let i = 0; i < c.cupo; i++) { const s = document.createElement('i'); if (i < c.usados) s.className = 'on'; barra.appendChild(s); }
       const lib = document.createElement('small'); lib.className = 'libres';
       lib.textContent = c.libres === 0 ? 'Sin cupo' : c.libres + (c.libres === 1 ? ' libre' : ' libres');
-      const info = document.createElement('small');
-      info.textContent = c.libreEn ? 'Se libera a las ' + hora(c.libreEn) : c.usados + ' de ' + c.cupo + ' usados';
+const info = document.createElement('small');
+const prox = (c.liberan || [])[0];
+info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próximo cupo ' + horaLibre(prox) : '');
       el.append(b, barra, lib, info);
       caja.appendChild(el);
     });
@@ -271,7 +277,9 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
     try {
       datos = await api('/api/admin/envios/panel');
       const libres = datos.cupos.reduce((s, c) => s + c.libres, 0);
-      $('resumen').textContent = datos.pedidos.length + ' pedidos por enviar · ' + libres + ' regalos disponibles hoy';
+const proximos = datos.cupos.flatMap(c => c.liberan || []).map(f => new Date(f)).sort((a, b) => a - b);
+$('resumen').textContent = datos.pedidos.length + ' pedidos por enviar · ' + libres + ' regalos disponibles ahora'
+  + (proximos.length ? ' · se habilita otro ' + horaLibre(proximos[0]) : '');
       pintarCuentas(); pintarPedidos();
     } catch (e) { $('resumen').textContent = e.message; }
   }
