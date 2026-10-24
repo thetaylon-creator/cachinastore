@@ -158,22 +158,34 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
     });
   }
 
-  function chipAmistad(desde) {
+  function estadoCuenta(p, cuenta) {
+    const a = (p.amistades || []).find(x => x.cuenta === cuenta);
+    if (!a) return { txt: 'sin datos', listo: false };
+    if (a.estado !== 'amigo') return { txt: 'solicitud pendiente', listo: false };
+    if (!a.desde) return { txt: 'amigo, fecha desconocida', listo: false };
+    const h = (Date.now() - new Date(a.desde).getTime()) / 3600000;
+    if (h >= 48) return { txt: 'lista', listo: true };
+    return { txt: 'faltan ' + Math.ceil(48 - h) + ' h', listo: false };
+  }
+
+  function chipAmistad(p) {
     const c = document.createElement('span');
-    if (!desde) { c.className = 'chip gris'; c.textContent = 'Sin registro de bots'; return c; }
-    const h = (Date.now() - new Date(desde).getTime()) / 3600000;
-    if (h >= 48) { c.className = 'chip ok'; c.textContent = 'Amigo hace +48 h'; }
-    else { c.className = 'chip warn'; c.textContent = 'Faltan ' + Math.ceil(48 - h) + ' h de amistad'; }
+    const listas = datos.cupos.filter(q => estadoCuenta(p, q.cuenta).listo);
+    const conCupo = listas.filter(q => q.libres > 0).map(q => q.cuenta);
+    if (!(p.amistades || []).length) { c.className = 'chip gris'; c.textContent = 'Sin datos del bot'; }
+    else if (conCupo.length) { c.className = 'chip ok'; c.textContent = 'Pueden enviar: ' + conCupo.join(', '); }
+    else if (listas.length) { c.className = 'chip warn'; c.textContent = 'Cuentas listas sin cupo hoy'; }
+    else { c.className = 'chip warn'; c.textContent = 'Ninguna cuenta lista aún'; }
     return c;
   }
 
-  function opcionesCuentas() {
-    // La cuenta con más cupo libre queda elegida por defecto
-    const orden = [...datos.cupos].sort((a, b) => b.libres - a.libres);
+  function opcionesCuentas(p) {
+    const lista = (q) => (estadoCuenta(p, q.cuenta).listo && q.libres > 0) ? 1 : 0;
+    const orden = [...datos.cupos].sort((a, b) => lista(b) - lista(a) || b.libres - a.libres);
     return orden.map(c => {
       const o = document.createElement('option');
       o.value = c.cuenta;
-      o.textContent = c.cuenta + ' (' + c.libres + ' libres)';
+      o.textContent = c.cuenta + ' · ' + estadoCuenta(p, c.cuenta).txt + ' · ' + c.libres + ' libres';
       o.disabled = c.libres === 0;
       return o;
     });
@@ -198,7 +210,7 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
       cp.addEventListener('click', () => { navigator.clipboard?.writeText(p.idFortnite); aviso('ID copiado'); });
       uid.appendChild(cp);
       const quien = document.createElement('span'); quien.className = 'muted'; quien.textContent = p.nombre;
-      cab.append(t, uid, chipAmistad(p.amistadDesde), quien);
+      cab.append(t, uid, chipAmistad(p), quien);
       card.appendChild(cab);
 
       p.items.forEach(i => {
@@ -221,7 +233,7 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
           fila.appendChild(m);
         } else {
           const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Cuenta que envía');
-          opcionesCuentas().forEach(o => sel.appendChild(o));
+          opcionesCuentas(p).forEach(o => sel.appendChild(o));
           const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'btn btn-pri'; ok.textContent = 'Marcar enviado';
           if (datos.cupos.every(c => c.libres === 0)) ok.disabled = true;
           ok.addEventListener('click', async () => {
