@@ -1165,7 +1165,23 @@ app.post('/api/admin/envios/marcar', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'No se pudo registrar el envío.' });
   }
 });
-
+app.post('/api/admin/envios/ajuste', requireAdmin, async (req, res) => {
+  try {
+    const cuenta = String(req.body.cuenta || '');
+    const cantidad = parseInt(req.body.cantidad, 10);
+    if (!CUENTAS_ENVIO.includes(cuenta)) return res.status(400).json({ error: 'Cuenta desconocida.' });
+    if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > CUPO_DIARIO) {
+      return res.status(400).json({ error: 'Cantidad inválida.' });
+    }
+    for (let i = 0; i < cantidad; i++) {
+      await pool.query(`INSERT INTO envios (pedido_id, item, cuenta) VALUES (0, 'Ajuste manual', $1)`, [cuenta]);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[envios] ajuste:', err);
+    res.status(500).json({ error: 'No se pudo ajustar el cupo.' });
+  }
+});
 // Deshacer una marca hecha por error (devuelve el cupo)
 app.delete('/api/admin/envios/:id', requireAdmin, async (req, res) => {
   try {
