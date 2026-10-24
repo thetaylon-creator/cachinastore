@@ -163,7 +163,23 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
       const info = document.createElement('small');
       const prox = (c.liberan || [])[0];
       info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próximo cupo ' + horaLibre(prox) : '');
-      el.append(b, barra, lib, info);
+      const aj = document.createElement('button');
+      aj.type = 'button'; aj.className = 'btn';
+      aj.style.cssText = 'margin-top:8px;padding:5px 10px;font-size:12px';
+      aj.textContent = 'Ajustar';
+      aj.addEventListener('click', async () => {
+        const r = prompt('¿Cuántos regalos te quedan en ' + c.cuenta + ' según el juego?', c.libres);
+        if (r === null) return;
+        const real = parseInt(r, 10);
+        if (!Number.isInteger(real) || real < 0 || real > c.cupo) { aviso('Número inválido'); return; }
+        const extra = c.libres - real;
+        if (extra <= 0) { aviso('El panel ya muestra ' + c.libres + ' o menos'); return; }
+        try {
+          await api('/api/admin/envios/ajuste', { method: 'POST', body: JSON.stringify({ cuenta: c.cuenta, cantidad: extra }) });
+          aviso('Cupo ajustado'); cargar();
+        } catch (e) { aviso(e.message); }
+      });
+      el.append(b, barra, lib, info, aj);
       caja.appendChild(el);
     });
   }
