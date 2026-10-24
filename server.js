@@ -1035,7 +1035,48 @@ async function cuposActuales() {
     return { cuenta, usados, libres: Math.max(CUPO_DIARIO - usados, 0), cupo: CUPO_DIARIO, libreEn };
   });
 }
+// ============ AMISTADES REPORTADAS POR EL BOT ============
+async function ensureAmistadesTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS amistades (
+      cuenta VARCHAR(60) NOT NULL,
+      cliente_id VARCHAR(64) NOT NULL,
+      cliente_nombre VARCHAR(100) NOT NULL,
+      estado VARCHAR(12) NOT NULL,
+      desde TIMESTAMPTZ,
+      actualizado TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (cuenta, cliente_id)
+    );
+  `);
+}
+ensureAmistadesTable().catch(err => console.error('Error creando tabla amistades:', err));
 
+app.post('/api/admin/amistades/reportar', requireAdmin, async (req, res) => {
+  try {
+    const cuenta = String(req.body.cuenta || '');
+    if (!CUENTAS_ENVIO.includes(cuenta)) return res.status(400).json({ error: 'Cuenta desconocida.' });
+    const lista = Array.isArray(req.body.clientes) ? req.body.clientes.slice(0, 500) : [];
+    for (const c of lista) {
+      const id = String(c.id || '').slice(0, 64);
+      const nombre = String(c.nombre || '').slice(0, 100);
+      if (!id || !nombre) continue;
+      const estado = c.estado === 'amigo' ? 'amigo' : 'pendiente';
+      let desde = c.desde ? new Date(c.desde) : null;
+      if (desde && isNaN(desde.getTime())) desde = null;
+      await pool.query(
+        `INSERT INTO amistades (cuenta, cliente_id, cliente_nombre, estado, desde)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (cuenta, cliente_id)
+         DO UPDATE SET cliente_nombre = $3, estado = $4, desde = $5, actualizado = now()`,
+        [cuenta, id, nombre, estado, desde]
+      );
+    }
+    res.json({ success: true, recibidos: lista.length });
+  } catch (err) {
+    console.error('[amistades] reportar:', err);
+    res.status(500).json({ error: 'No se pudo guardar el reporte.' });
+  }
+});
 // Pedidos aprobados pendientes + cupo de cada cuenta
 app.get('/api/admin/envios/panel', requireAdmin, async (req, res) => {
   try {
@@ -1051,12 +1092,16 @@ app.get('/api/admin/envios/panel', requireAdmin, async (req, res) => {
       ? await pool.query(`SELECT id, pedido_id, item, cuenta, fecha FROM envios WHERE pedido_id = ANY($1)`, [ids])
       : { rows: [] };
 
-    // Cuándo pidió agregar los bots cada cliente (para la regla de 48 horas)
-    const bots = await pool.query(`SELECT LOWER(id_cliente) AS id, MIN(fecha) AS desde FROM bots_requests GROUP BY LOWER(id_cliente)`);
-    const amistad = new Map(bots.rows.map(b => [b.id, b.desde]));
+    // Amistades reales que reporta el bot (por cuenta)
+    const am = await pool.query(
+      `SELECT cuenta, LOWER(cliente_id) AS cid, LOWER(cliente_nombre) AS cnombre, estado, desde FROM amistades`
+    );
 
     const pedidos = ped.rows.map(p => {
-      const desde = amistad.get(String(p.idFortnite || '').toLowerCase()) || amistad.get(String(p.email || '').toLowerCase()) || null;
+      const clave = String(p.idFortnite || '').trim().toLowerCase();
+      const amistades = am.rows
+        .filter(a => clave && (a.cid === clave || a.cnombre === clave))
+        .map(a => ({ cuenta: a.cuenta, estado: a.estado, desde: a.desde }));
       const items = (p.items || []).map(i => {
         const e = env.rows.find(x => x.pedido_id === p.id && x.item === i.nombre);
         return {
@@ -1069,7 +1114,7 @@ app.get('/api/admin/envios/panel', requireAdmin, async (req, res) => {
       });
       return {
         id: p.id, ticket: ticketDe(p.id), nombre: p.nombre, idFortnite: p.idFortnite,
-        fecha: p.fecha, amistadDesde: desde, items
+        fecha: p.fecha, amistades, items
       };
     });
 
