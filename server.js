@@ -325,6 +325,17 @@ app.get('/api/verificar-usuario', async (req, res) => {
     res.status(502).json({ error: 'No se pudo verificar ahora. Intenta de nuevo en unos segundos.' });
   }
 });
+const _botsHits = new Map();
+function limitarBots(req, res, next) {
+  const ahora = Date.now();
+  const hits = (_botsHits.get(req.ip) || []).filter(t => ahora - t < 60 * 60 * 1000);
+  if (hits.length >= 10) {
+    return res.status(429).json({ error: 'Demasiadas solicitudes. Intenta de nuevo más tarde.' });
+  }
+  hits.push(ahora);
+  _botsHits.set(req.ip, hits);
+  next();
+}
 // ---- RUTA PÚBLICA: el cliente registra su solicitud (con verificación) ----
 app.post('/api/bots-request', async (req, res) => {
   const { idCliente, username, plataforma } = req.body;
