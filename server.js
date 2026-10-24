@@ -1022,17 +1022,18 @@ ensureEnviosTable().catch(err => console.error('Error creando tabla envios:', er
 
 async function cuposActuales() {
   const { rows } = await pool.query(
-    `SELECT cuenta, COUNT(*)::int AS usados, MIN(fecha) AS primera
-     FROM envios WHERE fecha > now() - interval '24 hours' GROUP BY cuenta`
+    `SELECT cuenta, fecha FROM envios
+     WHERE fecha > now() - interval '24 hours' ORDER BY fecha ASC`
   );
-  const mapa = new Map(rows.map(r => [r.cuenta, r]));
   return CUENTAS_ENVIO.map(cuenta => {
-    const r = mapa.get(cuenta);
-    const usados = r ? r.usados : 0;
-    const libreEn = usados >= CUPO_DIARIO && r
-      ? new Date(new Date(r.primera).getTime() + 24 * 60 * 60 * 1000)
-      : null;
-    return { cuenta, usados, libres: Math.max(CUPO_DIARIO - usados, 0), cupo: CUPO_DIARIO, libreEn };
+    const fechas = rows.filter(r => r.cuenta === cuenta).map(r => new Date(r.fecha).getTime());
+    const usados = fechas.length;
+    const liberan = fechas.map(t => new Date(t + 24 * 60 * 60 * 1000));
+    return {
+      cuenta, usados, libres: Math.max(CUPO_DIARIO - usados, 0), cupo: CUPO_DIARIO,
+      libreEn: usados >= CUPO_DIARIO ? liberan[0] : null,
+      liberan
+    };
   });
 }
 // ============ AMISTADES REPORTADAS POR EL BOT ============
