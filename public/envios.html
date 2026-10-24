@@ -98,6 +98,9 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
   <h2>Cupo de hoy por cuenta</h2>
   <div class="cuentas" id="cuentas"></div>
 
+  <h2>Plan de envío por cuenta</h2>
+  <div id="plan"></div>
+
   <h2>Pedidos aprobados por enviar</h2>
   <div id="pedidos"></div>
 </div>
@@ -139,11 +142,12 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
   function hora(f) {
     return new Date(f).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
   }
+
   function horaLibre(f) {
-  const d = new Date(f);
-  const mismoDia = d.toDateString() === new Date().toDateString();
-  return (mismoDia ? 'hoy ' : 'mañana ') + hora(d);
-}
+    const d = new Date(f);
+    const mismoDia = d.toDateString() === new Date().toDateString();
+    return (mismoDia ? 'hoy ' : 'mañana ') + hora(d);
+  }
 
   function pintarCuentas() {
     const caja = $('cuentas');
@@ -156,9 +160,9 @@ select{background:#0d0819;color:var(--txt);border:1px solid var(--line);border-r
       for (let i = 0; i < c.cupo; i++) { const s = document.createElement('i'); if (i < c.usados) s.className = 'on'; barra.appendChild(s); }
       const lib = document.createElement('small'); lib.className = 'libres';
       lib.textContent = c.libres === 0 ? 'Sin cupo' : c.libres + (c.libres === 1 ? ' libre' : ' libres');
-const info = document.createElement('small');
-const prox = (c.liberan || [])[0];
-info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próximo cupo ' + horaLibre(prox) : '');
+      const info = document.createElement('small');
+      const prox = (c.liberan || [])[0];
+      info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próximo cupo ' + horaLibre(prox) : '');
       el.append(b, barra, lib, info);
       caja.appendChild(el);
     });
@@ -194,6 +198,81 @@ info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próxim
       o.textContent = c.cuenta + ' · ' + estadoCuenta(p, c.cuenta).txt + ' · ' + c.libres + ' libres';
       o.disabled = c.libres === 0;
       return o;
+    });
+  }
+
+  function planificar() {
+    const libres = {};
+    datos.cupos.forEach(c => { libres[c.cuenta] = c.libres; });
+    const plan = {};
+    datos.pedidos.forEach(p => {
+      p.items.forEach(i => {
+        if (i.enviadoPor || !i.regalable) return;
+        const conCupo = datos.cupos.filter(c => libres[c.cuenta] > 0);
+        const listas = conCupo.filter(c => estadoCuenta(p, c.cuenta).listo);
+        const sinDatos = !(p.amistades || []).length;
+        const elegida = listas[0] || (sinDatos ? conCupo[0] : null);
+        if (!elegida) return;
+        libres[elegida.cuenta]--;
+        (plan[elegida.cuenta] = plan[elegida.cuenta] || []).push({ p, i });
+      });
+    });
+    return plan;
+  }
+
+  function pintarPlan() {
+    const caja = $('plan');
+    caja.innerHTML = '';
+    const plan = planificar();
+    const cuentas = Object.keys(plan);
+    if (!cuentas.length) {
+      const v = document.createElement('div'); v.className = 'vacio';
+      v.textContent = 'No hay regalos listos para enviar ahora.';
+      caja.appendChild(v); return;
+    }
+    cuentas.forEach(cuenta => {
+      const lista = plan[cuenta];
+      const card = document.createElement('article'); card.className = 'pedido';
+
+      const cab = document.createElement('div'); cab.className = 'cab';
+      const t = document.createElement('span'); t.className = 'ticket'; t.textContent = cuenta;
+      const n = document.createElement('span'); n.className = 'muted';
+      n.textContent = lista.length + (lista.length === 1 ? ' regalo' : ' regalos');
+      cab.append(t, n); card.appendChild(cab);
+
+      lista.forEach(({ p, i }) => {
+        const fila = document.createElement('div'); fila.className = 'item';
+        if (i.imagen) { const im = document.createElement('img'); im.src = i.imagen; im.alt = ''; im.loading = 'lazy'; fila.appendChild(im); }
+        const nom = document.createElement('div'); nom.className = 'nom'; nom.textContent = i.nombre;
+        const sm = document.createElement('small'); sm.textContent = p.ticket + ' · ' + p.nombre;
+        nom.appendChild(sm);
+        const uid = document.createElement('span'); uid.className = 'uid';
+        uid.append(document.createTextNode(p.idFortnite + ' '));
+        const cp = document.createElement('button'); cp.type = 'button'; cp.textContent = 'Copiar';
+        cp.addEventListener('click', () => { navigator.clipboard?.writeText(p.idFortnite); aviso('ID copiado'); });
+        uid.appendChild(cp);
+        fila.append(nom, uid); card.appendChild(fila);
+      });
+
+      const pie = document.createElement('div'); pie.className = 'pie';
+      const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'btn btn-pri';
+      ok.textContent = 'Ya envié estos ' + lista.length + ' desde ' + cuenta;
+      ok.addEventListener('click', async () => {
+        if (!confirm('¿Ya enviaste los ' + lista.length + ' regalos desde ' + cuenta + '?')) return;
+        ok.disabled = true;
+        try {
+          for (const { p, i } of lista) {
+            await api('/api/admin/envios/marcar', {
+              method: 'POST',
+              body: JSON.stringify({ pedidoId: p.id, item: i.nombre, cuenta })
+            });
+          }
+          aviso('Envíos registrados');
+        } catch (e) { aviso(e.message); }
+        cargar();
+      });
+      pie.appendChild(ok); card.appendChild(pie);
+      caja.appendChild(card);
     });
   }
 
@@ -277,10 +356,10 @@ info.textContent = c.usados + ' de ' + c.cupo + ' usados' + (prox ? ' · próxim
     try {
       datos = await api('/api/admin/envios/panel');
       const libres = datos.cupos.reduce((s, c) => s + c.libres, 0);
-const proximos = datos.cupos.flatMap(c => c.liberan || []).map(f => new Date(f)).sort((a, b) => a - b);
-$('resumen').textContent = datos.pedidos.length + ' pedidos por enviar · ' + libres + ' regalos disponibles ahora'
-  + (proximos.length ? ' · se habilita otro ' + horaLibre(proximos[0]) : '');
-      pintarCuentas(); pintarPedidos();
+      const proximos = datos.cupos.flatMap(c => c.liberan || []).map(f => new Date(f)).sort((a, b) => a - b);
+      $('resumen').textContent = datos.pedidos.length + ' pedidos por enviar · ' + libres + ' regalos disponibles ahora'
+        + (proximos.length ? ' · se habilita otro ' + horaLibre(proximos[0]) : '');
+      pintarCuentas(); pintarPlan(); pintarPedidos();
     } catch (e) { $('resumen').textContent = e.message; }
   }
 
